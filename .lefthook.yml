@@ -1,0 +1,81 @@
+# ==============================================================================
+# PRANAKAIA E-COMMERCE - GIT HOOKS ORCHESTRATION (LEFTHOOK)
+# ==============================================================================
+# Role: Multi-stage Quality Gates & Automation
+# Tier: Absolute Zero (S+)
+# Compliance: Enterprise Zero-Defect Policy
+# Last Updated: 2026-05-06
+# ==============================================================================
+
+# Commit Message Validation
+commit-msg:
+  commands:
+    "Conventional Commits":
+      run: pnpm exec commitlint --edit {1}
+
+# Pre-commit: Atomic Quality Checks
+pre-commit:
+  parallel: true
+  commands:
+    "Biome Check":
+      glob: "*.{ts,tsx,js,jsx,json,css,md}"
+      run: pnpm biome check --write --no-errors-on-unmatched {staged_files}
+      stage_fixed: true
+      priority: 1
+
+    "Type Check":
+      glob: "*.{ts,tsx}"
+      run: pnpm type-check
+      priority: 2
+
+    "Dead Code Audit":
+      run: pnpm knip --no-exit-code
+      priority: 3
+
+    "Agents Validation":
+      glob: ".agents/**/*.md"
+      run: pnpm agents:validate
+      priority: 4
+
+    "Tools Integrity":
+      run: pnpm tools:audit:check
+      priority: 5
+
+    "Security Secrets Check":
+      glob: "*.{ts,tsx,js,json,yaml,yml,env}"
+      run: pnpm security:secrets:check || pnpm exec lefthook run pre-commit-security
+      priority: 6
+
+# Pre-push: Global Integrity Verification
+pre-push:
+  parallel: false
+  commands:
+    "Staff Audit":
+      run: pnpm staff:audit:strict
+
+    "Unit Testing":
+      run: pnpm test:unit
+
+    "Build Verification":
+      run: pnpm build
+
+    "Security Audit":
+      run: pnpm security:audit
+
+    "Dependency Audit":
+      run: pnpm audit
+
+    "Performance Budget":
+      run: pnpm perf:budget:check
+
+# Post-merge: Environment Synchronization
+post-merge:
+  commands:
+    "Dependency Sync":
+      run: git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD | grep -q "package.json" && pnpm install || exit 0
+
+# Post-checkout: Cache Management
+post-checkout:
+  commands:
+    "Daemon Reset":
+      run: pnpm turbo daemon restart || exit 0

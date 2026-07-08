@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "incremental": false,
+    "paths": {
+      "@pranakaia/checkout": ["./src/index.ts"],
+      "@pranakaia/checkout/*": ["./src/*"],
+      "@pranakaia/catalog": ["../catalog/src/index.ts"],
+      "@pranakaia/shared-kernel": ["../shared-kernel/src/index.ts"],
+      "@pranakaia/inventory": ["../inventory/src/index.ts"],
+      "@pranakaia/cart": ["../cart/src/index.ts"],
+      "@pranakaia/pricing": ["../pricing/src/index.ts"],
+      "@pranakaia/payments": ["../payments/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.*", "**/__tests__/**"]
+}

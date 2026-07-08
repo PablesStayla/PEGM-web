@@ -1,0 +1,57 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/tsdoc/v1.14/texdoc.json",
+  "_metadata": {
+    "project": "PranaKaia E-Commerce",
+    "role": "TSDoc Specification",
+    "tier": "Absolute Zero (S+)",
+    "compliance": "SOTA Absolute Zero"
+  },
+  "extends": ["@microsoft/tsdoc-config/default"],
+  "tagDefinitions": [
+    {
+      "tagName": "@domain",
+      "syntaxKind": "block",
+      "releaseTag": "public"
+    },
+    {
+      "tagName": "@aggregate",
+      "syntaxKind": "block",
+      "releaseTag": "public"
+    },
+    {
+      "tagName": "@valueObject",
+      "syntaxKind": "block",
+      "releaseTag": "public"
+    },
+    {
+      "tagName": "@entity",
+      "syntaxKind": "block",
+      "releaseTag": "public"
+    },
+    {
+      "tagName": "@repository",
+      "syntaxKind": "block",
+      "releaseTag": "public"
+    },
+    {
+      "tagName": "@usecase",
+      "syntaxKind": "block",
+      "releaseTag": "public"
+    },
+    {
+      "tagName": "@boundedContext",
+      "syntaxKind": "block",
+      "releaseTag": "public"
+    },
+    {
+      "tagName": "@invariant",
+      "syntaxKind": "block",
+      "releaseTag": "public"
+    },
+    {
+      "tagName": "@example",
+      "syntaxKind": "block",
+      "releaseTag": "public"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "ignore-bin-package": false,
+  "skip-missing": false,
+  "ignore-patterns": ["dist", "node_modules", "public", "*.test.ts", "*.spec.ts"],
+  "ignore-matches": ["@types/*", "vitest", "tsup", "tsx", "typescript"]
+}

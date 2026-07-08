@@ -1,0 +1,136 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { type DomainEvent, EventBus, type EventHandler } from './event-bus';
+
+describe('EventBus', () => {
+  let eventBus: EventBus;
+
+  beforeEach(() => {
+    eventBus = new EventBus({ enableLogging: false });
+  });
+
+  const createTestEvent = (type: string, aggregateId: string = '123'): DomainEvent => ({
+    type,
+    aggregateId,
+    occurredAt: new Date(),
+    correlationId: 'corr-1',
+    payload: { foo: 'bar' },
+  });
+
+  it('should allow subscribing to and publishing events', async () => {
+    const handler: EventHandler = {
+      eventType: 'test.event',
+      handle: vi.fn().mockResolvedValue(undefined),
+    };
+
+    eventBus.subscribe('test.event', handler);
+    const event = createTestEvent('test.event');
+
+    const results = await eventBus.publish(event);
+
+    expect(results).toHaveLength(1);
+    expect(results[0].success).toBe(true);
+    expect(handler.handle).toHaveBeenCalledWith(event);
+  });
+
+  it('should handle multiple subscribers with priorities', async () => {
+    const callOrder: string[] = [];
+
+    const handlerLow: EventHandler = {
+      eventType: 'test.event',
+      handle: async () => {
+        callOrder.push('low');
+      },
+    };
+
+    const handlerHigh: EventHandler = {
+      eventType: 'test.event',
+      handle: async () => {
+        callOrder.push('high');
+      },
+    };
+
+    eventBus.subscribe('test.event', handlerLow, 1);
+    eventBus.subscribe('test.event', handlerHigh, 10);
+
+    await eventBus.publish(createTestEvent('test.event'));
+
+    expect(callOrder).toEqual(['high', 'low']);
+  });
+
+  it('should retry failed handlers', async () => {
+    const handler: EventHandler = {
+      eventType: 'test.event',
+      handle: vi
+        .fn()
+        .mockRejectedValueOnce(new Error('fail 1'))
+        .mockRejectedValueOnce(new Error('fail 2'))
+        .mockResolvedValue(undefined),
+    };
+
+    const busWithRetry = new EventBus({
+      maxRetries: 3,
+      retryDelayMs: 1,
+      enableLogging: false,
+    });
+
+    busWithRetry.subscribe('test.event', handler);
+
+    const results = await busWithRetry.publish(createTestEvent('test.event'));
+
+    expect(results[0].success).toBe(true);
+    expect(handler.handle).toHaveBeenCalledTimes(3);
+  });
+
+  it('should stop propagation if a high priority handler fails', async () => {
+    const handlerCritical: EventHandler = {
+      eventType: 'test.event',
+      handle: vi.fn().mockRejectedValue(new Error('critical failure')),
+    };
+
+    const handlerNormal: EventHandler = {
+      eventType: 'test.event',
+      handle: vi.fn().mockResolvedValue(undefined),
+    };
+
+    // Use Number.MAX_SAFE_INTEGER for critical handlers that stop propagation on failure
+    eventBus.subscribe('test.event', handlerCritical, Number.MAX_SAFE_INTEGER);
+    eventBus.subscribe('test.event', handlerNormal, 1);
+
+    const results = await eventBus.publish(createTestEvent('test.event'));
+
+    expect(results).toHaveLength(1); // Only the first one executed
+    expect(results[0].success).toBe(false);
+    expect(handlerNormal.handle).not.toHaveBeenCalled();
+  });
+
+  it('should allow unsubscribing', async () => {
+    const handler: EventHandler = {
+      eventType: 'test.event',
+      handle: vi.fn().mockResolvedValue(undefined),
+    };
+
+    const unsubscribe = eventBus.subscribe('test.event', handler);
+    unsubscribe();
+
+    await eventBus.publish(createTestEvent('test.event'));
+
+    expect(handler.handle).not.toHaveBeenCalled();
+    expect(eventBus.getSubscriberCount('test.event')).toBe(0);
+  });
+
+  it('should publish multiple events in sequence', async () => {
+    const handler: EventHandler = {
+      eventType: 'test.event',
+      handle: vi.fn().mockResolvedValue(undefined),
+    };
+
+    eventBus.subscribe('test.event', handler);
+
+    const events = [createTestEvent('test.event', '1'), createTestEvent('test.event', '2')];
+
+    const results = await eventBus.publishAll(events);
+
+    expect(results).toHaveLength(2);
+    expect(handler.handle).toHaveBeenCalledTimes(2);
+  });
+});

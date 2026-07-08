@@ -1,0 +1,64 @@
+# 🎭 Reusable E2E Workflow - Absolute Zero
+# ─────────────────────────────────────────────────
+# Propósito: Ejecutar tests de punta a punta con Playwright
+# Owner: @qa-team
+# ─────────────────────────────────────────────────
+
+name: 🎭 E2E Tests
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version'
+        type: string
+        default: '24'
+      pnpm-version:
+        description: 'PNPM version'
+        type: string
+        default: '9'
+      workspace:
+        description: 'Workspace to test (e.g. web, admin)'
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: '🎭 E2E: ${{ inputs.workspace }}'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: ⚙️ Setup
+        uses: ./.github/actions/setup
+        with:
+          node-version: ${{ inputs.node-version }}
+          pnpm-version: ${{ inputs.pnpm-version }}
+
+      - name: 📁 Setup Turbo Cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      - name: 🎭 Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+        working-directory: apps/${{ inputs.workspace }}
+
+      - name: 🏃 Run E2E Tests
+        run: pnpm turbo test:e2e --filter=${{ inputs.workspace }}
+        env:
+          DATABASE_URL: 'postgresql://test:test@localhost:5432/test'
+          NEXT_PUBLIC_API_URL: 'http://localhost:3000/api'
+
+      - name: 📊 Upload Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ inputs.workspace }}-${{ github.run_id }}
+          path: apps/${{ inputs.workspace }}/playwright-report/
+          retention-days: 30

@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "incremental": false,
+    "composite": false,
+    "declaration": true,
+    "declarationMap": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "paths": {
+      "@pranakaia/cart": ["./src/index.ts"],
+      "@pranakaia/cart/*": ["./src/*"],
+      "@pranakaia/shared-kernel": ["../shared-kernel/src/index.ts"],
+      "@pranakaia/catalog": ["../catalog/src/index.ts"],
+      "@pranakaia/db": ["../db/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.*", "**/__tests__/**"]
+}

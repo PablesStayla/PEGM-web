@@ -1,0 +1,22 @@
+{
+  "recommendations": [
+    "biomejs.biome",
+    "yoavbls.pretty-ts-errors",
+    "usernamehw.errorlens",
+    "vitest.explorer",
+    "ms-playwright.playwright",
+    "tamasfe.even-better-toml",
+    "irongeek.vscode-env",
+    "Prisma.prisma",
+    "t3-oss.t3-env-vscode",
+    "bradlc.vscode-tailwindcss",
+    "GitHub.vscode-github-actions",
+    "GitHub.copilot",
+    "GitHub.copilot-chat",
+    "eamodio.gitlens",
+    "christian-kohler.npm-intellisense",
+    "ms-azuretools.vscode-docker",
+    "supermaven.supermaven",
+    "dbaeumer.vscode-eslint"
+  ]
+}

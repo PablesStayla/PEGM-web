@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "composite": false,
+    "declaration": true,
+    "declarationMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@pranakaia/supplier": ["./src/index.ts"],
+      "@pranakaia/supplier/*": ["./src/*"],
+      "@pranakaia/shared-kernel": ["../shared-kernel/src/index.ts"],
+      "@pranakaia/catalog": ["../catalog/src/index.ts"],
+      "@pranakaia/inventory": ["../inventory/src/index.ts"],
+      "@pranakaia/checkout": ["../checkout/src/index.ts"],
+      "@pranakaia/logistics": ["../logistics/src/index.ts"]
+    },
+    "incremental": false
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.*", "**/__tests__/**"]
+}

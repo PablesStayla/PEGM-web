@@ -1,0 +1,73 @@
+# Dependencies
+**/node_modules
+**/.pnpm-store
+**/.turbo
+
+# Testing
+**/coverage
+**/.nyc_output
+**/*.log
+**/test-results
+**/playwright-report
+
+# Build
+**/.next
+**/out
+**/dist
+**/build
+
+# Env files (will be set in Vercel dashboard)
+.env
+.env.local
+.env*.local
+
+# IDE
+**/.vscode
+**/.idea
+**/*.swp
+**/*.swo
+**/*~
+
+# OS
+**/.DS_Store
+**/Thumbs.db
+
+# Docs & Misc
+docs
+**/*.md
+!README.md
+CHANGELOG.md
+LICENSE
+
+# Scripts
+scripts
+e2e
+**/.storybook
+**/.husky
+
+# Config files not needed in production
+.editorconfig
+.prettierrc
+.prettierignore
+commitlint.config.cjs
+.releaserc.js
+vitest.config.ts
+playwright.config.ts
+
+# Infrastructure
+infra
+docker
+.agents
+.playwright-mcp
+.swarm
+.config
+.devcontainer
+.tool-versions
+biome.json
+knip.json
+Makefile
+# tsconfig.json is usually needed for build
+# pnpm files are definitely needed
+# pnpm-lock.yaml
+# pnpm-workspace.yaml
+skills-lock.json

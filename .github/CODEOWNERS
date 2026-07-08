@@ -1,0 +1,61 @@
+# 🛡️ Code Owners - Absolute Zero Governance
+# ─────────────────────────────────────────────────
+# Propósito: Control de revisión y aprobación por dominio
+# Owner: @PablesStayla
+# Status: Production Grade S (Superior)
+# ─────────────────────────────────────────────────
+
+# 🔐 GLOBAL MAINTAINERS
+# Dueños generales del ecosistema
+*                                       @PablesStayla
+
+# 🏗️ CORE ARCHITECTURE & CONFIG
+# Cambios en la base del monorepo y orquestación
+/package.json                           @PablesStayla
+/pnpm-lock.yaml                         @PablesStayla
+/turbo.json                             @PablesStayla
+/biome.json                             @PablesStayla
+/pnpm-workspace.yaml                    @PablesStayla
+/AGENTS.md                              @PablesStayla
+
+# 🛡️ DEVOPS & SECURITY
+# Infraestructura, CI/CD y políticas de seguridad
+/.github/                               @PablesStayla
+/.github/workflows/                     @PablesStayla
+/.github/actions/                       @PablesStayla
+/.github/CODEOWNERS                     @PablesStayla
+/scripts/security/                      @PablesStayla
+/SECURITY.md                            @PablesStayla
+/.gitleaks.toml                         @PablesStayla
+
+# 🏢 APPS (B2C & Admin)
+# Lógica de presentación y orquestación de aplicaciones
+/apps/web/                              @PablesStayla
+/apps/admin/                            @PablesStayla
+/apps/api/                              @PablesStayla
+
+# 📦 PACKAGES (Shared logic & DDD)
+# El corazón del dominio y utilerías compartidas
+/packages/core-domain/                  @PablesStayla
+/packages/db/                           @PablesStayla
+/packages/config/                       @PablesStayla
+/packages/ui/                           @PablesStayla
+/packages/utils/                        @PablesStayla
+
+# 🗄️ DATABASE & INFRA
+# Esquemas, migraciones y configuración de nube
+/packages/db/src/schema/                @PablesStayla
+/supabase/                              @PablesStayla
+/infra/                                 @PablesStayla
+
+# 🧪 QUALITY ASSURANCE
+# Tests E2E, contratos y reportes
+/e2e/                                   @PablesStayla
+/contracts/                             @PablesStayla
+/tests/                                 @PablesStayla
+
+# 📚 DOCUMENTATION
+# Manuales, ADRs y guías
+/docs/                                  @PablesStayla
+/ADRs/                                  @PablesStayla
+/CHANGELOG.md                           @PablesStayla

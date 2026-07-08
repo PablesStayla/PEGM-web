@@ -1,0 +1,298 @@
+#!/usr/bin/env node
+
+/**
+ * Database Backup & Restore Utilities
+ *
+ * Shopify-level database automation for production safety
+ */
+
+import { execSync } from 'node:child_process';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { getEnv } from '@pranakaia/config';
+
+const BACKUP_DIR = join(process.cwd(), 'backups');
+
+interface BackupOptions {
+  environment: 'production' | 'staging' | 'preview';
+  reason?: string;
+  compress?: boolean;
+}
+
+interface RestoreOptions {
+  backupPath: string;
+  confirm: boolean;
+}
+
+/**
+ * Create database backup
+ */
+async function createBackup(options: BackupOptions): Promise<string> {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const backupName = `backup-${options.environment}-${timestamp}`;
+  const backupPath = join(BACKUP_DIR, backupName);
+
+  // Ensure backup directory exists
+  if (!existsSync(BACKUP_DIR)) {
+    mkdirSync(BACKUP_DIR, { recursive: true });
+  }
+
+  console.log(`📦 Creating backup: ${backupName}`);
+  console.log(`Environment: ${options.environment}`);
+  if (options.reason) {
+    console.log(`Reason: ${options.reason}`);
+  }
+
+  try {
+    // For PostgreSQL (Supabase)
+    const env = getEnv();
+    const databaseUrl = env.DATABASE_URL;
+    if (!databaseUrl) {
+      throw new Error('DATABASE_URL not found in environment');
+    }
+
+    // Extract connection details
+    const url = new URL(databaseUrl);
+    const host = url.hostname;
+    const port = url.port || '5432';
+    const database = url.pathname.slice(1);
+    const user = url.username;
+    const password = url.password;
+
+    // Create pg_dump command
+    const dumpFile = `${backupPath}.sql`;
+    const command = `PGPASSWORD="${password}" pg_dump -h ${host} -p ${port} -U ${user} -d ${database} -F p -f "${dumpFile}"`;
+
+    console.log('🔄 Running pg_dump...');
+    execSync(command, { stdio: 'inherit' });
+
+    // Compress if requested
+    if (options.compress) {
+      console.log('🗜️ Compressing backup...');
+      execSync(`gzip "${dumpFile}"`, { stdio: 'inherit' });
+      console.log(`✅ Backup compressed: ${dumpFile}.gz`);
+      return `${dumpFile}.gz`;
+    }
+
+    // Save metadata
+    const metadata = {
+      name: backupName,
+      environment: options.environment,
+      timestamp: new Date().toISOString(),
+      reason: options.reason || 'Manual backup',
+      size: execSync(`du -h "${dumpFile}"`).toString().split('\t')[0],
+    };
+
+    writeFileSync(`${backupPath}.json`, JSON.stringify(metadata, null, 2));
+
+    console.log(`✅ Backup created successfully: ${dumpFile}`);
+    console.log(`📊 Metadata: ${backupPath}.json`);
+
+    return dumpFile;
+  } catch (error) {
+    console.error('❌ Backup failed:', error);
+    throw error;
+  }
+}
+
+/**
+ * Restore database from backup
+ */
+async function restoreBackup(options: RestoreOptions): Promise<void> {
+  if (!options.confirm) {
+    console.error('❌ Restore aborted: confirmation not provided');
+    console.log('Use --confirm flag to confirm restore operation');
+    process.exit(1);
+  }
+
+  if (!existsSync(options.backupPath)) {
+    throw new Error(`Backup file not found: ${options.backupPath}`);
+  }
+
+  console.log('⚠️ WARNING: This will replace the current database!');
+  console.log(`Backup file: ${options.backupPath}`);
+  console.log('Starting restore in 5 seconds... (Ctrl+C to cancel)');
+
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+
+  try {
+    const env = getEnv();
+    const databaseUrl = env.DATABASE_URL;
+    if (!databaseUrl) {
+      throw new Error('DATABASE_URL not found in environment');
+    }
+
+    const url = new URL(databaseUrl);
+    const host = url.hostname;
+    const port = url.port || '5432';
+    const database = url.pathname.slice(1);
+    const user = url.username;
+    const password = url.password;
+
+    // Decompress if needed
+    let sqlFile = options.backupPath;
+    if (options.backupPath.endsWith('.gz')) {
+      console.log('🗜️ Decompressing backup...');
+      execSync(`gunzip -c "${options.backupPath}" > /tmp/restore.sql`, { stdio: 'inherit' });
+      sqlFile = '/tmp/restore.sql';
+    }
+
+    // Restore using psql
+    const command = `PGPASSWORD="${password}" psql -h ${host} -p ${port} -U ${user} -d ${database} -f "${sqlFile}"`;
+
+    console.log('🔄 Restoring database...');
+    execSync(command, { stdio: 'inherit' });
+
+    console.log('✅ Database restored successfully');
+  } catch (error) {
+    console.error('❌ Restore failed:', error);
+    throw error;
+  }
+}
+
+/**
+ * List available backups
+ */
+function listBackups(): void {
+  if (!existsSync(BACKUP_DIR)) {
+    console.log('No backups directory found');
+    return;
+  }
+
+  console.log(`📋 Available backups in ${BACKUP_DIR}:\n`);
+
+  try {
+    const files = execSync(
+      `ls -lh "${BACKUP_DIR}"/*.sql* "${BACKUP_DIR}"/*.json 2>/dev/null || true`,
+    )
+      .toString()
+      .trim();
+
+    if (!files) {
+      console.log('No backups found');
+      return;
+    }
+
+    console.log(files);
+  } catch (_error) {
+    console.log('No backups found');
+  }
+}
+
+/**
+ * Verify backup integrity
+ */
+async function verifyBackup(backupPath: string): Promise<boolean> {
+  if (!existsSync(backupPath)) {
+    console.error(`❌ Backup file not found: ${backupPath}`);
+    return false;
+  }
+
+  console.log(`🔍 Verifying backup integrity: ${backupPath}`);
+
+  try {
+    // Check if compressed
+    if (backupPath.endsWith('.gz')) {
+      console.log('Testing gzip integrity...');
+      execSync(`gzip -t "${backupPath}"`, { stdio: 'inherit' });
+    }
+
+    // Check SQL syntax (basic)
+    console.log('Checking SQL syntax...');
+    let sqlFile = backupPath;
+    if (backupPath.endsWith('.gz')) {
+      sqlFile = '/tmp/verify.sql';
+      execSync(`gunzip -c "${backupPath}" > ${sqlFile}`, { stdio: 'inherit' });
+    }
+
+    // Basic validation (check for key SQL keywords)
+    const content = execSync(`head -n 100 "${sqlFile}"`).toString();
+    if (!content.includes('CREATE') && !content.includes('INSERT')) {
+      throw new Error('Backup file does not contain expected SQL statements');
+    }
+
+    console.log('✅ Backup integrity verified');
+    return true;
+  } catch (error) {
+    console.error('❌ Backup verification failed:', error);
+    return false;
+  }
+}
+
+// CLI
+const command = process.argv[2];
+
+switch (command) {
+  case 'backup':
+    {
+      const environment = (process.argv[3] as any) || 'production';
+      const reason = process.argv[4];
+      const compress = process.argv.includes('--compress');
+
+      createBackup({ environment, reason, compress }).catch((error) => {
+        console.error(error);
+        process.exit(1);
+      });
+    }
+    break;
+
+  case 'restore':
+    {
+      const backupPath = process.argv[3];
+      const confirm = process.argv.includes('--confirm');
+
+      if (!backupPath) {
+        console.error('Usage: pnpm db:restore <backup-path> --confirm');
+        process.exit(1);
+      }
+
+      restoreBackup({ backupPath, confirm }).catch((error) => {
+        console.error(error);
+        process.exit(1);
+      });
+    }
+    break;
+
+  case 'list':
+    listBackups();
+    break;
+
+  case 'verify':
+    {
+      const backupPath = process.argv[3];
+      if (!backupPath) {
+        console.error('Usage: pnpm db:verify <backup-path>');
+        process.exit(1);
+      }
+
+      verifyBackup(backupPath).catch((error) => {
+        console.error(error);
+        process.exit(1);
+      });
+    }
+    break;
+
+  default:
+    console.log(`
+Database Backup & Restore Utilities
+
+Usage:
+  pnpm db:backup [environment] [reason] [--compress]
+    Create a database backup
+
+  pnpm db:restore <backup-path> --confirm
+    Restore database from backup (requires confirmation)
+
+  pnpm db:list
+    List all available backups
+
+  pnpm db:verify <backup-path>
+    Verify backup file integrity
+
+Examples:
+  pnpm db:backup production "Pre-migration backup" --compress
+  pnpm db:restore backups/backup-production-2024-02-22.sql --confirm
+  pnpm db:list
+  pnpm db:verify backups/backup-production-2024-02-22.sql.gz
+`);
+}

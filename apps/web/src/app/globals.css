@@ -1,0 +1,171 @@
+@import "tailwindcss";
+@import "@pranakaia/ui/index.css";
+
+@plugin "@tailwindcss/typography";
+@plugin "@tailwindcss/forms";
+
+/* Premium heading font (Outfit) for h1-h4 */
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-outfit), var(--font-inter), system-ui, sans-serif;
+  }
+}
+
+@theme {
+  /* Premium Gradients */
+  --gradient-mesh-forest: radial-gradient(circle at 0% 0%, var(--color-mesh-forest-light) 0%, transparent 50%),
+    radial-gradient(circle at 100% 0%, var(--color-prana-green) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, var(--color-mesh-forest-dark) 0%, transparent 50%),
+    radial-gradient(circle at 0% 100%, var(--color-prana-gold-metallic) 0%, transparent 50%);
+
+  /* Animation Overrides */
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
+  --animate-glow: glow 4s ease-in-out infinite;
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+}
+
+/* Base Layers using CSS Variables */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 20 14.3% 4.1%;
+    --radius: 1rem;
+    --prana-glass-bg: rgba(255, 255, 255, 0.6);
+    --prana-glass-border: rgba(197, 160, 89, 0.1);
+  }
+
+  .dark {
+    --background: 20 14.3% 4.1%;
+    --foreground: 60 9.1% 97.8%;
+    --prana-glass-bg: rgba(5, 5, 5, 0.4);
+    --prana-glass-border: rgba(197, 160, 89, 0.15);
+  }
+}
+
+/* Layout SOTA Utilities - Pure CSS for Maximum Compatibility */
+@layer utilities {
+  .header-glass {
+    background-color: var(--prana-glass-bg);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--prana-glass-border);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+  }
+
+  .nav-link-premium {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .nav-link-premium::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #c5a059, transparent);
+    transition: all 0.5s ease;
+  }
+
+  .nav-link-premium:hover::after {
+    width: 100%;
+  }
+
+  .footer-mesh {
+    background: radial-gradient(at top left, #0a1f16 0%, #06100c 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .footer-mesh::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(197, 160, 89, 0.3), transparent);
+  }
+
+  .cart-glass {
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border-left: 1px solid rgba(197, 160, 89, 0.15);
+  }
+
+  .dark .cart-glass {
+    background-color: rgba(6, 13, 9, 0.82);
+    border-left: 1px solid rgba(197, 160, 89, 0.2);
+  }
+
+  /* Core Layout SOTA */
+  .glass-morphism {
+    background: var(--prana-glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--prana-glass-border);
+  }
+
+  .glass-morphism-dark {
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .luxury-card {
+    background: var(--prana-glass-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--prana-glass-border);
+    border-radius: 1rem;
+    transition: all 0.5s ease;
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(to right, #c5a059, #dfc28d, #8b6e3f);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .btn-luxury {
+    position: relative;
+    overflow: hidden;
+    padding: 1rem 2rem;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    background: #0a2e1c;
+    color: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-luxury:hover {
+    transform: scale(1.05);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+  }
+
+  .bg-mesh-forest {
+    background: var(--gradient-mesh-forest);
+  }
+}
+
+/* Sources for Monorepo */
+@source "../**/*.{js,ts,jsx,tsx,mdx}";
+@source "../../../../packages/ui/src/**/*.{js,ts,jsx,tsx,mdx}";

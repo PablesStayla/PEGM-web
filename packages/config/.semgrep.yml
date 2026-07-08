@@ -1,0 +1,21 @@
+rules:
+  - id: no-console-log-in-production
+    patterns:
+      - pattern: console.log(...)
+    message: "Avoid using console.log in production code. Use a proper logger instead."
+    languages: [typescript, javascript]
+    severity: WARNING
+
+  - id: no-eval
+    patterns:
+      - pattern: eval(...)
+    message: "Using eval() is a security risk. Avoid it at all costs."
+    languages: [typescript, javascript]
+    severity: ERROR
+
+  - id: react-no-dangerously-set-inner-html
+    patterns:
+      - pattern: dangerouslySetInnerHTML={{...}}
+    message: "Using dangerouslySetInnerHTML can lead to XSS vulnerabilities. Ensure content is properly sanitized."
+    languages: [typescript, javascript]
+    severity: WARNING

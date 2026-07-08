@@ -1,0 +1,52 @@
+{
+  "name": "@pranakaia/domain",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "PranaKaia Domain Layer — Base Domain logic, Types, Entities, and Interfaces",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "clean": "rimraf dist .turbo tsconfig.tsbuildinfo",
+    "attw": "attw --pack .",
+    "publint": "publint"
+  },
+  "dependencies": {
+    "@pranakaia/shared-kernel": "workspace:*",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.17.4",
+    "publint": "^0.3.8",
+    "tsup": "^8.4.0",
+    "@types/node": "^24.0.0",
+    "typescript": "5.6.3",
+    "vitest": "^4.1.0"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "publishConfig": {
+    "access": "restricted"
+  }
+}

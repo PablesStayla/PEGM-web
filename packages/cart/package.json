@@ -1,0 +1,66 @@
+{
+  "name": "@pranakaia/cart",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Cart Bounded Context - Shopping cart management for PranaKaia E-Commerce",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./entities": {
+      "types": "./dist/entities/index.d.ts",
+      "import": "./dist/entities/index.js",
+      "require": "./dist/entities/index.cjs"
+    },
+    "./ports": {
+      "types": "./dist/ports/index.d.ts",
+      "import": "./dist/ports/index.js",
+      "require": "./dist/ports/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "clean": "rimraf dist .turbo tsconfig.tsbuildinfo",
+    "attw": "attw --pack .",
+    "publint": "publint"
+  },
+  "dependencies": {
+    "@pranakaia/catalog": "workspace:*",
+    "@pranakaia/db": "workspace:*",
+    "@pranakaia/shared-kernel": "workspace:*",
+    "drizzle-orm": "^0.45.2",
+    "reflect-metadata": "^0.2.2",
+    "tsyringe": "^4.10.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.17.4",
+    "publint": "^0.3.8",
+    "tsup": "^8.4.0",
+    "@types/node": "^24.0.0",
+    "typescript": "5.6.3",
+    "vitest": "^4.1.0",
+    "@vitest/coverage-v8": "^4.1.0"
+  },
+  "files": [
+    "dist",
+    "src",
+    "!**/*.test.*",
+    "!**/__tests__/**"
+  ],
+  "publishConfig": {
+    "access": "restricted"
+  }
+}

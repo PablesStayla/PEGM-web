@@ -1,0 +1,68 @@
+# 🚢 Deployment Pipeline - Absolute Zero
+# ─────────────────────────────────────────────────
+# Propósito: Desplegar aplicaciones a entornos Staging/Production
+# Triggers: Push a main (Automatico a Staging, Manual a Prod)
+# Owner: @devops-team
+# ─────────────────────────────────────────────────
+
+name: 🚢 Continuous Deployment
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        type: choice
+        options: [staging, production]
+        required: true
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  # 1. Reutilizamos el build de la main pipeline si es posible (pero aqui lo forzamos por seguridad)
+  build:
+    name: '🏗️ Build for Deployment'
+    uses: ./.github/workflows/reusable-build.yml
+
+  deploy-staging:
+    name: '🚀 Deploy to Staging'
+    needs: [build]
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Deploy to Vercel (Staging)
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-args: '--build-env NEXT_PUBLIC_API_URL=https://api-staging.pranakaia.com'
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+
+  deploy-production:
+    name: '🔥 Deploy to Production'
+    needs: [deploy-staging]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Deploy to Vercel (Production)
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-args: '--prod'
+          scope: ${{ secrets.VERCEL_ORG_ID }}

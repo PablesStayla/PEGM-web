@@ -1,0 +1,146 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { CircuitBreaker } from './circuit-breaker';
+
+describe('CircuitBreaker', () => {
+  const name = 'test-breaker';
+  const config = {
+    failureThreshold: 2,
+    resetTimeoutMs: 100,
+    successThreshold: 2,
+    halfOpenMaxCalls: 2,
+    enableLogging: false,
+  };
+
+  let breaker: CircuitBreaker;
+
+  beforeEach(() => {
+    breaker = new CircuitBreaker(name, config);
+  });
+
+  describe('CLOSED state', () => {
+    it('should execute successfully and stay CLOSED', async () => {
+      const fn = vi.fn().mockResolvedValue('success');
+      const result = await breaker.execute(fn);
+
+      expect(result.success).toBe(true);
+      expect(result.data).toBe('success');
+      expect(result.state).toBe('CLOSED');
+      expect(fn).toHaveBeenCalledTimes(1);
+    });
+
+    it('should transition to OPEN after failureThreshold is reached', async () => {
+      const error = new Error('failure');
+      const fn = vi.fn().mockRejectedValue(error);
+
+      // First failure
+      await breaker.execute(fn);
+      expect(breaker.getState()).toBe('CLOSED');
+
+      // Second failure - should reach threshold
+      const result = await breaker.execute(fn);
+      expect(result.success).toBe(false);
+      expect(result.error).toBe(error);
+      expect(breaker.getState()).toBe('OPEN');
+    });
+  });
+
+  describe('OPEN state', () => {
+    it('should reject calls immediately in OPEN state', async () => {
+      breaker.forceOpen();
+      const fn = vi.fn().mockResolvedValue('success');
+      const result = await breaker.execute(fn);
+
+      expect(result.success).toBe(false);
+      expect(result.error?.message).toContain('is OPEN');
+      expect(fn).not.toHaveBeenCalled();
+    });
+
+    it('should use fallback if provided in OPEN state', async () => {
+      breaker.forceOpen();
+      const fn = vi.fn().mockResolvedValue('success');
+      const fallback = vi.fn().mockReturnValue('fallback');
+
+      const result = await breaker.execute(fn, fallback);
+
+      expect(result.success).toBe(true);
+      expect(result.data).toBe('fallback');
+      expect(result.fromCache).toBe(true);
+      expect(fn).not.toHaveBeenCalled();
+      expect(fallback).toHaveBeenCalled();
+    });
+
+    it('should transition to HALF_OPEN after resetTimeoutMs', async () => {
+      breaker.forceOpen();
+
+      // Wait for timeout
+      await new Promise((resolve) => setTimeout(resolve, 150));
+
+      const fn = vi.fn().mockResolvedValue('success');
+      const result = await breaker.execute(fn);
+
+      expect(result.success).toBe(true);
+      expect(result.state).toBe('HALF_OPEN'); // Still HALF_OPEN because successThreshold is 2
+      expect(fn).toHaveBeenCalled();
+    });
+  });
+
+  describe('HALF_OPEN state', () => {
+    it('should transition back to CLOSED after successThreshold reached', async () => {
+      breaker.forceOpen();
+      await new Promise((resolve) => setTimeout(resolve, 150));
+
+      const fn = vi.fn().mockResolvedValue('success');
+
+      // First success in HALF_OPEN
+      await breaker.execute(fn);
+      expect(breaker.getState()).toBe('HALF_OPEN');
+
+      // Second success - should reach threshold (2)
+      await breaker.execute(fn);
+      expect(breaker.getState()).toBe('CLOSED');
+    });
+
+    it('should transition back to OPEN immediately on failure', async () => {
+      breaker.forceOpen();
+      await new Promise((resolve) => setTimeout(resolve, 150));
+
+      const error = new Error('half-open failure');
+      const fn = vi.fn().mockRejectedValue(error);
+
+      const result = await breaker.execute(fn);
+      expect(result.success).toBe(false);
+      expect(breaker.getState()).toBe('OPEN');
+    });
+
+    it('should limit concurrent calls in HALF_OPEN', async () => {
+      breaker.forceOpen();
+      await new Promise((resolve) => setTimeout(resolve, 150));
+
+      // We set halfOpenMaxCalls to 2 in config
+      const fn = vi.fn().mockReturnValue(new Promise(() => {})); // Never resolves
+
+      // First call allowed
+      breaker.execute(fn);
+
+      // Second call allowed
+      breaker.execute(() => Promise.resolve('second'));
+
+      // Third call should be rejected
+      const result = await breaker.execute(() => Promise.resolve('third'));
+      expect(result.success).toBe(false);
+      expect(result.error?.message).toContain('is OPEN');
+    });
+  });
+
+  describe('Metrics', () => {
+    it('should track metrics correctly', async () => {
+      await breaker.execute(() => Promise.resolve('ok'));
+      await breaker.execute(() => Promise.reject('fail'));
+
+      const metrics = breaker.getMetrics();
+      expect(metrics.totalCalls).toBe(2);
+      expect(metrics.successes).toBe(1);
+      expect(metrics.failures).toBe(1);
+    });
+  });
+});

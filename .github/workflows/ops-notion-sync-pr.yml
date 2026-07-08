@@ -1,0 +1,49 @@
+# 🔄 Notion Sync (PRs) - Absolute Zero
+# ─────────────────────────────────────────────────
+# Propósito: Sincronizar pull requests de GitHub con la base de datos de Notion
+# Owner: @engineering-team
+# ─────────────────────────────────────────────────
+
+name: 🔄 Notion Sync (PRs)
+
+on:
+  pull_request:
+    types: [opened, edited, closed, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to sync'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    name: 'Sync PR to Notion'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Environment
+        uses: ./.github/actions/setup
+        with:
+          install: true
+
+      - name: 🔄 Run Sync Script
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DB_TAREAS: ${{ secrets.NOTION_DB_TAREAS }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPO: ${{ github.repository }}
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            PR_NUM="${{ github.event.inputs.pr_number }}"
+          else
+            PR_NUM="${{ github.event.pull_request.number }}"
+          fi
+          echo "🔄 Syncing PR #$PR_NUM to Notion..."
+          pnpm exec tsx scripts/notion/sync-pr.ts "$PR_NUM"

@@ -1,0 +1,15 @@
+{
+  "files": {
+    "apps/web/.next/static/chunks/main.js": { "maxSize": "80KB" },
+    "apps/web/.next/static/chunks/webpack.js": { "maxSize": "30KB" },
+    "apps/web/.next/static/chunks/pages/products.js": { "maxSize": "50KB" },
+    "apps/web/.next/static/chunks/pages/checkout.js": { "maxSize": "60KB" },
+    "apps/web/.next/static/chunks/pages/cart.js": { "maxSize": "40KB" },
+    "apps/admin/.next/static/chunks/main.js": { "maxSize": "100KB" },
+    "apps/admin/.next/static/chunks/pages/dashboard.js": { "maxSize": "80KB" }
+  },
+  "ci": {
+    "trackBranches": ["main"],
+    "repoBranchBase": "main"
+  }
+}

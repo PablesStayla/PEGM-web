@@ -1,0 +1,62 @@
+name: '♻️ Refactorización Técnica'
+description: 'Mejora la calidad del código, rendimiento o arquitectura sin cambiar la funcionalidad.'
+title: '[Refactor]: '
+labels: ['refactor', 'technical-debt']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### 🛠️ Excelencia en Ingeniería
+        El estándar **Absolute Zero** exige un código limpio, modular y de baja complejidad. Usa este template para proponer mejoras estructurales.
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: '📝 Alcance del Refactor'
+      description: '¿Qué archivos o módulos se verán afectados?'
+      placeholder: 'Ej: Migrar el módulo de Pagos a Branded Types para los IDs.'
+    validations:
+      required: true
+
+  - type: textarea
+    id: reasoning
+    attributes:
+      label: '🧠 Racional Técnico'
+      description: '¿Por qué es necesaria esta refactorización? (Complejidad, Acoplamiento, Deuda)'
+      placeholder: 'Ej: Actualmente el ID es un string genérico, lo que facilita errores de dominio.'
+    validations:
+      required: true
+
+  - type: dropdown
+    id: metrics_affected
+    attributes:
+      label: '📊 Métricas Impactadas'
+      options:
+        - 'Complejidad Cognitiva (Reducción)'
+        - 'Type Safety (Mejora)'
+        - 'Testability (Mejora)'
+        - 'Performance (Optimización)'
+        - 'Mantenibilidad (General)'
+    validations:
+      required: true
+
+  - type: textarea
+    id: strategy
+    attributes:
+      label: '🏗️ Estrategia de Implementación'
+      description: '¿Cómo planeas abordarlo de forma segura?'
+      placeholder: 'Ej: Implementar Branded Types en paralelo y luego migrar referencias.'
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: '✅ Compromiso S+ Grade'
+      options:
+        - label: 'Garantizo que no hay cambios funcionales (Breaking Changes).'
+          required: true
+        - label: 'Se mantendrá o mejorará el 100% de cobertura de tests.'
+          required: true
+        - label: 'El refactor sigue los patrones de AGENTS.md.'
+          required: true

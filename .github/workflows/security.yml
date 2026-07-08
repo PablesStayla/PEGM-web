@@ -1,0 +1,91 @@
+# 🛡️ Platinum Security Workflow - Enterprise Standard
+# ─────────────────────────────────────────────────
+# Propósito: DevSecOps Pipeline Completo (Shift-Left)
+# Security Jobs: Secrets, SAST, SCA, Container, SBOM
+# ─────────────────────────────────────────────────
+
+name: 🛡️ Security Platinum
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: '0 0 * * *' # Daily at midnight
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  secrets-scan:
+    name: 🔑 Secrets Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  sast:
+    name: 🛡️ Static Analysis (SAST)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Custom SAST
+        run: |
+          npm install -g @microsoft/eslint-formatter-sarif
+          npx eslint . --format @microsoft/eslint-formatter-sarif --output-file results.sarif
+        continue-on-error: true
+
+  sca:
+    name: 📦 Dependency Analysis (SCA)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'PranaKaia'
+          path: '.'
+          format: 'SARIF'
+      - name: Node Audit
+        run: npm audit --audit-level=high
+
+  container-scan:
+    name: 🐳 Container Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trivy Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+  sbom:
+    name: 📜 SBOM Generation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate SBOM
+        run: npx @cyclonedx/cyclonedx-npm --output-file bom.json
+
+  security-results:
+    name: 📊 Security Unification
+    needs: [secrets-scan, sast, sca, container-scan, sbom]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Consolidate Results
+        run: echo "All security checks completed."

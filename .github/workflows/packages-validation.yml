@@ -1,0 +1,61 @@
+# 📦 Package Validation - Absolute Zero
+# ─────────────────────────────────────────────────
+# Propósito: Validar estructura de packages (exports, types, lint)
+# Owner: @engineering-team
+# Status: Production Grade (S+ Superior)
+# ─────────────────────────────────────────────────
+
+name: 📦 Package Validation
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'packages/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'packages/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  validate-packages:
+    name: '🔍 Validate Packages'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate package.json structure
+        run: pnpm packages:validate
+
+      - name: Run attw (Are The Types Wrong)
+        run: pnpm packages:attw
+
+      - name: Run publint
+        run: pnpm packages:publint
+
+      - name: Run knip (dead code detection)
+        run: pnpm knip

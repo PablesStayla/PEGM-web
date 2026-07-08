@@ -1,0 +1,71 @@
+# 🛠️ Reusable Setup Workflow - Absolute Zero
+# ─────────────────────────────────────────────────
+# Propósito: Inicializar el entorno de Node.js, PNPM y Caching
+# Owner: @engineering-team
+# ─────────────────────────────────────────────────
+
+name: ⚙️ Setup Environment
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to use'
+        type: string
+        default: '24'
+      pnpm-version:
+        description: 'PNPM version to use'
+        type: string
+        default: '9'
+      install:
+        description: 'Whether to run pnpm install'
+        type: boolean
+        default: true
+    outputs:
+      turbo-cache-key:
+        description: 'Generated Turbo cache key'
+        value: ${{ jobs.setup.outputs.turbo-cache-key }}
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    name: '⚙️ Environment Setup'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      turbo-cache-key: ${{ steps.turbo-key.outputs.key }}
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Sufficient for most CI tasks
+
+      - name: 📦 Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ inputs.pnpm-version }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'pnpm'
+
+      - name: 🔍 Setup PNPM Store Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: ⚡ Install Dependencies
+        if: ${{ inputs.install }}
+        run: pnpm install --frozen-lockfile
+        timeout-minutes: 10
+
+      - name: 🗝️ Generate Turbo Cache Key
+        id: turbo-key
+        run: echo "key=${{ runner.os }}-turbo-${{ github.sha }}" >> $GITHUB_OUTPUT

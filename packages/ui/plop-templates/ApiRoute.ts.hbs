@@ -1,0 +1,48 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+// Request validation schema
+const RequestSchema = z.object({
+  // Define your request schema here
+});
+
+export async function GET(request: NextRequest) {
+  try {
+    // Implementation for GET method
+    return NextResponse.json({ message: 'GET {{path}}' });
+  } catch (error) {
+    console.error('GET {{path}} error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    
+    // Validate request body
+    const validatedData = RequestSchema.parse(body);
+    
+    // Implementation for POST method
+    return NextResponse.json({ 
+      message: 'POST {{path}}',
+      data: validatedData 
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid request data', details: error.errors },
+        { status: 400 }
+      );
+    }
+    
+    console.error('POST {{path}} error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}

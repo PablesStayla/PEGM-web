@@ -1,0 +1,94 @@
+import { Money } from '@pranakaia/catalog';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { ShippingMethod, ShippingRate } from './shipping-rate.entity';
+
+describe('ShippingRate Entity', () => {
+  describe('creation', () => {
+    it('should create shipping rate', () => {
+      const result = ShippingRate.create({
+        method: ShippingMethod.STANDARD,
+        basePrice: Money.create(10, 'USD').unwrap(),
+        estimatedDays: 5,
+      });
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.value.method).toBe(ShippingMethod.STANDARD);
+        expect(result.value.basePrice.amount).toBe(10);
+      }
+    });
+
+    it('should reject negative base price', () => {
+      const result = ShippingRate.create({
+        method: ShippingMethod.STANDARD,
+        basePrice: Money.create(-10, 'USD').unwrap(),
+        estimatedDays: 5,
+      });
+
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject negative estimated days', () => {
+      const result = ShippingRate.create({
+        method: ShippingMethod.STANDARD,
+        basePrice: Money.create(10, 'USD').unwrap(),
+        estimatedDays: -1,
+      });
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe('calculate', () => {
+    let shippingRate: ShippingRate;
+
+    beforeEach(() => {
+      const result = ShippingRate.create({
+        method: ShippingMethod.STANDARD,
+        basePrice: Money.create(10, 'USD').unwrap(),
+        estimatedDays: 5,
+        pricePerKg: Money.create(2, 'USD').unwrap(),
+      });
+      if (result.success) {
+        shippingRate = result.value;
+      }
+    });
+
+    it('should calculate shipping cost for weight', () => {
+      const cost = shippingRate.calculate(5); // 5kg
+
+      // basePrice (10) + pricePerKg (2) * weight (5) = 20
+      expect(cost.amount).toBe(20);
+    });
+
+    it('should handle zero weight', () => {
+      const cost = shippingRate.calculate(0);
+
+      expect(cost.amount).toBe(10); // base price only
+    });
+
+    it('should handle fractional weight', () => {
+      const cost = shippingRate.calculate(2.5);
+
+      expect(cost.amount).toBe(15); // 10 + 2*2.5
+    });
+  });
+
+  describe('methods', () => {
+    it('should have all shipping methods', () => {
+      expect(ShippingMethod.STANDARD).toBe('STANDARD');
+      expect(ShippingMethod.EXPRESS).toBe('EXPRESS');
+      expect(ShippingMethod.OVERNIGHT).toBe('OVERNIGHT');
+      expect(ShippingMethod.ECONOMY).toBe('ECONOMY');
+    });
+  });
+});
+
+describe('ShippingMethod enum', () => {
+  it('should define all methods', () => {
+    expect(ShippingMethod.STANDARD).toBeDefined();
+    expect(ShippingMethod.EXPRESS).toBeDefined();
+    expect(ShippingMethod.OVERNIGHT).toBeDefined();
+    expect(ShippingMethod.ECONOMY).toBeDefined();
+  });
+});

@@ -1,0 +1,46 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "close": "Fechar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "reset": "Redefinir"
+  },
+  "nav": {
+    "home": "Início",
+    "products": "Produtos",
+    "cart": "Carrinho",
+    "account": "Conta",
+    "admin": "Admin"
+  },
+  "product": {
+    "addToCart": "Adicionar ao carrinho",
+    "outOfStock": "Esgotado",
+    "inStock": "Em estoque",
+    "price": "Preço",
+    "description": "Descrição",
+    "reviews": "Avaliações"
+  },
+  "cart": {
+    "title": "Carrinho de compras",
+    "empty": "Seu carrinho está vazio",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "checkout": "Finalizar compra",
+    "continueShopping": "Continuar comprando"
+  },
+  "admin": {
+    "dashboard": "Painel de controle",
+    "products": "Produtos",
+    "orders": "Pedidos",
+    "customers": "Clientes",
+    "analytics": "Análise",
+    "settings": "Configurações"
+  }
+}

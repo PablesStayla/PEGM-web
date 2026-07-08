@@ -1,0 +1,41 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "🚀 Dev: All",
+      "type": "shell",
+      "command": "pnpm dev",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "🏗️ Build: All",
+      "type": "shell",
+      "command": "pnpm build",
+      "group": "build"
+    },
+    {
+      "label": "🧪 Test: Unit",
+      "type": "shell",
+      "command": "pnpm test",
+      "group": "test"
+    },
+    {
+      "label": "✨ Lint: Fix All",
+      "type": "shell",
+      "command": "pnpm lint",
+      "problemMatcher": [],
+      "group": "none"
+    },
+    {
+      "label": "🔍 Type Check",
+      "type": "shell",
+      "command": "pnpm type-check",
+      "problemMatcher": ["$tsc"],
+      "group": "none"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "types": ["node"] /* SOLO conoce Node.js. No conoce 'window' o 'document' */,
+    "lib": ["ESNext"]
+  },
+  "include": ["**/*.ts"]
+}

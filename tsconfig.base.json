@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    /* 🚀 SOTA Module Resolution */
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler" /* CRÍTICO: El estándar moderno para Vite/esbuild/Next.js */,
+    "resolveJsonModule": true,
+    "isolatedModules": true /* Obligatorio para compilar rápido con esbuild/tsx */,
+
+    /* 🛡️ Strictness Nivel Diamante (Cero Deuda Técnica) */
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "exactOptionalPropertyTypes": true /* Evita que pases 'undefined' a campos opcionales */,
+    "noUncheckedIndexedAccess": true /* Te obliga a chequear si un item de un array existe */,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    /* ⚡ Performance y DX */
+    "skipLibCheck": true /* Acelera el build ignorando errores en node_modules */,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true /* Requerido para tsyringe DI (@injectable, @inject) */,
+    "emitDecoratorMetadata": true /* Requerido para tsyringe metadata-based injection */,
+
+    /* 🏗️ Monorepo Orchestration */
+    "composite": true /* Requerido para Project References */,
+    "declaration": true /* Genera .d.ts para otros paquetes */,
+    "declarationMap": true /* Permite ir a la definición del TS original */
+  }
+}

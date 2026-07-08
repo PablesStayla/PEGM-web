@@ -1,0 +1,75 @@
+{
+  // --- Explorer & Navigation ---
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "README.md": "AUTHORS.md, CHANGELOG.md, CODE_OF_CONDUCT.md, CONTRIBUTING.md, DEVELOPMENT.md, ENVIRONMENTS.md, ROADMAP.md, SECURITY.md, SUPPORT.md, LICENSE, AGENTS.md, CLAUDE.md",
+    "package.json": "pnpm-lock.yaml, pnpm-workspace.yaml, turbo.json, renovate.json, .npmrc, .nvmrc, .tool-versions, knip.*, mcp_config.json, lefthook.yml, .editorconfig, biome.json, tsconfig.json, vitest.config.ts, postcss.config.mjs, vercel.json, .vercelignore, .lighthouserc*, .dockerignore, Makefile, cliff.toml, .gitleaks*",
+    ".env.example": ".env*, env.local.example",
+    ".gitignore": ".gitattributes",
+    ".cursorrules": ".cursorrules.*"
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.turbo": true,
+    "**/.next": true,
+    "**/coverage": true
+  },
+
+  // --- Editor Aesthetics & UX ---
+  "editor.fontFamily": "'JetBrains Mono', 'Fira Code', monospace",
+  "editor.fontLigatures": true,
+  "editor.fontSize": 14,
+  "editor.lineHeight": 1.6,
+  "editor.cursorBlinking": "smooth",
+  "editor.cursorSmoothCaretAnimation": "on",
+  "editor.smoothScrolling": true,
+  "editor.guides.bracketPairs": "active",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.renderWhitespace": "selection",
+  "editor.minimap.enabled": false,
+  "breadcrumbs.enabled": true,
+  "editor.stickyScroll.enabled": true,
+
+  // --- Formatting & Linting (Biome Optimized) ---
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "biomejs.biome",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+
+  // --- TypeScript Performance ---
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.inlayHints.parameterNames.enabled": "all",
+  "typescript.inlayHints.variableTypes.enabled": true,
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+
+  // --- Tailwind CSS ---
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*?)[\"'`]"],
+    ["cx\\(([^)]*)\\)", "[\"'`]([^\"'`]*?)[\"'`]"]
+  ],
+  "tailwindCSS.includeLanguages": {
+    "typescript": "javascript",
+    "typescriptreact": "javascript"
+  },
+
+  // --- Testing ---
+  "vitest.enable": true,
+  "playwright.reuseBrowser": true,
+
+  // --- Git ---
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "gitlens.codeLens.enabled": false // Less noise
+}

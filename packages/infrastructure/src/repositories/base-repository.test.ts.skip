@@ -1,0 +1,113 @@
+import { describe, expect, it } from 'vitest';
+import {
+  BaseRepository,
+  type Entity,
+  type FilterOptions,
+  type PaginatedResult,
+  type QueryOptions,
+  RepositoryError,
+  RepositoryRegistry,
+} from './base-repository';
+
+// Concrete implementation for testing
+class TestRepository extends BaseRepository<Entity> {
+  constructor() {
+    super('test_table');
+  }
+
+  async findById(_id: string): Promise<Entity | null> {
+    return null;
+  }
+  async findAll(_options?: QueryOptions): Promise<PaginatedResult<Entity>> {
+    return this.buildPaginatedResult([], 0, 1, 10);
+  }
+  async create(entity: Omit<Entity, 'id'>): Promise<Entity> {
+    return { id: this.generateId(), ...entity };
+  }
+  async update(_id: string, _entity: Partial<Entity>): Promise<Entity | null> {
+    return null;
+  }
+  async delete(_id: string): Promise<boolean> {
+    return true;
+  }
+  async exists(_id: string): Promise<boolean> {
+    return true;
+  }
+  async count(_filter?: FilterOptions): Promise<number> {
+    return 0;
+  }
+
+  // Expose protected methods for testing
+  public testBuildPaginatedResult(items: Entity[], total: number, page: number, limit: number) {
+    return this.buildPaginatedResult(items, total, page, limit);
+  }
+
+  public testGenerateId() {
+    return this.generateId();
+  }
+
+  public testHandleError(error: unknown, code: any) {
+    return this.handleError(error, code);
+  }
+}
+
+describe('BaseRepository', () => {
+  const repo = new TestRepository();
+
+  describe('buildPaginatedResult', () => {
+    it('should calculate pagination metadata correctly', () => {
+      const items = [{ id: '1' }, { id: '2' }];
+      const result = repo.testBuildPaginatedResult(items, 15, 1, 10);
+
+      expect(result.items).toBe(items);
+      expect(result.total).toBe(15);
+      expect(result.page).toBe(1);
+      expect(result.limit).toBe(10);
+      expect(result.totalPages).toBe(2);
+      expect(result.hasNext).toBe(true);
+      expect(result.hasPrev).toBe(false);
+    });
+
+    it('should handle last page correctly', () => {
+      const result = repo.testBuildPaginatedResult([], 15, 2, 10);
+      expect(result.hasNext).toBe(false);
+      expect(result.hasPrev).toBe(true);
+    });
+  });
+
+  describe('generateId', () => {
+    it('should generate valid UUIDs', () => {
+      const id = repo.testGenerateId();
+      expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+    });
+  });
+
+  describe('handleError', () => {
+    it('should wrap errors in RepositoryError', () => {
+      const originalError = new Error('DB Fail');
+      try {
+        repo.testHandleError(originalError, 'QUERY_ERROR');
+      } catch (e) {
+        const err = e as RepositoryError;
+        expect(err).toBeInstanceOf(RepositoryError);
+        expect(err.message).toBe('DB Fail');
+        expect(err.code).toBe('QUERY_ERROR');
+        expect(err.originalError).toBe(originalError);
+      }
+    });
+  });
+});
+
+describe('RepositoryRegistry', () => {
+  it('should register and retrieve repositories', () => {
+    const repo = new TestRepository();
+    RepositoryRegistry.register('test', repo);
+
+    expect(RepositoryRegistry.get('test')).toBe(repo);
+  });
+
+  it('should throw error if repository not found', () => {
+    RepositoryRegistry.clear();
+    expect(() => RepositoryRegistry.get('unknown')).toThrow(/not registered/);
+  });
+});
