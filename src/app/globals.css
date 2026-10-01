@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  /* Paleta: papel cálido + tinta + acento cobre */
+  --color-bg: #fcfbf9;
+  --color-surface: #f6f4ef;
+  --color-ink: #1f1b16;
+  --color-muted: #6f6558;
+  --color-accent: #9c4a1a;
+  --color-accent-strong: #7c3913;
+  --color-line: #e8e2d8;
+
+  /* Tipografía: serif elegante para títulos, sans limpia para cuerpo */
+  --font-serif: "Fraunces Variable", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background-color: #9c4a1a;
+  color: #fcfbf9;
+}
