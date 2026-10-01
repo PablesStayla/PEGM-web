@@ -1,30 +1,32 @@
 import Link from "next/link";
-import { site } from "@/lib/content";
+import type { SiteSettings } from "@/lib/data";
 
-export function SiteFooter() {
+export function SiteFooter({ settings }: { settings: SiteSettings }) {
   return (
     <footer className="border-t border-line">
       <div className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-10 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="font-serif text-base text-ink">
-            {site.name}
+            {settings.name}
             <span className="text-accent">.</span>{" "}
             <span className="font-sans text-sm text-muted">
-              {site.title}
+              {settings.title}
             </span>
           </p>
-          <p className="mt-1">{site.location} · © {new Date().getFullYear()}</p>
+          <p className="mt-1">
+            {settings.location} · © {new Date().getFullYear()}
+          </p>
         </div>
 
-        <div className="flex items-center gap-5">
+        <div className="flex flex-wrap items-center gap-5">
           <a
-            href={`mailto:${site.email}`}
+            href={`mailto:${settings.email}`}
             className="transition-colors hover:text-accent"
           >
             Correo
           </a>
           <a
-            href={site.linkedin}
+            href={settings.linkedin}
             target="_blank"
             rel="noopener noreferrer"
             className="transition-colors hover:text-accent"
@@ -32,7 +34,7 @@ export function SiteFooter() {
             LinkedIn
           </a>
           <a
-            href={site.github}
+            href={settings.github}
             target="_blank"
             rel="noopener noreferrer"
             className="transition-colors hover:text-accent"
@@ -40,10 +42,16 @@ export function SiteFooter() {
             GitHub
           </a>
           <Link
-            href="/proyectos"
+            href="/laboratorio"
             className="transition-colors hover:text-accent"
           >
-            Proyectos
+            Laboratorio
+          </Link>
+          <Link
+            href="/admin"
+            className="transition-colors hover:text-accent"
+          >
+            Admin
           </Link>
         </div>
       </div>

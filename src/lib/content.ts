@@ -234,3 +234,35 @@ export const contact = {
   cta: "Escribir un correo",
   secondary: "O encuéntrame en",
 };
+
+/**
+ * Stack técnico que se muestra en el sitio (sección "Ingeniería + código").
+ */
+export const techStack = [
+  "TypeScript",
+  "React",
+  "Next.js",
+  "Tailwind CSS",
+  "Python",
+  "SQL",
+  "Drizzle ORM",
+  "SVG",
+];
+
+/**
+ * Mensajes de ejemplo para la bandeja de entrada del panel (solo semilla).
+ */
+export const sampleMessages = [
+  {
+    name: "María González",
+    email: "maria@minera-ejemplo.cl",
+    body: "Hola Pablo, vi tu perfil y nos interesa conversar sobre una consultoría de optimización de flotación para nuestra planta. ¿Tienes disponibilidad la próxima semana?",
+    read: false,
+  },
+  {
+    name: "Diego Rojas",
+    email: "diego.rojas@ejemplo.com",
+    body: "Excelente tu simulador de cinética de flotación. ¿Podrías compartir el enfoque que usaste para el ajuste de parámetros? Saludos.",
+    read: true,
+  },
+];

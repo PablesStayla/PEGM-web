@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import { ExperienceTimeline } from "@/components/experience-timeline";
 import {
-  certifications,
-  education,
-  experience,
-  languages,
-  site,
-  skills,
-} from "@/lib/content";
+  getCertifications,
+  getEducation,
+  getExperience,
+  getLanguages,
+  getSettings,
+  getSkills,
+} from "@/lib/data";
+
+export const revalidate = 120;
 
 export const metadata: Metadata = {
   title: "CV",
@@ -15,7 +17,13 @@ export const metadata: Metadata = {
     "Experiencia profesional, formación, certificaciones y habilidades de Pablo, Ingeniero Civil Metalúrgico.",
 };
 
-function Block({ title, children }: { title: string; children: React.ReactNode }) {
+function Block({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <section>
       <h3 className="text-xs font-medium tracking-[0.2em] text-accent uppercase">
@@ -26,10 +34,19 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
-export default function CvPage() {
+export default async function CvPage() {
+  const [settings, experience, education, certifications, skills, languages] =
+    await Promise.all([
+      getSettings(),
+      getExperience(),
+      getEducation(),
+      getCertifications(),
+      getSkills(),
+      getLanguages(),
+    ]);
+
   return (
     <div className="mx-auto max-w-5xl px-6 py-20 md:py-28">
-      {/* ── Encabezado ─────────────────────────────────────── */}
       <p className="text-xs font-medium tracking-[0.25em] text-accent uppercase">
         Currículum
       </p>
@@ -37,10 +54,10 @@ export default function CvPage() {
         CV<span className="text-accent">.</span>
       </h1>
       <p className="mt-6 max-w-2xl leading-relaxed text-muted">
-        {site.tagline} {site.availability.toLowerCase()}.
+        {settings.tagline} {settings.availability.toLowerCase()}.
       </p>
       <a
-        href={`mailto:${site.email}?subject=Solicitud%20de%20CV%20(PDF)`}
+        href={`mailto:${settings.email}?subject=Solicitud%20de%20CV%20(PDF)`}
         className="mt-8 inline-block border border-line px-6 py-3 text-sm transition-colors hover:border-accent hover:text-accent"
       >
         Solicitar versión PDF
@@ -57,7 +74,7 @@ export default function CvPage() {
           <Block title="Educación">
             <div className="space-y-8">
               {education.map((item) => (
-                <div key={item.degree}>
+                <div key={item.id}>
                   <p className="text-xs tracking-[0.15em] text-muted uppercase">
                     {item.period}
                   </p>
@@ -111,7 +128,10 @@ export default function CvPage() {
           <Block title="Idiomas">
             <ul className="space-y-2 text-sm text-muted">
               {languages.map((language) => (
-                <li key={language.name} className="flex justify-between gap-4">
+                <li
+                  key={language.name}
+                  className="flex justify-between gap-4"
+                >
                   <span>{language.name}</span>
                   <span className="text-ink">{language.level}</span>
                 </li>

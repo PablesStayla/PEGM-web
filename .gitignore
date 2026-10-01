@@ -8,6 +8,11 @@
 # producción
 /build
 
+# base de datos (se recrea con datos semilla automáticamente)
+/data/*.db
+/data/*.db-wal
+/data/*.db-shm
+
 # misc
 .DS_Store
 *.pem

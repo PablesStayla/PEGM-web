@@ -15,11 +15,51 @@
   --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
+/* Tema oscuro: se redefinen las mismas variables de color */
+.dark {
+  --color-bg: #16130f;
+  --color-surface: #201c17;
+  --color-ink: #ece7e0;
+  --color-muted: #a89e91;
+  --color-accent: #d08a55;
+  --color-accent-strong: #e2a678;
+  --color-line: #38322a;
+}
+
 html {
   scroll-behavior: smooth;
 }
 
+body {
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
 ::selection {
-  background-color: #9c4a1a;
-  color: #fcfbf9;
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+}
+
+/* Animación de aparición al hacer scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }

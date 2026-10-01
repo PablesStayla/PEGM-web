@@ -1,7 +1,7 @@
-import type { Project } from "@/lib/content";
+import type { PublicProject } from "@/lib/data";
 
 type ProjectCardProps = {
-  project: Project;
+  project: PublicProject;
   index: number;
 };
 
@@ -39,6 +39,12 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
           </li>
         ))}
       </ul>
+
+      {project.featured ? (
+        <p className="mt-4 text-[10px] font-medium tracking-[0.18em] text-accent uppercase">
+          ★ Destacado
+        </p>
+      ) : null}
     </article>
   );
 }
