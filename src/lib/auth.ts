@@ -15,9 +15,15 @@ export type SessionPayload = {
 };
 
 function getSecret(): Uint8Array {
-  return new TextEncoder().encode(
-    process.env.AUTH_SECRET ?? "secreto-de-desarrollo-cambiar-en-produccion",
-  );
+  const secret = process.env.AUTH_SECRET;
+  // En producción, fallar ruidosamente si falta el secreto: usar el valor por
+  // defecto permitiría falsificar sesiones a cualquiera que lea el código.
+  if (!secret && process.env.NODE_ENV === "production") {
+    throw new Error(
+      "AUTH_SECRET no está definida. Configúrala en el entorno de producción (ver DEPLOY.md).",
+    );
+  }
+  return new TextEncoder().encode(secret ?? "secreto-de-desarrollo-cambiar-en-produccion");
 }
 
 export async function createSessionToken(payload: SessionPayload): Promise<string> {

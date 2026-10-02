@@ -112,8 +112,9 @@ node --experimental-strip-types scripts/test-auth.mts   # pruebas de auth/DB
 
 | Variable | Uso |
 |---|---|
-| `AUTH_SECRET` | Secreto para firmar sesiones (`openssl rand -hex 32`) |
+| `AUTH_SECRET` | Secreto para firmar sesiones (`openssl rand -hex 32`) — **obligatoria en producción** |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Solo al sembrar la DB la primera vez |
+| `NEXT_PUBLIC_SITE_URL` | URL pública (sitemap, canonical, JSON-LD) — solo producción |
 
 ## ✏️ Cómo editar el contenido
 
@@ -130,11 +131,12 @@ node --experimental-strip-types scripts/test-auth.mts   # pruebas de auth/DB
 - Server Actions de administración validan la sesión en cada llamada y dejan
   registro en la auditoría. Next.js valida el origen de las acciones (anti-CSRF).
 - Formulario de contacto: validación server-side + honeypot anti-bots.
-- **Despliegue (Vercel + Turso)**: el sitio ya es compatible con Turso.
-  1. Crear la base: `turso db create pablo-site` (requiere cuenta gratuita)
-  2. Obtener credenciales: `turso db show pablo-site --url` y `turso db tokens create pablo-site`
-  3. En Vercel, definir: `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `AUTH_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`
-  4. Deployar. El primer arranque aplica migraciones y siembra el contenido en Turso.
+- **Despliegue (Vercel + Turso)**: guía completa paso a paso en
+  **[DEPLOY.md](./DEPLOY.md)** (~15 min, costo $0 con free tiers). Incluye:
+  - `AUTH_SECRET` es **obligatoria** en producción (el sitio falla a propósito si falta).
+  - `NEXT_PUBLIC_SITE_URL` alimenta sitemap, canonical y JSON-LD.
+  - Verificación post-deploy: `node scripts/verify-deploy.mjs https://tu-dominio.cl`.
+  - Headers de seguridad HTTP activos solo en build de producción.
   Sin DB remota configurada, el sitio sigue funcionando con SQLite local o el
   contenido semilla (degradación elegante).
 
