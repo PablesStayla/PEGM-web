@@ -1,13 +1,18 @@
 {
   "name": "pegm-web",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
-  "description": "Sitio web personal de Pablo — Ingeniero Civil Metalúrgico (con panel de administración y laboratorio interactivo)",
+  "description": "Sitio web personal de Pablo — Ingeniero Civil Metalúrgico (panel admin, laboratorio interactivo y stack SOTA)",
   "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build",
     "start": "next start -p 3000",
     "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "biome check src scripts",
+    "lint:fix": "biome check --write src scripts",
+    "format": "biome format --write src scripts",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
     "db:reset": "node scripts/reset-db.mjs"
@@ -15,24 +20,27 @@
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.2.0",
     "@fontsource-variable/inter": "^5.2.0",
-    "better-sqlite3": "^12.0.0",
-    "drizzle-orm": "^0.44.0",
-    "jose": "^6.0.0",
-    "next": "^15.5.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "better-sqlite3": "^13.0.3",
+    "drizzle-orm": "^0.45.3",
+    "jose": "^6.2.12",
+    "next": "^16.3.8",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.0",
-    "@types/better-sqlite3": "^7.6.0",
-    "@types/node": "^22.0.0",
-    "@types/react": "^19.1.0",
-    "@types/react-dom": "^19.1.0",
-    "drizzle-kit": "^0.31.0",
-    "tailwindcss": "^4.1.0",
-    "typescript": "^5.8.0"
+    "@biomejs/biome": "^2.5.15",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "drizzle-kit": "^0.31.11",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20.9.0"
   }
 }

@@ -9,9 +9,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
           <p className="font-serif text-base text-ink">
             {settings.name}
             <span className="text-accent">.</span>{" "}
-            <span className="font-sans text-sm text-muted">
-              {settings.title}
-            </span>
+            <span className="font-sans text-sm text-muted">{settings.title}</span>
           </p>
           <p className="mt-1">
             {settings.location} · © {new Date().getFullYear()}
@@ -19,10 +17,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
         </div>
 
         <div className="flex flex-wrap items-center gap-5">
-          <a
-            href={`mailto:${settings.email}`}
-            className="transition-colors hover:text-accent"
-          >
+          <a href={`mailto:${settings.email}`} className="transition-colors hover:text-accent">
             Correo
           </a>
           <a
@@ -41,16 +36,10 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
           >
             GitHub
           </a>
-          <Link
-            href="/laboratorio"
-            className="transition-colors hover:text-accent"
-          >
+          <Link href="/laboratorio" className="transition-colors hover:text-accent">
             Laboratorio
           </Link>
-          <Link
-            href="/admin"
-            className="transition-colors hover:text-accent"
-          >
+          <Link href="/admin" className="transition-colors hover:text-accent">
             Admin
           </Link>
         </div>

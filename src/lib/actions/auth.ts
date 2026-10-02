@@ -1,43 +1,35 @@
 "use server";
 
+import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { users } from "@/db/schema";
+import { createSessionToken, SESSION_COOKIE, sessionCookieOptions } from "@/lib/auth";
 import { verifyPassword } from "@/lib/password";
-import {
-  SESSION_COOKIE,
-  createSessionToken,
-  sessionCookieOptions,
-} from "@/lib/auth";
+import { loginSchema } from "@/lib/validation";
 
 export type LoginState = { error?: string };
 
-export async function login(
-  _prev: LoginState,
-  formData: FormData,
-): Promise<LoginState> {
-  const email = String(formData.get("email") ?? "")
-    .trim()
-    .toLowerCase();
-  const password = String(formData.get("password") ?? "");
+export async function login(_prev: LoginState, formData: FormData): Promise<LoginState> {
   const from = String(formData.get("from") ?? "/admin") || "/admin";
 
-  if (!email || !password) {
-    return { error: "Ingresa tu correo y contraseña." };
+  const parsed = loginSchema.safeParse({
+    email: String(formData.get("email") ?? ""),
+    password: String(formData.get("password") ?? ""),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
   }
+
+  const { email, password } = parsed.data;
 
   let name = "";
   let valid = false;
 
   try {
-    const user = getDb()
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1)
-      .all()[0];
+    const user = getDb().select().from(users).where(eq(users.email, email)).limit(1).all()[0];
     if (user && verifyPassword(password, user.passwordHash)) {
       valid = true;
       name = user.name;

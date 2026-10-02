@@ -1,12 +1,7 @@
 import type { Metadata } from "next";
-import {
-  Field,
-  Flash,
-  PageHeader,
-  errorText,
-} from "@/components/admin/ui";
-import { SubmitButton } from "@/components/admin/submit-button";
 import { ConfirmButton } from "@/components/admin/confirm-button";
+import { SubmitButton } from "@/components/admin/submit-button";
+import { errorText, Field, Flash, PageHeader } from "@/components/admin/ui";
 import {
   deleteCertification,
   deleteEducation,
@@ -15,11 +10,7 @@ import {
   saveEducation,
   saveLanguage,
 } from "@/lib/actions/content";
-import {
-  adminAllCertifications,
-  adminAllEducation,
-  adminAllLanguages,
-} from "@/lib/data";
+import { adminAllCertifications, adminAllEducation, adminAllLanguages } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Formación",
@@ -62,9 +53,7 @@ function Row({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-sm font-medium">{title}</p>
-          {subtitle ? (
-            <p className="mt-0.5 text-xs text-muted">{subtitle}</p>
-          ) : null}
+          {subtitle ? <p className="mt-0.5 text-xs text-muted">{subtitle}</p> : null}
         </div>
         {children}
       </div>
@@ -92,10 +81,7 @@ export default async function AdminEducationPage({
 
   return (
     <>
-      <PageHeader
-        title="Formación"
-        description="Educación, certificaciones e idiomas del CV."
-      />
+      <PageHeader title="Formación" description="Educación, certificaciones e idiomas del CV." />
       <Flash
         saved={"saved" in params}
         deleted={"deleted" in params}
@@ -104,10 +90,7 @@ export default async function AdminEducationPage({
 
       <div className="space-y-10">
         {/* Educación */}
-        <Section
-          title="Educación"
-          description="Títulos, diplomados y programas académicos."
-        >
+        <Section title="Educación" description="Títulos, diplomados y programas académicos.">
           <details className="px-5 py-4">
             <summary className="cursor-pointer text-sm font-medium select-none">
               + Añadir educación
@@ -135,7 +118,12 @@ export default async function AdminEducationPage({
                 <form action={saveEducation} className="grid gap-4 sm:grid-cols-2">
                   <input type="hidden" name="id" value={item.id} />
                   <Field label="Período" name="period" defaultValue={item.period} />
-                  <Field label="Orden" name="sortOrder" type="number" defaultValue={item.sortOrder} />
+                  <Field
+                    label="Orden"
+                    name="sortOrder"
+                    type="number"
+                    defaultValue={item.sortOrder}
+                  />
                   <div className="sm:col-span-2">
                     <Field label="Título" name="degree" defaultValue={item.degree} required />
                   </div>
@@ -156,10 +144,7 @@ export default async function AdminEducationPage({
         </Section>
 
         {/* Certificaciones */}
-        <Section
-          title="Certificaciones y cursos"
-          description="Listado simple de certificados."
-        >
+        <Section title="Certificaciones y cursos" description="Listado simple de certificados.">
           <details className="px-5 py-4">
             <summary className="cursor-pointer text-sm font-medium select-none">
               + Añadir certificación
@@ -183,7 +168,12 @@ export default async function AdminEducationPage({
                   <div className="min-w-64 flex-1">
                     <Field label="Nombre" name="name" defaultValue={item.name} required />
                   </div>
-                  <Field label="Orden" name="sortOrder" type="number" defaultValue={item.sortOrder} />
+                  <Field
+                    label="Orden"
+                    name="sortOrder"
+                    type="number"
+                    defaultValue={item.sortOrder}
+                  />
                   <SubmitButton>Guardar</SubmitButton>
                 </form>
               }

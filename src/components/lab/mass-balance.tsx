@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { massPull, twoProductRecovery } from "@/lib/lab";
 
 /**
  * Calculadora de balance de masa (fórmula de dos productos).
  * Recuperación R = c·(f − t) / [f·(c − t)] · 100
  * Incluye un mini-diagrama de flujo (Sankey) en SVG.
+ * La matemática vive en src/lib/lab.ts (probada con Vitest).
  */
 
 export function MassBalance() {
@@ -13,12 +15,12 @@ export function MassBalance() {
   const [conc, setConc] = useState(28);
   const [tail, setTail] = useState(0.12);
 
-  const valid = conc > feed && feed > tail;
-
-  const recovery = valid
-    ? ((conc * (feed - tail)) / (feed * (conc - tail))) * 100
-    : null;
-  const pull = valid ? ((feed - tail) / (conc - tail)) * 100 : null;
+  const recovery = twoProductRecovery(feed, conc, tail);
+  const pull = massPull(feed, conc, tail);
+  const valid = recovery !== null && pull !== null;
+  const recoveryText = valid ? recovery.toFixed(1) : null;
+  const pullText = valid ? pull.toFixed(1) : null;
+  const tailText = valid ? (100 - pull).toFixed(1) : null;
 
   // geometría del Sankey
   const feedW = 44;
@@ -38,9 +40,7 @@ export function MassBalance() {
     <div className="border border-line bg-bg">
       <div className="grid gap-6 border-b border-line p-6 sm:grid-cols-3">
         <label className="block text-sm">
-          <span className="mb-1.5 block font-medium">
-            Ley alimentación f
-          </span>
+          <span className="mb-1.5 block font-medium">Ley alimentación f</span>
           <div className="flex items-center gap-2">
             <input
               type="number"
@@ -54,9 +54,7 @@ export function MassBalance() {
           </div>
         </label>
         <label className="block text-sm">
-          <span className="mb-1.5 block font-medium">
-            Ley concentrado c
-          </span>
+          <span className="mb-1.5 block font-medium">Ley concentrado c</span>
           <div className="flex items-center gap-2">
             <input
               type="number"
@@ -141,29 +139,41 @@ export function MassBalance() {
             </text>
 
             {/* etiquetas */}
-            <text x={x0 - 8} y={yFeed - feedW / 2 - 10} fontSize="12" textAnchor="end" fontWeight="600">
+            <text
+              x={x0 - 8}
+              y={yFeed - feedW / 2 - 10}
+              fontSize="12"
+              textAnchor="end"
+              fontWeight="600"
+            >
               Alimentación
             </text>
-            <text x={x0 - 8} y={yFeed - feedW / 2 + 6} fontSize="11" textAnchor="end" fill="var(--color-muted)">
+            <text
+              x={x0 - 8}
+              y={yFeed - feedW / 2 + 6}
+              fontSize="11"
+              textAnchor="end"
+              fill="var(--color-muted)"
+            >
               100 % masa · {feed.toFixed(2)} % Cu
             </text>
             <text x={x2 + 8} y={yConc - concW / 2 - 10} fontSize="12" fontWeight="600">
               Concentrado
             </text>
             <text x={x2 + 8} y={yConc - concW / 2 + 6} fontSize="11" fill="var(--color-muted)">
-              {pull!.toFixed(1)} % masa · {conc.toFixed(2)} % Cu
+              {pullText} % masa · {conc.toFixed(2)} % Cu
             </text>
             <text x={x2 + 8} y={yTail - tailW / 2 - 10} fontSize="12" fontWeight="600">
               Relave
             </text>
             <text x={x2 + 8} y={yTail - tailW / 2 + 6} fontSize="11" fill="var(--color-muted)">
-              {(100 - pull!).toFixed(1)} % masa · {tail.toFixed(2)} % Cu
+              {tailText} % masa · {tail.toFixed(2)} % Cu
             </text>
           </svg>
         ) : (
           <p className="border border-accent/40 bg-accent/5 px-4 py-3 text-sm text-accent">
-            Las leyes deben cumplir c &gt; f &gt; t (concentrado más rico que la
-            alimentación y esta más rica que el relave).
+            Las leyes deben cumplir c &gt; f &gt; t (concentrado más rico que la alimentación y esta
+            más rica que el relave).
           </p>
         )}
       </div>
@@ -171,20 +181,12 @@ export function MassBalance() {
       {valid ? (
         <div className="grid grid-cols-2 gap-px border-t border-line bg-line">
           <div className="bg-bg p-4 text-center">
-            <p className="font-serif text-3xl text-accent">
-              {recovery!.toFixed(1)} %
-            </p>
-            <p className="mt-1 text-xs text-muted">
-              Recuperación R = c(f−t) / f(c−t)
-            </p>
+            <p className="font-serif text-3xl text-accent">{recoveryText} %</p>
+            <p className="mt-1 text-xs text-muted">Recuperación R = c(f−t) / f(c−t)</p>
           </div>
           <div className="bg-bg p-4 text-center">
-            <p className="font-serif text-3xl text-accent">
-              {pull!.toFixed(1)} %
-            </p>
-            <p className="mt-1 text-xs text-muted">
-              Extracción de masa (mass pull)
-            </p>
+            <p className="font-serif text-3xl text-accent">{pullText} %</p>
+            <p className="mt-1 text-xs text-muted">Extracción de masa (mass pull)</p>
           </div>
         </div>
       ) : null}

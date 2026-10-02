@@ -12,8 +12,7 @@ export default async function LoginPage({
   searchParams: Promise<{ from?: string }>;
 }) {
   const { from } = await searchParams;
-  const target =
-    typeof from === "string" && from.startsWith("/admin") ? from : "/admin";
+  const target = typeof from === "string" && from.startsWith("/admin") ? from : "/admin";
 
   return <LoginForm from={target} />;
 }

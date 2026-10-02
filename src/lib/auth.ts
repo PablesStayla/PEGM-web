@@ -1,4 +1,4 @@
-import { SignJWT, jwtVerify } from "jose";
+import { jwtVerify, SignJWT } from "jose";
 
 /**
  * Sesiones con JWT firmado (HS256) guardado en cookie HttpOnly.
@@ -20,9 +20,7 @@ function getSecret(): Uint8Array {
   );
 }
 
-export async function createSessionToken(
-  payload: SessionPayload,
-): Promise<string> {
+export async function createSessionToken(payload: SessionPayload): Promise<string> {
   return new SignJWT({ email: payload.email, name: payload.name })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -30,15 +28,10 @@ export async function createSessionToken(
     .sign(getSecret());
 }
 
-export async function verifySessionToken(
-  token: string,
-): Promise<SessionPayload | null> {
+export async function verifySessionToken(token: string): Promise<SessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, getSecret());
-    if (
-      typeof payload.email !== "string" ||
-      typeof payload.name !== "string"
-    ) {
+    if (typeof payload.email !== "string" || typeof payload.name !== "string") {
       return null;
     }
     return { email: payload.email, name: payload.name };

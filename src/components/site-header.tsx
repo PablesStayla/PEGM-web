@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { openCommandPalette } from "@/components/command-palette";
 import { Icon, icons } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { openCommandPalette } from "@/components/command-palette";
 
 const links = [
   { href: "/", label: "Inicio" },
@@ -30,10 +30,7 @@ export function SiteHeader({ name }: { name: string }) {
         <div className="flex items-center gap-2 sm:gap-4">
           <nav className="hidden items-center gap-5 text-sm md:flex">
             {links.map((link) => {
-              const active =
-                link.href === "/"
-                  ? pathname === "/"
-                  : pathname.startsWith(link.href);
+              const active = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
               return (
                 <Link
                   key={link.href}

@@ -43,7 +43,10 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: script inline anti-parpadeo del tema (sin origen externo)
+          dangerouslySetInnerHTML={{ __html: themeScript }}
+        />
       </head>
       <body className="bg-bg font-sans text-ink antialiased">{children}</body>
     </html>

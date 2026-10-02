@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { Icon, icons } from "@/components/icons";
 import { logout } from "@/lib/actions/auth";
 
@@ -62,9 +62,7 @@ export function AdminShell({
         <nav className="flex-1 overflow-y-auto p-3">
           <ul className="space-y-1">
             {NAV.map((item) => {
-              const active = item.exact
-                ? pathname === item.href
-                : pathname.startsWith(item.href);
+              const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
               return (
                 <li key={item.href}>
                   <Link
@@ -119,9 +117,7 @@ export function AdminShell({
           </span>
         </header>
 
-        <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-10 lg:py-12">
-          {children}
-        </main>
+        <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-10 lg:py-12">{children}</main>
       </div>
     </div>
   );

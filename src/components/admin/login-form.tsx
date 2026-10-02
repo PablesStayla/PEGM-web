@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { SubmitButton } from "@/components/admin/submit-button";
-import { login, type LoginState } from "@/lib/actions/auth";
 import { inputClass } from "@/components/admin/ui";
+import { type LoginState, login } from "@/lib/actions/auth";
 
 export function LoginForm({ from }: { from: string }) {
   const [state, formAction] = useActionState<LoginState, FormData>(login, {});
@@ -15,9 +15,7 @@ export function LoginForm({ from }: { from: string }) {
         <p className="font-serif text-4xl tracking-tight">
           Panel<span className="text-accent">.</span>
         </p>
-        <p className="mt-3 text-sm text-muted">
-          Acceso restringido al administrador del sitio.
-        </p>
+        <p className="mt-3 text-sm text-muted">Acceso restringido al administrador del sitio.</p>
 
         <form action={formAction} className="mt-8 space-y-4">
           <input type="hidden" name="from" value={from} />

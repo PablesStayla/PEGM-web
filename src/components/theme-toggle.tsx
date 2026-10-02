@@ -7,9 +7,7 @@ export function ThemeToggle() {
   const [theme, setTheme] = useState<"light" | "dark" | null>(null);
 
   useEffect(() => {
-    setTheme(
-      document.documentElement.classList.contains("dark") ? "dark" : "light",
-    );
+    setTheme(document.documentElement.classList.contains("dark") ? "dark" : "light");
   }, []);
 
   function toggle() {
@@ -30,11 +28,7 @@ export function ThemeToggle() {
       aria-label="Cambiar entre tema claro y oscuro"
       className="flex size-9 items-center justify-center border border-line text-muted transition-colors hover:border-accent hover:text-accent"
     >
-      {theme === "dark" ? (
-        <Icon path={icons.sun} />
-      ) : (
-        <Icon path={icons.moon} />
-      )}
+      {theme === "dark" ? <Icon path={icons.sun} /> : <Icon path={icons.moon} />}
     </button>
   );
 }

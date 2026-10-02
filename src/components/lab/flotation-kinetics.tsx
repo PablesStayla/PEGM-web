@@ -1,11 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { flotationRecovery, timeToFraction } from "@/lib/lab";
 
 /**
  * Simulador de cinética de flotación (modelo de primer orden).
  * R(t) = R∞ · (1 − e^(−k·t))
  * Gráfico SVG construido a mano, sin librerías.
+ * La matemática vive en src/lib/lab.ts (probada con Vitest).
  */
 
 const W = 640;
@@ -18,14 +20,13 @@ export function FlotationKinetics() {
   const [k, setK] = useState(1.2);
 
   const x = (t: number) => M.left + (t / T_MAX) * (W - M.left - M.right);
-  const y = (r: number) =>
-    H - M.bottom - (r / 100) * (H - M.top - M.bottom);
+  const y = (r: number) => H - M.bottom - (r / 100) * (H - M.top - M.bottom);
 
   const points = useMemo(() => {
     const list: { t: number; r: number }[] = [];
     for (let i = 0; i <= 80; i++) {
       const t = (i / 80) * T_MAX;
-      list.push({ t, r: rInf * (1 - Math.exp(-k * t)) });
+      list.push({ t, r: flotationRecovery(t, rInf, k) });
     }
     return list;
   }, [rInf, k]);
@@ -36,7 +37,7 @@ export function FlotationKinetics() {
   const area = `${path} L${x(T_MAX).toFixed(1)},${y(0).toFixed(1)} L${x(0).toFixed(1)},${y(0).toFixed(1)} Z`;
 
   const r10 = rInf * (1 - Math.exp(-k * 10));
-  const t90 = Math.LN10 / k;
+  const t90 = timeToFraction(0.9, k);
   const t90Clamped = Math.min(t90, T_MAX);
 
   return (
@@ -60,12 +61,8 @@ export function FlotationKinetics() {
         </label>
         <label className="block">
           <span className="flex items-baseline justify-between text-sm">
-            <span className="font-medium">
-              Constante de velocidad k
-            </span>
-            <span className="font-serif text-accent">
-              {k.toFixed(2)} min⁻¹
-            </span>
+            <span className="font-medium">Constante de velocidad k</span>
+            <span className="font-serif text-accent">{k.toFixed(2)} min⁻¹</span>
           </span>
           <input
             type="range"
@@ -174,12 +171,7 @@ export function FlotationKinetics() {
             strokeDasharray="3 3"
           />
           <circle cx={x(10)} cy={y(r10)} r="4" fill="var(--color-accent)" />
-          <text
-            x={x(10) + 8}
-            y={y(r10) - 8}
-            fontSize="11"
-            fill="var(--color-accent)"
-          >
+          <text x={x(10) + 8} y={y(r10) - 8} fontSize="11" fill="var(--color-accent)">
             R(10) = {r10.toFixed(1)} %
           </text>
 
@@ -197,26 +189,20 @@ export function FlotationKinetics() {
       {/* Lecturas */}
       <div className="grid grid-cols-2 gap-px border-t border-line bg-line sm:grid-cols-3">
         <div className="bg-bg p-4 text-center">
-          <p className="font-serif text-2xl text-accent">
-            {r10.toFixed(1)} %
-          </p>
+          <p className="font-serif text-2xl text-accent">{r10.toFixed(1)} %</p>
           <p className="mt-1 text-xs text-muted">Recuperación a 10 min</p>
         </div>
         <div className="bg-bg p-4 text-center">
           <p className="font-serif text-2xl text-accent">
             {t90Clamped >= T_MAX ? "> 20" : t90.toFixed(1)} min
           </p>
-          <p className="mt-1 text-xs text-muted">
-            Tiempo hasta 90 % de R∞
-          </p>
+          <p className="mt-1 text-xs text-muted">Tiempo hasta 90 % de R∞</p>
         </div>
         <div className="hidden bg-bg p-4 text-center sm:block">
           <p className="font-serif text-2xl text-accent">
             {((1 - Math.exp(-k * 10)) * 100).toFixed(0)} %
           </p>
-          <p className="mt-1 text-xs text-muted">
-            % de R∞ alcanzado a 10 min
-          </p>
+          <p className="mt-1 text-xs text-muted">% de R∞ alcanzado a 10 min</p>
         </div>
       </div>
     </div>

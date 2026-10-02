@@ -19,9 +19,7 @@ export function PageHeader({
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 className="font-serif text-3xl tracking-tight">{title}</h1>
-        {description ? (
-          <p className="mt-2 max-w-xl text-sm text-muted">{description}</p>
-        ) : null}
+        {description ? <p className="mt-2 max-w-xl text-sm text-muted">{description}</p> : null}
       </div>
       {children}
     </div>
@@ -143,11 +141,7 @@ export function Flash({
           : "border-accent/30 bg-accent/5 text-accent"
       }`}
     >
-      {error
-        ? `Error: ${error}`
-        : deleted
-          ? "Elemento eliminado."
-          : "Cambios guardados."}
+      {error ? `Error: ${error}` : deleted ? "Elemento eliminado." : "Cambios guardados."}
     </p>
   );
 }

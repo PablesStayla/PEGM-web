@@ -1,18 +1,10 @@
 import type { Metadata } from "next";
-import {
-  Checkbox,
-  Field,
-  Flash,
-  PageHeader,
-  TextArea,
-  errorText,
-  inputClass,
-} from "@/components/admin/ui";
-import { SubmitButton } from "@/components/admin/submit-button";
 import { ConfirmButton } from "@/components/admin/confirm-button";
+import { SubmitButton } from "@/components/admin/submit-button";
+import { Checkbox, errorText, Field, Flash, PageHeader, TextArea } from "@/components/admin/ui";
+import type { projects } from "@/db/schema";
 import { deleteProject, saveProject } from "@/lib/actions/content";
 import { adminAllProjects } from "@/lib/data";
-import type { projects } from "@/db/schema";
 
 export const metadata: Metadata = {
   title: "Proyectos",
@@ -47,12 +39,7 @@ function ProjectForm({ project }: { project?: Project }) {
         name="featured"
         defaultChecked={project?.featured}
       />
-      <Field
-        label="Orden"
-        name="sortOrder"
-        type="number"
-        defaultValue={project?.sortOrder ?? 0}
-      />
+      <Field label="Orden" name="sortOrder" type="number" defaultValue={project?.sortOrder ?? 0} />
       <div className="sm:col-span-2">
         <SubmitButton>{project ? "Guardar cambios" : "Crear proyecto"}</SubmitButton>
       </div>
@@ -94,9 +81,7 @@ export default async function AdminProjectsPage({
           <article key={project.id} className="border border-line bg-bg p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h2 className="font-serif text-lg leading-snug">
-                  {project.title}
-                </h2>
+                <h2 className="font-serif text-lg leading-snug">{project.title}</h2>
                 <p className="mt-1 text-xs tracking-wider text-accent uppercase">
                   {project.category} · {project.year}
                   {project.featured ? " · ★ destacado" : ""}

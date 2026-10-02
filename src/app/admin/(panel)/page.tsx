@@ -1,11 +1,7 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Icon, icons } from "@/components/icons";
-import {
-  adminAuditLog,
-  adminDashboardStats,
-  adminRecentMessages,
-} from "@/lib/data";
+import { adminAuditLog, adminDashboardStats, adminRecentMessages } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -49,9 +45,7 @@ export default function AdminDashboardPage() {
     <>
       <div className="mb-8">
         <h1 className="font-serif text-3xl tracking-tight">Dashboard</h1>
-        <p className="mt-2 text-sm text-muted">
-          Resumen del contenido y actividad del sitio.
-        </p>
+        <p className="mt-2 text-sm text-muted">Resumen del contenido y actividad del sitio.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -61,13 +55,9 @@ export default function AdminDashboardPage() {
             href={card.href}
             className="border border-line bg-bg p-5 transition-colors hover:border-accent"
           >
-            <p className="text-xs tracking-wider text-muted uppercase">
-              {card.label}
-            </p>
+            <p className="text-xs tracking-wider text-muted uppercase">{card.label}</p>
             <p className="mt-2 font-serif text-4xl text-accent">{card.value}</p>
-            {card.note ? (
-              <p className="mt-1 text-xs text-muted">{card.note}</p>
-            ) : null}
+            {card.note ? <p className="mt-1 text-xs text-muted">{card.note}</p> : null}
           </Link>
         ))}
       </div>
@@ -80,10 +70,7 @@ export default function AdminDashboardPage() {
               <Icon path={icons.inbox} className="size-4 text-accent" />
               Últimos mensajes
             </h2>
-            <Link
-              href="/admin/mensajes"
-              className="text-xs text-muted hover:text-accent"
-            >
+            <Link href="/admin/mensajes" className="text-xs text-muted hover:text-accent">
               Ver todos →
             </Link>
           </div>
@@ -109,13 +96,9 @@ export default function AdminDashboardPage() {
                         </span>
                       ) : null}
                     </p>
-                    <p className="text-xs text-muted">
-                      {formatDate(message.createdAt)}
-                    </p>
+                    <p className="text-xs text-muted">{formatDate(message.createdAt)}</p>
                   </div>
-                  <p className="mt-2 line-clamp-2 text-sm text-muted">
-                    {message.body}
-                  </p>
+                  <p className="mt-2 line-clamp-2 text-sm text-muted">{message.body}</p>
                 </article>
               ))
             )}
@@ -129,10 +112,7 @@ export default function AdminDashboardPage() {
               <Icon path={icons.history} className="size-4 text-accent" />
               Actividad reciente
             </h2>
-            <Link
-              href="/admin/auditoria"
-              className="text-xs text-muted hover:text-accent"
-            >
+            <Link href="/admin/auditoria" className="text-xs text-muted hover:text-accent">
               Ver auditoría →
             </Link>
           </div>
@@ -147,16 +127,11 @@ export default function AdminDashboardPage() {
                     className="flex items-baseline justify-between gap-3 px-4 py-3 text-sm"
                   >
                     <p>
-                      <span className="text-muted">{entry.userEmail}</span>{" "}
-                      {entry.action}{" "}
+                      <span className="text-muted">{entry.userEmail}</span> {entry.action}{" "}
                       <span className="text-accent">{entry.entity}</span>
-                      {entry.detail ? (
-                        <span className="text-muted"> · {entry.detail}</span>
-                      ) : null}
+                      {entry.detail ? <span className="text-muted"> · {entry.detail}</span> : null}
                     </p>
-                    <p className="shrink-0 text-xs text-muted">
-                      {formatDate(entry.createdAt)}
-                    </p>
+                    <p className="shrink-0 text-xs text-muted">{formatDate(entry.createdAt)}</p>
                   </li>
                 ))}
               </ul>

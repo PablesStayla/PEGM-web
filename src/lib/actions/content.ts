@@ -1,9 +1,9 @@
 "use server";
 
+import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import * as t from "@/db/schema";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
@@ -23,10 +23,7 @@ async function requireUser() {
 }
 
 function audit(userEmail: string, action: string, entity: string, detail = "") {
-  getDb()
-    .insert(t.auditLog)
-    .values({ userEmail, action, entity, detail })
-    .run();
+  getDb().insert(t.auditLog).values({ userEmail, action, entity, detail }).run();
 }
 
 function refreshPublicPages() {
@@ -111,12 +108,7 @@ export async function changePassword(formData: FormData) {
   }
 
   const db = getDb();
-  const row = db
-    .select()
-    .from(t.users)
-    .where(eq(t.users.email, user.email))
-    .limit(1)
-    .all()[0];
+  const row = db.select().from(t.users).where(eq(t.users.email, user.email)).limit(1).all()[0];
 
   if (!row || !verifyPassword(current, row.passwordHash)) {
     redirect("/admin/ajustes?error=password-wrong");
@@ -148,11 +140,7 @@ export async function saveProject(formData: FormData) {
   if (!values.title) redirect("/admin/proyectos?error=required");
 
   if (id) {
-    getDb()
-      .update(t.projects)
-      .set(values)
-      .where(eq(t.projects.id, id))
-      .run();
+    getDb().update(t.projects).set(values).where(eq(t.projects.id, id)).run();
     audit(user.email, "actualizó", "proyecto", values.title);
   } else {
     getDb().insert(t.projects).values(values).run();
@@ -191,11 +179,7 @@ export async function saveExperience(formData: FormData) {
   }
 
   if (id) {
-    getDb()
-      .update(t.experience)
-      .set(values)
-      .where(eq(t.experience.id, id))
-      .run();
+    getDb().update(t.experience).set(values).where(eq(t.experience.id, id)).run();
     audit(user.email, "actualizó", "experiencia", values.role);
   } else {
     getDb().insert(t.experience).values(values).run();
@@ -232,11 +216,7 @@ export async function saveEducation(formData: FormData) {
   if (!values.degree) redirect("/admin/educacion?error=required");
 
   if (id) {
-    getDb()
-      .update(t.education)
-      .set(values)
-      .where(eq(t.education.id, id))
-      .run();
+    getDb().update(t.education).set(values).where(eq(t.education.id, id)).run();
     audit(user.email, "actualizó", "educación", values.degree);
   } else {
     getDb().insert(t.education).values(values).run();
@@ -307,11 +287,7 @@ export async function saveLanguage(formData: FormData) {
   if (!values.name) redirect("/admin/educacion?error=required");
 
   if (id) {
-    getDb()
-      .update(t.languages)
-      .set(values)
-      .where(eq(t.languages.id, id))
-      .run();
+    getDb().update(t.languages).set(values).where(eq(t.languages.id, id)).run();
     audit(user.email, "actualizó", "idioma", values.name);
   } else {
     getDb().insert(t.languages).values(values).run();

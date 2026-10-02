@@ -1,9 +1,6 @@
-import { SiteHeader } from "@/components/site-header";
+import { CommandPalette, type PaletteItem } from "@/components/command-palette";
 import { SiteFooter } from "@/components/site-footer";
-import {
-  CommandPalette,
-  type PaletteItem,
-} from "@/components/command-palette";
+import { SiteHeader } from "@/components/site-header";
 import { getProjects, getSettings } from "@/lib/data";
 import { slugify } from "@/lib/slug";
 
@@ -12,10 +9,7 @@ export default async function SiteLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [settings, projects] = await Promise.all([
-    getSettings(),
-    getProjects(),
-  ]);
+  const [settings, projects] = await Promise.all([getSettings(), getProjects()]);
 
   const paletteItems: PaletteItem[] = [
     { group: "Páginas", label: "Inicio", href: "/" },
@@ -86,6 +80,7 @@ export default async function SiteLayout({
       <SiteFooter settings={settings} />
       <script
         type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD de schema.org generado desde datos propios
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
       />
     </>

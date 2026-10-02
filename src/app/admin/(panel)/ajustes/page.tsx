@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
-import {
-  Field,
-  Flash,
-  PageHeader,
-  TextArea,
-  errorText,
-} from "@/components/admin/ui";
 import { SubmitButton } from "@/components/admin/submit-button";
+import { errorText, Field, Flash, PageHeader, TextArea } from "@/components/admin/ui";
 import { changePassword, saveSettings } from "@/lib/actions/content";
 import { adminGetSettings } from "@/lib/data";
 
@@ -43,10 +37,7 @@ export default async function AdminSettingsPage({
       />
 
       {settings ? (
-        <form
-          action={saveSettings}
-          className="space-y-10"
-        >
+        <form action={saveSettings} className="space-y-10">
           {/* Identidad */}
           <section className="border border-line bg-bg">
             <header className="border-b border-line px-5 py-4">
@@ -54,12 +45,26 @@ export default async function AdminSettingsPage({
             </header>
             <div className="grid gap-4 p-5 sm:grid-cols-2">
               <Field label="Nombre" name="name" defaultValue={settings.name} required />
-              <Field label="Título profesional" name="title" defaultValue={settings.title} required />
+              <Field
+                label="Título profesional"
+                name="title"
+                defaultValue={settings.title}
+                required
+              />
               <div className="sm:col-span-2">
-                <TextArea label="Titular corto (tagline)" name="tagline" defaultValue={settings.tagline} rows={2} />
+                <TextArea
+                  label="Titular corto (tagline)"
+                  name="tagline"
+                  defaultValue={settings.tagline}
+                  rows={2}
+                />
               </div>
               <Field label="Ubicación" name="location" defaultValue={settings.location} />
-              <Field label="Disponibilidad" name="availability" defaultValue={settings.availability} />
+              <Field
+                label="Disponibilidad"
+                name="availability"
+                defaultValue={settings.availability}
+              />
             </div>
           </section>
 
@@ -98,8 +103,7 @@ export default async function AdminSettingsPage({
       ) : (
         <p className="border border-line bg-bg p-5 text-sm text-muted">
           No se encontró la fila de ajustes. Ejecuta{" "}
-          <code className="text-accent">npm run db:reset</code> para regenerar
-          la base de datos.
+          <code className="text-accent">npm run db:reset</code> para regenerar la base de datos.
         </p>
       )}
 

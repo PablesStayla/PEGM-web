@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageHeader } from "@/components/admin/ui";
 import { ConfirmButton } from "@/components/admin/confirm-button";
+import { PageHeader } from "@/components/admin/ui";
+import { Icon, icons } from "@/components/icons";
 import { deleteMessage, toggleMessageRead } from "@/lib/actions/messages";
 import { adminAllMessages } from "@/lib/data";
-import { Icon, icons } from "@/components/icons";
 
 export const metadata: Metadata = {
   title: "Mensajes",
@@ -67,9 +67,7 @@ export default async function AdminMessagesPage({
           messages.map((message) => (
             <article
               key={message.id}
-              className={`border bg-bg p-5 ${
-                message.read ? "border-line" : "border-accent/50"
-              }`}
+              className={`border bg-bg p-5 ${message.read ? "border-line" : "border-accent/50"}`}
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -88,9 +86,7 @@ export default async function AdminMessagesPage({
                     {message.email}
                   </a>
                 </div>
-                <p className="text-xs text-muted">
-                  {formatDate(message.createdAt)}
-                </p>
+                <p className="text-xs text-muted">{formatDate(message.createdAt)}</p>
               </div>
 
               <p className="mt-4 text-sm leading-relaxed whitespace-pre-line text-muted">
@@ -110,9 +106,7 @@ export default async function AdminMessagesPage({
                 </form>
                 <form action={deleteMessage}>
                   <input type="hidden" name="id" value={message.id} />
-                  <ConfirmButton
-                    message={`¿Eliminar el mensaje de ${message.name}?`}
-                  />
+                  <ConfirmButton message={`¿Eliminar el mensaje de ${message.name}?`} />
                 </form>
               </div>
             </article>

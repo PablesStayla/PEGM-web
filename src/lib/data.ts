@@ -8,8 +8,8 @@ import {
   experience as seedExperience,
   languages as seedLanguages,
   projects as seedProjects,
-  site,
   skills as seedSkills,
+  site,
 } from "@/lib/content";
 
 // Contenido estático (no administrado desde el panel)
@@ -85,12 +85,7 @@ function fallbackSettings(): SiteSettings {
 
 export async function getSettings(): Promise<SiteSettings> {
   try {
-    const row = getDb()
-      .select()
-      .from(t.settings)
-      .where(eq(t.settings.id, 1))
-      .limit(1)
-      .all()[0];
+    const row = getDb().select().from(t.settings).where(eq(t.settings.id, 1)).limit(1).all()[0];
     if (!row) return fallbackSettings();
     return {
       name: row.name,
@@ -199,17 +194,14 @@ export async function getSkills(): Promise<{
   return seedSkills;
 }
 
-export async function getLanguages(): Promise<
-  { name: string; level: string }[]
-> {
+export async function getLanguages(): Promise<{ name: string; level: string }[]> {
   try {
     const rows = getDb()
       .select()
       .from(t.languages)
       .orderBy(asc(t.languages.sortOrder), asc(t.languages.id))
       .all();
-    if (rows.length > 0)
-      return rows.map((row) => ({ name: row.name, level: row.level }));
+    if (rows.length > 0) return rows.map((row) => ({ name: row.name, level: row.level }));
   } catch {
     // degradación
   }
@@ -222,17 +214,12 @@ export function adminDashboardStats() {
   const db = getDb();
   return {
     projects: db.select({ value: count() }).from(t.projects).all()[0]?.value ?? 0,
-    experience:
-      db.select({ value: count() }).from(t.experience).all()[0]?.value ?? 0,
+    experience: db.select({ value: count() }).from(t.experience).all()[0]?.value ?? 0,
     messages: db.select({ value: count() }).from(t.messages).all()[0]?.value ?? 0,
     unreadMessages:
-      db
-        .select({ value: count() })
-        .from(t.messages)
-        .where(eq(t.messages.read, false))
-        .all()[0]?.value ?? 0,
-    certifications:
-      db.select({ value: count() }).from(t.certifications).all()[0]?.value ?? 0,
+      db.select({ value: count() }).from(t.messages).where(eq(t.messages.read, false)).all()[0]
+        ?.value ?? 0,
+    certifications: db.select({ value: count() }).from(t.certifications).all()[0]?.value ?? 0,
     skills: db.select({ value: count() }).from(t.skills).all()[0]?.value ?? 0,
   };
 }
@@ -270,11 +257,7 @@ export function adminAllCertifications() {
 }
 
 export function adminAllSkills() {
-  return getDb()
-    .select()
-    .from(t.skills)
-    .orderBy(asc(t.skills.sortOrder), asc(t.skills.id))
-    .all();
+  return getDb().select().from(t.skills).orderBy(asc(t.skills.sortOrder), asc(t.skills.id)).all();
 }
 
 export function adminAllLanguages() {
@@ -286,46 +269,24 @@ export function adminAllLanguages() {
 }
 
 export function adminGetSettings() {
-  return getDb()
-    .select()
-    .from(t.settings)
-    .where(eq(t.settings.id, 1))
-    .limit(1)
-    .all()[0];
+  return getDb().select().from(t.settings).where(eq(t.settings.id, 1)).limit(1).all()[0];
 }
 
 export function adminRecentMessages(limit = 5) {
-  return getDb()
-    .select()
-    .from(t.messages)
-    .orderBy(desc(t.messages.createdAt))
-    .limit(limit)
-    .all();
+  return getDb().select().from(t.messages).orderBy(desc(t.messages.createdAt)).limit(limit).all();
 }
 
 export function adminAllMessages() {
-  return getDb()
-    .select()
-    .from(t.messages)
-    .orderBy(desc(t.messages.createdAt))
-    .all();
+  return getDb().select().from(t.messages).orderBy(desc(t.messages.createdAt)).all();
 }
 
 export function adminUnreadMessageCount() {
   return (
-    getDb()
-      .select({ value: count() })
-      .from(t.messages)
-      .where(eq(t.messages.read, false))
-      .all()[0]?.value ?? 0
+    getDb().select({ value: count() }).from(t.messages).where(eq(t.messages.read, false)).all()[0]
+      ?.value ?? 0
   );
 }
 
 export function adminAuditLog(limit = 50) {
-  return getDb()
-    .select()
-    .from(t.auditLog)
-    .orderBy(desc(t.auditLog.createdAt))
-    .limit(limit)
-    .all();
+  return getDb().select().from(t.auditLog).orderBy(desc(t.auditLog.createdAt)).limit(limit).all();
 }

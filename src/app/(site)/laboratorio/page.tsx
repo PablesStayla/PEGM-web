@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Reveal } from "@/components/reveal";
 import { FlotationKinetics } from "@/components/lab/flotation-kinetics";
+import { LiveDashboard } from "@/components/lab/live-dashboard";
 import { MassBalance } from "@/components/lab/mass-balance";
 import { Pourbaix } from "@/components/lab/pourbaix";
-import { LiveDashboard } from "@/components/lab/live-dashboard";
+import { Reveal } from "@/components/reveal";
 
 export const metadata: Metadata = {
   title: "Laboratorio",
@@ -56,10 +56,10 @@ export default function LabPage() {
         Laboratorio<span className="text-accent">.</span>
       </h1>
       <p className="mt-6 max-w-2xl leading-relaxed text-muted">
-        Cuatro herramientas metalúrgicas interactivas que programé para este
-        sitio <strong className="text-ink">desde cero</strong>: sin librerías de
-        gráficos, sin plantillas. Cada componente demuestra que la programación
-        es parte de mi caja de herramientas profesional.
+        Cuatro herramientas metalúrgicas interactivas que programé para este sitio{" "}
+        <strong className="text-ink">desde cero</strong>: sin librerías de gráficos, sin plantillas.
+        Cada componente demuestra que la programación es parte de mi caja de herramientas
+        profesional.
       </p>
 
       <div className="mt-16 space-y-20 border-t border-line pt-16">
@@ -71,12 +71,8 @@ export default function LabPage() {
                   <p className="text-xs font-medium tracking-[0.2em] text-accent uppercase">
                     {tool.label}
                   </p>
-                  <h2 className="mt-2 font-serif text-3xl tracking-tight">
-                    {tool.title}
-                  </h2>
-                  <p className="mt-3 text-sm leading-relaxed text-muted">
-                    {tool.description}
-                  </p>
+                  <h2 className="mt-2 font-serif text-3xl tracking-tight">{tool.title}</h2>
+                  <p className="mt-3 text-sm leading-relaxed text-muted">{tool.description}</p>
                 </div>
                 <p className="border border-line px-3 py-1.5 font-mono text-[11px] text-muted">
                   {tool.stack}
@@ -93,10 +89,9 @@ export default function LabPage() {
       </div>
 
       <p className="mt-16 border-t border-line pt-8 text-xs leading-relaxed text-muted">
-        Nota técnica: los diagramas usan constantes termodinámicas aproximadas
-        con fines ilustrativos. Para estudios de proceso, la fuente de verdad
-        sigue siendo la literatura (Pourbaix, 1974; Hayes, 2003) y los datos de
-        planta.
+        Nota técnica: los diagramas usan constantes termodinámicas aproximadas con fines
+        ilustrativos. Para estudios de proceso, la fuente de verdad sigue siendo la literatura
+        (Pourbaix, 1974; Hayes, 2003) y los datos de planta.
       </p>
     </div>
   );

@@ -1,11 +1,11 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 
 /**
- * Protege todas las rutas de /admin.
+ * Proxy de Next.js 16 (antes middleware): protege todas las rutas de /admin.
  * Las sesiones se validan con el JWT firmado de la cookie HttpOnly.
  */
-export async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   const session = token ? await verifySessionToken(token) : null;

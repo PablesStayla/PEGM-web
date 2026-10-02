@@ -1,4 +1,3 @@
-import { hashPassword } from "@/lib/password";
 import {
   about,
   certifications,
@@ -10,8 +9,9 @@ import {
   site,
   skills,
 } from "@/lib/content";
-import * as t from "./schema";
+import { hashPassword } from "@/lib/password";
 import type { Db } from "./index";
+import * as t from "./schema";
 
 /**
  * Siembra la base de datos la primera vez que se crea.
@@ -51,9 +51,7 @@ export function seedIfEmpty(db: Db): void {
     .run();
 
   db.insert(t.experience)
-    .values(
-      experience.map((item, index) => ({ ...item, sortOrder: index })),
-    )
+    .values(experience.map((item, index) => ({ ...item, sortOrder: index })))
     .run();
 
   db.insert(t.education)
@@ -61,9 +59,7 @@ export function seedIfEmpty(db: Db): void {
     .run();
 
   db.insert(t.certifications)
-    .values(
-      certifications.map((name, index) => ({ name, sortOrder: index })),
-    )
+    .values(certifications.map((name, index) => ({ name, sortOrder: index })))
     .run();
 
   db.insert(t.skills)

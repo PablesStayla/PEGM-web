@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
-import {
-  Field,
-  Flash,
-  PageHeader,
-  TextArea,
-  errorText,
-} from "@/components/admin/ui";
-import { SubmitButton } from "@/components/admin/submit-button";
 import { ConfirmButton } from "@/components/admin/confirm-button";
+import { SubmitButton } from "@/components/admin/submit-button";
+import { errorText, Field, Flash, PageHeader, TextArea } from "@/components/admin/ui";
+import type { experience } from "@/db/schema";
 import { deleteExperience, saveExperience } from "@/lib/actions/content";
 import { adminAllExperience } from "@/lib/data";
-import type { experience } from "@/db/schema";
 
 export const metadata: Metadata = {
   title: "Experiencia",
@@ -23,7 +17,12 @@ function ExperienceForm({ item }: { item?: Experience }) {
   return (
     <form action={saveExperience} className="grid gap-4 sm:grid-cols-2">
       {item ? <input type="hidden" name="id" value={item.id} /> : null}
-      <Field label="Período" name="period" defaultValue={item?.period} placeholder="2022 — Actualidad" />
+      <Field
+        label="Período"
+        name="period"
+        defaultValue={item?.period}
+        placeholder="2022 — Actualidad"
+      />
       <Field label="Orden" name="sortOrder" type="number" defaultValue={item?.sortOrder ?? 0} />
       <Field label="Cargo" name="role" defaultValue={item?.role} required />
       <Field label="Empresa / lugar" name="company" defaultValue={item?.company} required />
@@ -53,10 +52,7 @@ export default async function AdminExperiencePage({
 
   return (
     <>
-      <PageHeader
-        title="Experiencia"
-        description="La línea de tiempo que se muestra en el CV."
-      />
+      <PageHeader title="Experiencia" description="La línea de tiempo que se muestra en el CV." />
       <Flash
         saved={"saved" in params}
         deleted={"deleted" in params}

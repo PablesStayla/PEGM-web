@@ -13,8 +13,7 @@ export function SubmitButton({
 }) {
   const { pending } = useFormStatus();
 
-  const base =
-    "inline-flex items-center gap-2 text-sm transition-colors disabled:opacity-60";
+  const base = "inline-flex items-center gap-2 text-sm transition-colors disabled:opacity-60";
   const style =
     variant === "solid"
       ? "bg-ink px-5 py-2.5 text-bg hover:bg-accent"

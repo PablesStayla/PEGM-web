@@ -31,8 +31,9 @@ const HISTORY = 60;
 function initialSeries(): Record<string, number[]> {
   const series: Record<string, number[]> = {};
   for (const metric of METRICS) {
-    series[metric.key] = Array.from({ length: HISTORY }, () =>
-      metric.base + (Math.random() - 0.5) * metric.spread,
+    series[metric.key] = Array.from(
+      { length: HISTORY },
+      () => metric.base + (Math.random() - 0.5) * metric.spread,
     );
   }
   return series;
@@ -77,9 +78,7 @@ export function LiveDashboard() {
           const values = previous[metric.key];
           const last = values[values.length - 1];
           const value =
-            last +
-            (metric.base - last) * 0.08 +
-            (Math.random() - 0.5) * metric.spread * 0.7;
+            last + (metric.base - last) * 0.08 + (Math.random() - 0.5) * metric.spread * 0.7;
           next[metric.key] = [...values.slice(1), value];
         }
         return next;
@@ -101,9 +100,7 @@ export function LiveDashboard() {
           />
           <p className="text-sm">
             {running ? "Transmitiendo" : "En pausa"}
-            <span className="ml-2 text-xs text-muted">
-              {ticks} lecturas
-            </span>
+            <span className="ml-2 text-xs text-muted">{ticks} lecturas</span>
           </p>
         </div>
         <button
@@ -124,9 +121,7 @@ export function LiveDashboard() {
 
           return (
             <div key={metric.key} className="bg-bg p-5">
-              <p className="text-xs tracking-wider text-muted uppercase">
-                {metric.label}
-              </p>
+              <p className="text-xs tracking-wider text-muted uppercase">{metric.label}</p>
               <p className="mt-2 font-serif text-3xl">
                 {current.toLocaleString("es-CL", {
                   minimumFractionDigits: metric.decimals,
@@ -135,11 +130,9 @@ export function LiveDashboard() {
                 <span className="ml-1.5 text-sm text-muted">{metric.unit}</span>
               </p>
               <Sparkline values={values} />
-              <p
-                className={`text-xs ${delta >= 0 ? "text-accent" : "text-muted"}`}
-              >
-                {delta >= 0 ? "▲" : "▼"} {Math.abs(delta).toFixed(metric.decimals)}{" "}
-                {metric.unit} vs. hace 10 s
+              <p className={`text-xs ${delta >= 0 ? "text-accent" : "text-muted"}`}>
+                {delta >= 0 ? "▲" : "▼"} {Math.abs(delta).toFixed(metric.decimals)} {metric.unit}{" "}
+                vs. hace 10 s
               </p>
             </div>
           );
@@ -147,8 +140,7 @@ export function LiveDashboard() {
       </div>
 
       <p className="border-t border-line bg-surface px-6 py-3 text-xs text-muted">
-        Datos simulados (reversión a la media + ruido). No corresponde a una
-        planta real.
+        Datos simulados (reversión a la media + ruido). No corresponde a una planta real.
       </p>
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon, icons } from "@/components/icons";
 
 export type PaletteItem = {
@@ -57,10 +57,6 @@ export function CommandPalette({ items }: { items: PaletteItem[] }) {
     return items.filter((item) => item.label.toLowerCase().includes(q));
   }, [items, query]);
 
-  useEffect(() => {
-    setActive(0);
-  }, [query]);
-
   function go(href: string) {
     setOpen(false);
     router.push(href);
@@ -71,84 +67,84 @@ export function CommandPalette({ items }: { items: PaletteItem[] }) {
   let lastGroup = "";
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-start justify-center bg-ink/40 px-4 pt-[12vh] backdrop-blur-sm"
-      onClick={() => setOpen(false)}
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Buscador del sitio"
-        className="w-full max-w-lg border border-line bg-bg shadow-xl"
-        onClick={(event) => event.stopPropagation()}
-        onKeyDown={(event) => {
-          if (event.key === "ArrowDown") {
-            event.preventDefault();
-            setActive((i) => Math.min(i + 1, results.length - 1));
-          }
-          if (event.key === "ArrowUp") {
-            event.preventDefault();
-            setActive((i) => Math.max(i - 1, 0));
-          }
-          if (event.key === "Enter" && results[active]) {
-            event.preventDefault();
-            go(results[active].href);
-          }
-        }}
-      >
-        <div className="flex items-center gap-3 border-b border-line px-4">
-          <Icon path={icons.search} className="size-4 shrink-0 text-muted" />
-          <input
-            ref={inputRef}
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Buscar en el sitio…"
-            className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted"
-          />
-          <kbd className="hidden border border-line px-1.5 py-0.5 text-[10px] text-muted sm:block">
-            ESC
-          </kbd>
-        </div>
+    <div className="fixed inset-0 z-[100]">
+      {/* Fondo: botón a pantalla completa para cerrar (accesible con teclado) */}
+      <button
+        type="button"
+        aria-label="Cerrar buscador"
+        className="absolute inset-0 cursor-default bg-ink/40 backdrop-blur-sm"
+        onClick={() => setOpen(false)}
+      />
+      <div className="relative flex items-start justify-center px-4 pt-[12vh]">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Buscador del sitio"
+          className="w-full max-w-lg border border-line bg-bg shadow-xl"
+          onKeyDown={(event) => {
+            if (event.key === "ArrowDown") {
+              event.preventDefault();
+              setActive((i) => Math.min(i + 1, results.length - 1));
+            }
+            if (event.key === "ArrowUp") {
+              event.preventDefault();
+              setActive((i) => Math.max(i - 1, 0));
+            }
+            if (event.key === "Enter" && results[active]) {
+              event.preventDefault();
+              go(results[active].href);
+            }
+          }}
+        >
+          <div className="flex items-center gap-3 border-b border-line px-4">
+            <Icon path={icons.search} className="size-4 shrink-0 text-muted" />
+            <input
+              ref={inputRef}
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Buscar en el sitio…"
+              className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted"
+            />
+            <kbd className="hidden border border-line px-1.5 py-0.5 text-[10px] text-muted sm:block">
+              ESC
+            </kbd>
+          </div>
 
-        <ul className="max-h-80 overflow-y-auto p-2">
-          {results.length === 0 ? (
-            <li className="px-3 py-6 text-center text-sm text-muted">
-              Sin resultados para “{query}”.
-            </li>
-          ) : (
-            results.map((item, index) => {
-              const showGroup = item.group !== lastGroup;
-              lastGroup = item.group;
-              return (
-                <li key={`${item.href}-${item.label}`}>
-                  {showGroup ? (
-                    <p className="px-3 pt-3 pb-1 text-[10px] font-medium tracking-[0.18em] text-muted uppercase">
-                      {item.group}
-                    </p>
-                  ) : null}
-                  <button
-                    type="button"
-                    onMouseEnter={() => setActive(index)}
-                    onClick={() => go(item.href)}
-                    className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm ${
-                      index === active
-                        ? "bg-surface text-ink"
-                        : "text-muted"
-                    }`}
-                  >
-                    <span>{item.label}</span>
-                    {index === active ? (
-                      <Icon
-                        path={icons.arrowRight}
-                        className="size-3.5 text-accent"
-                      />
+          <ul className="max-h-80 overflow-y-auto p-2">
+            {results.length === 0 ? (
+              <li className="px-3 py-6 text-center text-sm text-muted">
+                Sin resultados para “{query}”.
+              </li>
+            ) : (
+              results.map((item, index) => {
+                const showGroup = item.group !== lastGroup;
+                lastGroup = item.group;
+                return (
+                  <li key={`${item.href}-${item.label}`}>
+                    {showGroup ? (
+                      <p className="px-3 pt-3 pb-1 text-[10px] font-medium tracking-[0.18em] text-muted uppercase">
+                        {item.group}
+                      </p>
                     ) : null}
-                  </button>
-                </li>
-              );
-            })
-          )}
-        </ul>
+                    <button
+                      type="button"
+                      onMouseEnter={() => setActive(index)}
+                      onClick={() => go(item.href)}
+                      className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm ${
+                        index === active ? "bg-surface text-ink" : "text-muted"
+                      }`}
+                    >
+                      <span>{item.label}</span>
+                      {index === active ? (
+                        <Icon path={icons.arrowRight} className="size-3.5 text-accent" />
+                      ) : null}
+                    </button>
+                  </li>
+                );
+              })
+            )}
+          </ul>
+        </div>
       </div>
     </div>
   );

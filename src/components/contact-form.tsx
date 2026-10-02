@@ -2,18 +2,12 @@
 
 import { useActionState } from "react";
 import { Icon, icons } from "@/components/icons";
-import {
-  sendMessage,
-  type ContactState,
-} from "@/lib/actions/messages";
+import { type ContactState, sendMessage } from "@/lib/actions/messages";
 
 const initial: ContactState = {};
 
 export function ContactForm() {
-  const [state, formAction, pending] = useActionState<ContactState, FormData>(
-    sendMessage,
-    initial,
-  );
+  const [state, formAction, pending] = useActionState<ContactState, FormData>(sendMessage, initial);
 
   if (state.ok) {
     return (
@@ -36,7 +30,10 @@ export function ContactForm() {
     <form action={formAction} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="nombre" className="mb-1.5 block text-xs font-medium tracking-wider text-muted uppercase">
+          <label
+            htmlFor="nombre"
+            className="mb-1.5 block text-xs font-medium tracking-wider text-muted uppercase"
+          >
             Nombre
           </label>
           <input
@@ -49,7 +46,10 @@ export function ContactForm() {
           />
         </div>
         <div>
-          <label htmlFor="correo" className="mb-1.5 block text-xs font-medium tracking-wider text-muted uppercase">
+          <label
+            htmlFor="correo"
+            className="mb-1.5 block text-xs font-medium tracking-wider text-muted uppercase"
+          >
             Correo
           </label>
           <input
@@ -65,7 +65,10 @@ export function ContactForm() {
       </div>
 
       <div>
-        <label htmlFor="mensaje" className="mb-1.5 block text-xs font-medium tracking-wider text-muted uppercase">
+        <label
+          htmlFor="mensaje"
+          className="mb-1.5 block text-xs font-medium tracking-wider text-muted uppercase"
+        >
           Mensaje
         </label>
         <textarea
@@ -90,7 +93,10 @@ export function ContactForm() {
       />
 
       {state.error ? (
-        <p role="alert" className="border border-accent/40 bg-accent/5 px-4 py-3 text-sm text-accent">
+        <p
+          role="alert"
+          className="border border-accent/40 bg-accent/5 px-4 py-3 text-sm text-accent"
+        >
           {state.error}
         </p>
       ) : null}

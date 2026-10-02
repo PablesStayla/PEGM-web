@@ -22,5 +22,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
+      - name: Lint (Biome)
+        run: npm run lint
+
+      - name: Tests (Vitest)
+        run: npm test
+
+      - name: Type check (TypeScript 7)
+        run: npm run type-check
+
+      - name: Build (Next.js 16 + Turbopack)
         run: npm run build
+        env:
+          AUTH_SECRET: ci-secret-only-for-build

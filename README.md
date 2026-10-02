@@ -36,13 +36,22 @@ Programado **desde cero** (SVG puro, sin librerías de gráficos):
 - **Auditoría** de todas las acciones del panel
 - Cambio de contraseña desde Ajustes
 
-## 🛠️ Stack
+## 🛠️ Stack (SOTA)
 
-- **Next.js 15** (App Router, Server Actions, ISR) · **React 19** · **TypeScript** estricto
-- **Tailwind CSS 4** (tema claro/oscuro con variables CSS)
-- **SQLite + Drizzle ORM** (migraciones + semilla automática en el primer arranque)
-- **better-sqlite3** · **jose** (JWT) · **scrypt** (Node crypto, sin dependencias)
-- Fuentes: **Fraunces** (serif) + **Inter** — autoalojadas con `@fontsource`
+| Herramienta | Versión | Rol |
+|---|---|---|
+| **Next.js** | 16.x (Turbopack) | Framework App Router, Server Actions, ISR, proxy |
+| **React** | 19.3 | UI |
+| **TypeScript** | 7 (compilador nativo) | Tipado estricto |
+| **Tailwind CSS** | 4.3 | Estilos con tema claro/oscuro (variables CSS) |
+| **Drizzle ORM** | 0.45 | SQLite tipado + migraciones + semilla automática |
+| **Biome** | 2.5 | Linter + formatter (un solo binario, sin Babel) |
+| **Vitest** | 5 | Tests unitarios (23 pruebas: auth, matemática del laboratorio, slugs) |
+| **Zod** | 4 | Validación de entradas en server actions |
+| **jose** | 6 | JWT HS256 de sesiones (compatible con proxy runtime) |
+| **scrypt** | Node crypto | Hash de contraseñas sin dependencias |
+
+Fuentes: **Fraunces** (serif) + **Inter** — autoalojadas con `@fontsource`.
 
 ## 📁 Estructura
 

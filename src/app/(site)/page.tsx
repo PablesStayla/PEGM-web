@@ -1,17 +1,10 @@
 import Link from "next/link";
-import { SectionHeading } from "@/components/section-heading";
-import { ProjectCard } from "@/components/project-card";
-import { Reveal } from "@/components/reveal";
 import { ContactForm } from "@/components/contact-form";
 import { Icon, icons } from "@/components/icons";
-import {
-  getProjects,
-  getSettings,
-  getSkills,
-  specialities,
-  stats,
-  techStack,
-} from "@/lib/data";
+import { ProjectCard } from "@/components/project-card";
+import { Reveal } from "@/components/reveal";
+import { SectionHeading } from "@/components/section-heading";
+import { getProjects, getSettings, getSkills, specialities, stats, techStack } from "@/lib/data";
 
 export const revalidate = 120;
 
@@ -42,9 +35,7 @@ export default async function HomePage() {
               {settings.title}
             </p>
 
-            <p className="mt-8 max-w-xl leading-relaxed text-muted">
-              {settings.tagline}
-            </p>
+            <p className="mt-8 max-w-xl leading-relaxed text-muted">{settings.tagline}</p>
 
             <div className="mt-10 flex flex-wrap items-center gap-4">
               <Link
@@ -59,9 +50,7 @@ export default async function HomePage() {
               >
                 ⚗ Explorar el laboratorio
               </Link>
-              <span className="text-sm text-muted">
-                {settings.availability}
-              </span>
+              <span className="text-sm text-muted">{settings.availability}</span>
             </div>
           </Reveal>
 
@@ -69,9 +58,7 @@ export default async function HomePage() {
             <dl className="mt-16 grid grid-cols-1 gap-8 border-t border-line pt-8 sm:grid-cols-3">
               {stats.map((stat) => (
                 <div key={stat.label}>
-                  <dt className="font-serif text-3xl text-accent">
-                    {stat.value}
-                  </dt>
+                  <dt className="font-serif text-3xl text-accent">{stat.value}</dt>
                   <dd className="mt-1 text-sm text-muted">{stat.label}</dd>
                 </div>
               ))}
@@ -84,10 +71,7 @@ export default async function HomePage() {
       <section id="sobre-mi" className="border-b border-line">
         <div className="mx-auto max-w-5xl px-6 py-20 md:py-28">
           <Reveal>
-            <SectionHeading
-              label="Quién soy"
-              title={settings.aboutHeading}
-            />
+            <SectionHeading label="Quién soy" title={settings.aboutHeading} />
             <div className="grid gap-10 md:grid-cols-3">
               {settings.aboutParagraphs.map((paragraph, index) => (
                 <p
@@ -116,12 +100,8 @@ export default async function HomePage() {
             <div className="grid gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
               {specialities.map((item) => (
                 <div key={item.title} className="bg-surface p-8">
-                  <h3 className="font-serif text-lg leading-snug">
-                    {item.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted">
-                    {item.description}
-                  </p>
+                  <h3 className="font-serif text-lg leading-snug">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted">{item.description}</p>
                 </div>
               ))}
             </div>
@@ -163,16 +143,9 @@ export default async function HomePage() {
                   href={tool.href}
                   className="group flex h-full flex-col border border-line p-6 transition-colors hover:border-accent"
                 >
-                  <Icon
-                    path={icons.flask}
-                    className="size-5 text-accent"
-                  />
-                  <h3 className="mt-4 font-serif text-lg leading-snug">
-                    {tool.title}
-                  </h3>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">
-                    {tool.text}
-                  </p>
+                  <Icon path={icons.flask} className="size-5 text-accent" />
+                  <h3 className="mt-4 font-serif text-lg leading-snug">{tool.title}</h3>
+                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{tool.text}</p>
                   <span className="mt-4 inline-flex items-center gap-2 text-xs font-medium tracking-wider text-accent uppercase">
                     Probar
                     <Icon path={icons.arrowRight} className="size-3.5" />
@@ -185,10 +158,7 @@ export default async function HomePage() {
           <Reveal>
             <ul className="mt-10 flex flex-wrap gap-2">
               {techStack.map((tech) => (
-                <li
-                  key={tech}
-                  className="border border-line px-3 py-1.5 text-xs text-muted"
-                >
+                <li key={tech} className="border border-line px-3 py-1.5 text-xs text-muted">
                   {tech}
                 </li>
               ))}
@@ -208,11 +178,7 @@ export default async function HomePage() {
             />
             <div className="grid gap-6 md:grid-cols-3">
               {featured.map((project, index) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  index={index}
-                />
+                <ProjectCard key={project.id} project={project} index={index} />
               ))}
             </div>
             <div className="mt-10">
@@ -235,9 +201,8 @@ export default async function HomePage() {
             <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr]">
               <div>
                 <p className="leading-relaxed text-muted">
-                  Si tienes un desafío metalúrgico, un proyecto que evaluar o un
-                  proceso que optimizar, escríbeme. Los mensajes llegan directo
-                  a mi panel de administración.
+                  Si tienes un desafío metalúrgico, un proyecto que evaluar o un proceso que
+                  optimizar, escríbeme. Los mensajes llegan directo a mi panel de administración.
                 </p>
                 <div className="mt-8 space-y-4 text-sm">
                   <a
@@ -248,10 +213,7 @@ export default async function HomePage() {
                     {settings.email}
                   </a>
                   <p className="flex items-center gap-3 text-muted">
-                    <Icon
-                      path={icons.graduation}
-                      className="size-4 text-accent"
-                    />
+                    <Icon path={icons.graduation} className="size-4 text-accent" />
                     {settings.location}
                   </p>
                   <div className="flex flex-wrap gap-2 pt-2">

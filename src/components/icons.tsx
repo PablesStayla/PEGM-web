@@ -23,7 +23,8 @@ export const icons = {
   check: "M20 6L9 17l-5-5",
   x: "M18 6L6 18M6 6l12 12",
   plus: "M12 5v14M5 12h14",
-  tools: "M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z",
+  tools:
+    "M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z",
   flask: "M9 3h6M10 3v6.5L4.8 18a2 2 0 0 0 1.8 3h10.8a2 2 0 0 0 1.8-3L14 9.5V3",
   arrowRight: "M5 12h14M12 5l7 7-7 7",
   eye: "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
@@ -33,13 +34,7 @@ export const icons = {
   send: "M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z",
 } as const;
 
-export function Icon({
-  path,
-  className = "size-4",
-}: {
-  path: string;
-  className?: string;
-}) {
+export function Icon({ path, className = "size-4" }: { path: string; className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"

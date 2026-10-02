@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { Field, Flash, PageHeader, errorText } from "@/components/admin/ui";
-import { SubmitButton } from "@/components/admin/submit-button";
 import { ConfirmButton } from "@/components/admin/confirm-button";
+import { SubmitButton } from "@/components/admin/submit-button";
+import { errorText, Field, Flash, PageHeader } from "@/components/admin/ui";
 import { deleteSkill, saveSkill } from "@/lib/actions/content";
 import { adminAllSkills } from "@/lib/data";
 
@@ -68,10 +68,7 @@ export default async function AdminSkillsPage({
 
             <ul className="divide-y divide-line">
               {group.items.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex items-center justify-between gap-3 px-5 py-3"
-                >
+                <li key={item.id} className="flex items-center justify-between gap-3 px-5 py-3">
                   <span className="text-sm">{item.name}</span>
                   <div className="flex items-center gap-2">
                     <form action={saveSkill} className="flex items-center gap-1.5">
