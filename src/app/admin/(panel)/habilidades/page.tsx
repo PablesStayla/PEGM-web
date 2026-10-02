@@ -16,7 +16,7 @@ export default async function AdminSkillsPage({
   searchParams: Promise<{ saved?: string; deleted?: string; error?: string }>;
 }) {
   const params = await searchParams;
-  const items = adminAllSkills();
+  const items = await adminAllSkills();
   const software = items.filter((item) => item.kind === "software");
   const areas = items.filter((item) => item.kind === "area");
 

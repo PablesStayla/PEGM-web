@@ -48,7 +48,7 @@ export default async function AdminExperiencePage({
   searchParams: Promise<{ saved?: string; deleted?: string; error?: string }>;
 }) {
   const params = await searchParams;
-  const items = adminAllExperience();
+  const items = await adminAllExperience();
 
   return (
     <>

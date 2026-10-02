@@ -13,20 +13,14 @@ import {
 } from "@/lib/content";
 
 // Contenido estático (no administrado desde el panel)
-export {
-  specialities,
-  stats,
-  techStack,
-} from "@/lib/content";
+export { specialities, stats, techStack } from "@/lib/content";
 
 /**
- * Capa de acceso a datos.
+ * Capa de acceso a datos (libSQL local o Turso remoto).
  *
- * Las funciones públicas (get*) leen la base de datos y, si no está disponible
- * (por ejemplo, en un despliegue de solo lectura), caen al contenido semilla
- * de src/lib/content.ts: el sitio público nunca se rompe.
- *
- * Las funciones de administración (admin*) fallan explícitamente.
+ * Las funciones públicas (get*) leen la base de datos y, si no está disponible,
+ * caen al contenido semilla de src/lib/content.ts: el sitio público nunca se
+ * rompe. Las funciones de administración (admin*) fallan explícitamente.
  */
 
 // ── Tipos públicos ──────────────────────────────────────────────────────────
@@ -85,7 +79,8 @@ function fallbackSettings(): SiteSettings {
 
 export async function getSettings(): Promise<SiteSettings> {
   try {
-    const row = getDb().select().from(t.settings).where(eq(t.settings.id, 1)).limit(1).all()[0];
+    const db = await getDb();
+    const row = (await db.select().from(t.settings).where(eq(t.settings.id, 1)).limit(1).all())[0];
     if (!row) return fallbackSettings();
     return {
       name: row.name,
@@ -106,7 +101,8 @@ export async function getSettings(): Promise<SiteSettings> {
 
 export async function getProjects(): Promise<PublicProject[]> {
   try {
-    const rows = getDb()
+    const db = await getDb();
+    const rows = await db
       .select()
       .from(t.projects)
       .orderBy(asc(t.projects.sortOrder), asc(t.projects.id))
@@ -124,7 +120,8 @@ export async function getProjects(): Promise<PublicProject[]> {
 
 export async function getExperience(): Promise<PublicExperience[]> {
   try {
-    const rows = getDb()
+    const db = await getDb();
+    const rows = await db
       .select()
       .from(t.experience)
       .orderBy(asc(t.experience.sortOrder), asc(t.experience.id))
@@ -142,7 +139,8 @@ export async function getExperience(): Promise<PublicExperience[]> {
 
 export async function getEducation(): Promise<PublicEducation[]> {
   try {
-    const rows = getDb()
+    const db = await getDb();
+    const rows = await db
       .select()
       .from(t.education)
       .orderBy(asc(t.education.sortOrder), asc(t.education.id))
@@ -160,7 +158,8 @@ export async function getEducation(): Promise<PublicEducation[]> {
 
 export async function getCertifications(): Promise<string[]> {
   try {
-    const rows = getDb()
+    const db = await getDb();
+    const rows = await db
       .select()
       .from(t.certifications)
       .orderBy(asc(t.certifications.sortOrder), asc(t.certifications.id))
@@ -177,7 +176,8 @@ export async function getSkills(): Promise<{
   areas: string[];
 }> {
   try {
-    const rows = getDb()
+    const db = await getDb();
+    const rows = await db
       .select()
       .from(t.skills)
       .orderBy(asc(t.skills.sortOrder), asc(t.skills.id))
@@ -196,7 +196,8 @@ export async function getSkills(): Promise<{
 
 export async function getLanguages(): Promise<{ name: string; level: string }[]> {
   try {
-    const rows = getDb()
+    const db = await getDb();
+    const rows = await db
       .select()
       .from(t.languages)
       .orderBy(asc(t.languages.sortOrder), asc(t.languages.id))
@@ -210,83 +211,97 @@ export async function getLanguages(): Promise<{ name: string; level: string }[]>
 
 // ── Consultas de administración (sin degradación) ───────────────────────────
 
-export function adminDashboardStats() {
-  const db = getDb();
+export async function adminDashboardStats() {
+  const db = await getDb();
+  const [projects, experienceRows, total, read] = await Promise.all([
+    db.select({ value: count() }).from(t.projects).all(),
+    db.select({ value: count() }).from(t.experience).all(),
+    db.select({ value: count() }).from(t.messages).all(),
+    db.select({ value: count() }).from(t.messages).where(eq(t.messages.read, true)).all(),
+  ]);
   return {
-    projects: db.select({ value: count() }).from(t.projects).all()[0]?.value ?? 0,
-    experience: db.select({ value: count() }).from(t.experience).all()[0]?.value ?? 0,
-    messages: db.select({ value: count() }).from(t.messages).all()[0]?.value ?? 0,
-    unreadMessages:
-      db.select({ value: count() }).from(t.messages).where(eq(t.messages.read, false)).all()[0]
-        ?.value ?? 0,
-    certifications: db.select({ value: count() }).from(t.certifications).all()[0]?.value ?? 0,
-    skills: db.select({ value: count() }).from(t.skills).all()[0]?.value ?? 0,
+    projects: projects[0]?.value ?? 0,
+    experience: experienceRows[0]?.value ?? 0,
+    messages: total[0]?.value ?? 0,
+    unreadMessages: (total[0]?.value ?? 0) - (read[0]?.value ?? 0),
+    certifications:
+      (await db.select({ value: count() }).from(t.certifications).all())[0]?.value ?? 0,
+    skills: (await db.select({ value: count() }).from(t.skills).all())[0]?.value ?? 0,
   };
 }
 
-export function adminAllProjects() {
-  return getDb()
-    .select()
-    .from(t.projects)
-    .orderBy(asc(t.projects.sortOrder), asc(t.projects.id))
-    .all();
+export async function adminRecentMessages(limit = 5) {
+  const db = await getDb();
+  return db.select().from(t.messages).orderBy(desc(t.messages.createdAt)).limit(limit).all();
 }
 
-export function adminAllExperience() {
-  return getDb()
+export async function adminAllMessages() {
+  const db = await getDb();
+  return db.select().from(t.messages).orderBy(desc(t.messages.createdAt)).all();
+}
+
+export async function adminUnreadMessageCount() {
+  const db = await getDb();
+  const rows = await db
+    .select({ value: count() })
+    .from(t.messages)
+    .where(eq(t.messages.read, false))
+    .all();
+  return rows[0]?.value ?? 0;
+}
+
+export async function adminAuditLog(limit = 50) {
+  const db = await getDb();
+  return db.select().from(t.auditLog).orderBy(desc(t.auditLog.createdAt)).limit(limit).all();
+}
+
+export async function adminAllProjects() {
+  const db = await getDb();
+  return db.select().from(t.projects).orderBy(asc(t.projects.sortOrder), asc(t.projects.id)).all();
+}
+
+export async function adminAllExperience() {
+  const db = await getDb();
+  return db
     .select()
     .from(t.experience)
     .orderBy(asc(t.experience.sortOrder), asc(t.experience.id))
     .all();
 }
 
-export function adminAllEducation() {
-  return getDb()
+export async function adminAllEducation() {
+  const db = await getDb();
+  return db
     .select()
     .from(t.education)
     .orderBy(asc(t.education.sortOrder), asc(t.education.id))
     .all();
 }
 
-export function adminAllCertifications() {
-  return getDb()
+export async function adminAllCertifications() {
+  const db = await getDb();
+  return db
     .select()
     .from(t.certifications)
     .orderBy(asc(t.certifications.sortOrder), asc(t.certifications.id))
     .all();
 }
 
-export function adminAllSkills() {
-  return getDb().select().from(t.skills).orderBy(asc(t.skills.sortOrder), asc(t.skills.id)).all();
+export async function adminAllSkills() {
+  const db = await getDb();
+  return db.select().from(t.skills).orderBy(asc(t.skills.sortOrder), asc(t.skills.id)).all();
 }
 
-export function adminAllLanguages() {
-  return getDb()
+export async function adminAllLanguages() {
+  const db = await getDb();
+  return db
     .select()
     .from(t.languages)
     .orderBy(asc(t.languages.sortOrder), asc(t.languages.id))
     .all();
 }
 
-export function adminGetSettings() {
-  return getDb().select().from(t.settings).where(eq(t.settings.id, 1)).limit(1).all()[0];
-}
-
-export function adminRecentMessages(limit = 5) {
-  return getDb().select().from(t.messages).orderBy(desc(t.messages.createdAt)).limit(limit).all();
-}
-
-export function adminAllMessages() {
-  return getDb().select().from(t.messages).orderBy(desc(t.messages.createdAt)).all();
-}
-
-export function adminUnreadMessageCount() {
-  return (
-    getDb().select({ value: count() }).from(t.messages).where(eq(t.messages.read, false)).all()[0]
-      ?.value ?? 0
-  );
-}
-
-export function adminAuditLog(limit = 50) {
-  return getDb().select().from(t.auditLog).orderBy(desc(t.auditLog.createdAt)).limit(limit).all();
+export async function adminGetSettings() {
+  const db = await getDb();
+  return (await db.select().from(t.settings).where(eq(t.settings.id, 1)).limit(1).all())[0];
 }

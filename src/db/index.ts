@@ -1,37 +1,51 @@
 import fs from "node:fs";
 import path from "node:path";
-import Database from "better-sqlite3";
-import { type BetterSQLite3Database, drizzle } from "drizzle-orm/better-sqlite3";
-import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import { type Client, createClient } from "@libsql/client";
+import { drizzle, type LibSQLDatabase } from "drizzle-orm/libsql";
+import { migrate } from "drizzle-orm/libsql/migrator";
 import * as schema from "./schema";
 import { seedIfEmpty } from "./seed";
 
-export type Db = BetterSQLite3Database<typeof schema>;
-
-let dbInstance: Db | null = null;
+export type Db = LibSQLDatabase<typeof schema>;
 
 /**
- * Devuelve la instancia única de la base de datos.
+ * Capa de conexión a la base de datos (libSQL).
+ *
+ * - Local (desarrollo): SQLite en archivo `data/site.db` — sin cuenta ni red.
+ * - Producción (Turso): definir `TURSO_DATABASE_URL` (libsql://…) y
+ *   `TURSO_AUTH_TOKEN`; los cambios del panel persisten en serverless.
+ *
  * En el primer arranque aplica las migraciones (drizzle/) y, si está vacía,
- * siembra el contenido inicial. Todo es idempotente.
+ * siembra el contenido inicial. Todo idempotente y a prueba de carreras
+ * (singleton por promesa).
  */
-export function getDb(): Db {
-  if (dbInstance) return dbInstance;
 
+let dbPromise: Promise<Db> | null = null;
+
+function resolveUrl(): { url: string; authToken?: string } {
+  const remoteUrl = process.env.TURSO_DATABASE_URL;
+  if (remoteUrl && (remoteUrl.startsWith("libsql://") || remoteUrl.startsWith("https://"))) {
+    return { url: remoteUrl, authToken: process.env.TURSO_AUTH_TOKEN };
+  }
+  // modo local: archivo SQLite
   const dir = path.join(process.cwd(), "data");
   fs.mkdirSync(dir, { recursive: true });
+  return { url: `file:${path.join(dir, "site.db")}` };
+}
 
-  const sqlite = new Database(path.join(dir, "site.db"));
-  sqlite.pragma("journal_mode = WAL");
-  sqlite.pragma("foreign_keys = ON");
+async function initDb(): Promise<Db> {
+  const { url, authToken } = resolveUrl();
+  const isLocal = url.startsWith("file:");
 
-  dbInstance = drizzle(sqlite, { schema });
+  const client: Client = isLocal ? createClient({ url }) : createClient({ url, authToken });
 
-  // Las migraciones son idempotentes; reintentos ante eventuales locks
-  // cuando varios procesos/workers arrancan a la vez (p. ej. durante build).
+  const db = drizzle(client, { schema });
+
+  // Migraciones idempotentes; reintentos ante eventuales locks de arranque
+  // cuando varios procesos arrancan a la vez (p. ej. durante build).
   for (let attempt = 1; ; attempt++) {
     try {
-      migrate(dbInstance, {
+      await migrate(db, {
         migrationsFolder: path.join(process.cwd(), "drizzle"),
       });
       break;
@@ -40,13 +54,18 @@ export function getDb(): Db {
     }
   }
 
-  // La semilla solo inserta si la base está vacía; si otro proceso la sembró
-  // primero (carrera), el error de unicidad se ignora.
+  // La semilla solo inserta si la base está vacía (transacción atómica);
+  // si otro proceso la sembró primero, el único duplicado salta y se ignora.
   try {
-    seedIfEmpty(dbInstance);
+    await seedIfEmpty(db);
   } catch (error) {
     console.error("[db] semilla:", error);
   }
 
-  return dbInstance;
+  return db;
+}
+
+export function getDb(): Promise<Db> {
+  dbPromise ??= initDb();
+  return dbPromise;
 }

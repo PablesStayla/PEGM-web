@@ -73,11 +73,11 @@ export default async function AdminEducationPage({
   searchParams: Promise<{ saved?: string; deleted?: string; error?: string }>;
 }) {
   const params = await searchParams;
-  const [education, certifications, languages] = [
+  const [education, certifications, languages] = await Promise.all([
     adminAllEducation(),
     adminAllCertifications(),
     adminAllLanguages(),
-  ];
+  ]);
 
   return (
     <>

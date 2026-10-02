@@ -22,8 +22,9 @@ async function requireUser() {
   return session;
 }
 
-function audit(userEmail: string, action: string, entity: string, detail = "") {
-  getDb().insert(t.auditLog).values({ userEmail, action, entity, detail }).run();
+async function audit(userEmail: string, action: string, entity: string, detail = "") {
+  const db = await getDb();
+  await db.insert(t.auditLog).values({ userEmail, action, entity, detail }).run();
 }
 
 function refreshPublicPages() {
@@ -91,8 +92,9 @@ export async function saveSettings(formData: FormData) {
     redirect("/admin/ajustes?error=required");
   }
 
-  getDb().update(t.settings).set(values).where(eq(t.settings.id, 1)).run();
-  audit(user.email, "actualizó", "ajustes del sitio");
+  const db = await getDb();
+  await db.update(t.settings).set(values).where(eq(t.settings.id, 1)).run();
+  await audit(user.email, "actualizó", "ajustes del sitio");
   refreshPublicPages();
   revalidatePath("/admin/ajustes");
   redirect("/admin/ajustes?saved=1");
@@ -107,18 +109,21 @@ export async function changePassword(formData: FormData) {
     redirect("/admin/ajustes?error=password-short");
   }
 
-  const db = getDb();
-  const row = db.select().from(t.users).where(eq(t.users.email, user.email)).limit(1).all()[0];
+  const db = await getDb();
+  const row = (
+    await db.select().from(t.users).where(eq(t.users.email, user.email)).limit(1).all()
+  )[0];
 
   if (!row || !verifyPassword(current, row.passwordHash)) {
     redirect("/admin/ajustes?error=password-wrong");
   }
 
-  db.update(t.users)
+  await db
+    .update(t.users)
     .set({ passwordHash: hashPassword(next) })
     .where(eq(t.users.id, row.id))
     .run();
-  audit(user.email, "actualizó", "contraseña");
+  await audit(user.email, "actualizó", "contraseña");
   redirect("/admin/ajustes?saved=password");
 }
 
@@ -139,12 +144,13 @@ export async function saveProject(formData: FormData) {
   };
   if (!values.title) redirect("/admin/proyectos?error=required");
 
+  const db = await getDb();
   if (id) {
-    getDb().update(t.projects).set(values).where(eq(t.projects.id, id)).run();
-    audit(user.email, "actualizó", "proyecto", values.title);
+    await db.update(t.projects).set(values).where(eq(t.projects.id, id)).run();
+    await audit(user.email, "actualizó", "proyecto", values.title);
   } else {
-    getDb().insert(t.projects).values(values).run();
-    audit(user.email, "creó", "proyecto", values.title);
+    await db.insert(t.projects).values(values).run();
+    await audit(user.email, "creó", "proyecto", values.title);
   }
 
   refreshPublicPages();
@@ -155,8 +161,9 @@ export async function saveProject(formData: FormData) {
 export async function deleteProject(formData: FormData) {
   const user = await requireUser();
   const id = idOrThrow(formData, "/admin/proyectos");
-  getDb().delete(t.projects).where(eq(t.projects.id, id)).run();
-  audit(user.email, "eliminó", "proyecto", `#${id}`);
+  const db = await getDb();
+  await db.delete(t.projects).where(eq(t.projects.id, id)).run();
+  await audit(user.email, "eliminó", "proyecto", `#${id}`);
   refreshPublicPages();
   revalidatePath("/admin/proyectos");
   redirect("/admin/proyectos?deleted=1");
@@ -178,12 +185,13 @@ export async function saveExperience(formData: FormData) {
     redirect("/admin/experiencia?error=required");
   }
 
+  const db = await getDb();
   if (id) {
-    getDb().update(t.experience).set(values).where(eq(t.experience.id, id)).run();
-    audit(user.email, "actualizó", "experiencia", values.role);
+    await db.update(t.experience).set(values).where(eq(t.experience.id, id)).run();
+    await audit(user.email, "actualizó", "experiencia", values.role);
   } else {
-    getDb().insert(t.experience).values(values).run();
-    audit(user.email, "creó", "experiencia", values.role);
+    await db.insert(t.experience).values(values).run();
+    await audit(user.email, "creó", "experiencia", values.role);
   }
 
   refreshPublicPages();
@@ -194,8 +202,9 @@ export async function saveExperience(formData: FormData) {
 export async function deleteExperience(formData: FormData) {
   const user = await requireUser();
   const id = idOrThrow(formData, "/admin/experiencia");
-  getDb().delete(t.experience).where(eq(t.experience.id, id)).run();
-  audit(user.email, "eliminó", "experiencia", `#${id}`);
+  const db = await getDb();
+  await db.delete(t.experience).where(eq(t.experience.id, id)).run();
+  await audit(user.email, "eliminó", "experiencia", `#${id}`);
   refreshPublicPages();
   revalidatePath("/admin/experiencia");
   redirect("/admin/experiencia?deleted=1");
@@ -215,12 +224,13 @@ export async function saveEducation(formData: FormData) {
   };
   if (!values.degree) redirect("/admin/educacion?error=required");
 
+  const db = await getDb();
   if (id) {
-    getDb().update(t.education).set(values).where(eq(t.education.id, id)).run();
-    audit(user.email, "actualizó", "educación", values.degree);
+    await db.update(t.education).set(values).where(eq(t.education.id, id)).run();
+    await audit(user.email, "actualizó", "educación", values.degree);
   } else {
-    getDb().insert(t.education).values(values).run();
-    audit(user.email, "creó", "educación", values.degree);
+    await db.insert(t.education).values(values).run();
+    await audit(user.email, "creó", "educación", values.degree);
   }
 
   refreshPublicPages();
@@ -231,8 +241,9 @@ export async function saveEducation(formData: FormData) {
 export async function deleteEducation(formData: FormData) {
   const user = await requireUser();
   const id = idOrThrow(formData, "/admin/educacion");
-  getDb().delete(t.education).where(eq(t.education.id, id)).run();
-  audit(user.email, "eliminó", "educación", `#${id}`);
+  const db = await getDb();
+  await db.delete(t.education).where(eq(t.education.id, id)).run();
+  await audit(user.email, "eliminó", "educación", `#${id}`);
   refreshPublicPages();
   revalidatePath("/admin/educacion");
   redirect("/admin/educacion?deleted=1");
@@ -247,16 +258,17 @@ export async function saveCertification(formData: FormData) {
   const sortOrder = num(formData, "sortOrder");
   if (!name) redirect("/admin/educacion?error=required");
 
+  const db = await getDb();
   if (id) {
-    getDb()
+    await db
       .update(t.certifications)
       .set({ name, sortOrder })
       .where(eq(t.certifications.id, id))
       .run();
-    audit(user.email, "actualizó", "certificación", name);
+    await audit(user.email, "actualizó", "certificación", name);
   } else {
-    getDb().insert(t.certifications).values({ name, sortOrder }).run();
-    audit(user.email, "creó", "certificación", name);
+    await db.insert(t.certifications).values({ name, sortOrder }).run();
+    await audit(user.email, "creó", "certificación", name);
   }
 
   refreshPublicPages();
@@ -267,8 +279,9 @@ export async function saveCertification(formData: FormData) {
 export async function deleteCertification(formData: FormData) {
   const user = await requireUser();
   const id = idOrThrow(formData, "/admin/educacion");
-  getDb().delete(t.certifications).where(eq(t.certifications.id, id)).run();
-  audit(user.email, "eliminó", "certificación", `#${id}`);
+  const db = await getDb();
+  await db.delete(t.certifications).where(eq(t.certifications.id, id)).run();
+  await audit(user.email, "eliminó", "certificación", `#${id}`);
   refreshPublicPages();
   revalidatePath("/admin/educacion");
   redirect("/admin/educacion?deleted=1");
@@ -286,12 +299,13 @@ export async function saveLanguage(formData: FormData) {
   };
   if (!values.name) redirect("/admin/educacion?error=required");
 
+  const db = await getDb();
   if (id) {
-    getDb().update(t.languages).set(values).where(eq(t.languages.id, id)).run();
-    audit(user.email, "actualizó", "idioma", values.name);
+    await db.update(t.languages).set(values).where(eq(t.languages.id, id)).run();
+    await audit(user.email, "actualizó", "idioma", values.name);
   } else {
-    getDb().insert(t.languages).values(values).run();
-    audit(user.email, "creó", "idioma", values.name);
+    await db.insert(t.languages).values(values).run();
+    await audit(user.email, "creó", "idioma", values.name);
   }
 
   refreshPublicPages();
@@ -302,8 +316,9 @@ export async function saveLanguage(formData: FormData) {
 export async function deleteLanguage(formData: FormData) {
   const user = await requireUser();
   const id = idOrThrow(formData, "/admin/educacion");
-  getDb().delete(t.languages).where(eq(t.languages.id, id)).run();
-  audit(user.email, "eliminó", "idioma", `#${id}`);
+  const db = await getDb();
+  await db.delete(t.languages).where(eq(t.languages.id, id)).run();
+  await audit(user.email, "eliminó", "idioma", `#${id}`);
   refreshPublicPages();
   revalidatePath("/admin/educacion");
   redirect("/admin/educacion?deleted=1");
@@ -321,12 +336,13 @@ export async function saveSkill(formData: FormData) {
   };
   if (!values.name) redirect("/admin/habilidades?error=required");
 
+  const db = await getDb();
   if (id) {
-    getDb().update(t.skills).set(values).where(eq(t.skills.id, id)).run();
-    audit(user.email, "actualizó", "habilidad", values.name);
+    await db.update(t.skills).set(values).where(eq(t.skills.id, id)).run();
+    await audit(user.email, "actualizó", "habilidad", values.name);
   } else {
-    getDb().insert(t.skills).values(values).run();
-    audit(user.email, "creó", "habilidad", values.name);
+    await db.insert(t.skills).values(values).run();
+    await audit(user.email, "creó", "habilidad", values.name);
   }
 
   refreshPublicPages();
@@ -337,8 +353,9 @@ export async function saveSkill(formData: FormData) {
 export async function deleteSkill(formData: FormData) {
   const user = await requireUser();
   const id = idOrThrow(formData, "/admin/habilidades");
-  getDb().delete(t.skills).where(eq(t.skills.id, id)).run();
-  audit(user.email, "eliminó", "habilidad", `#${id}`);
+  const db = await getDb();
+  await db.delete(t.skills).where(eq(t.skills.id, id)).run();
+  await audit(user.email, "eliminó", "habilidad", `#${id}`);
   refreshPublicPages();
   revalidatePath("/admin/habilidades");
   redirect("/admin/habilidades?deleted=1");

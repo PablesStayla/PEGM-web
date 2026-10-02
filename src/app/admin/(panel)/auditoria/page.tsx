@@ -15,7 +15,7 @@ function formatDate(date: Date) {
 }
 
 export default async function AdminAuditPage() {
-  const entries = adminAuditLog(200);
+  const entries = await adminAuditLog(200);
 
   return (
     <>

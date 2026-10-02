@@ -44,7 +44,8 @@ Programado **desde cero** (SVG puro, sin librerías de gráficos):
 | **React** | 19.3 | UI |
 | **TypeScript** | 7 (compilador nativo) | Tipado estricto |
 | **Tailwind CSS** | 4.3 | Estilos con tema claro/oscuro (variables CSS) |
-| **Drizzle ORM** | 0.45 | SQLite tipado + migraciones + semilla automática |
+| **Drizzle ORM** | 0.45 | libSQL tipado + migraciones + semilla automática |
+| **Turso / libSQL** | 0.18 | SQLite en la nube (producción) o archivo local (desarrollo) |
 | **Biome** | 2.5 | Linter + formatter (un solo binario, sin Babel) |
 | **Vitest** | 5 | Tests unitarios (23 pruebas: auth, matemática del laboratorio, slugs) |
 | **Zod** | 4 | Validación de entradas en server actions |
@@ -69,7 +70,7 @@ Fuentes: **Fraunces** (serif) + **Inter** — autoalojadas con `@fontsource`.
 │   │   ├── layout.tsx         # Raíz: fuentes, tema, metadata
 │   │   ├── robots.ts · sitemap.ts
 │   ├── components/            # UI pública + admin + lab/ (4 herramientas)
-│   ├── db/                    # Esquema Drizzle, conexión y semilla
+│   ├── db/                    # Esquema Drizzle, conexión libSQL/Turso y semilla
 │   ├── lib/
 │   │   ├── content.ts         # ⭐ Contenido inicial (semilla)
 │   │   ├── data.ts            # Consultas (con degradación elegante si no hay DB)
@@ -90,8 +91,10 @@ cp .env.example .env.local   # y editar AUTH_SECRET
 npm run dev            # → http://localhost:3000
 ```
 
-En el primer arranque la base de datos se **crea y siembra sola** (migraciones +
-contenido inicial de `src/lib/content.ts` + usuario admin).
+Sin variables de Turso, la base de datos es **SQLite local** (`data/site.db`) y se
+**crea y siembra sola** en el primer arranque (migraciones + contenido inicial de
+`src/lib/content.ts` + usuario admin). Con `TURSO_DATABASE_URL` y `TURSO_AUTH_TOKEN`
+definidos, la misma lógica corre contra **Turso** (persistente en serverless).
 
 **Acceso al panel:** `/admin` → `admin@pablo.cl` / `admin1234`
 *(credenciales por defecto: cámbialas en Ajustes → Contraseña)*
@@ -126,11 +129,13 @@ node --experimental-strip-types scripts/test-auth.mts   # pruebas de auth/DB
 - Server Actions de administración validan la sesión en cada llamada y dejan
   registro en la auditoría. Next.js valida el origen de las acciones (anti-CSRF).
 - Formulario de contacto: validación server-side + honeypot anti-bots.
-- **Despliegue**: en Vercel el sistema de archivos es efímero; para conservar
-  los cambios del admin en producción, migrar la capa `src/db` a
-  **Turso** o **Postgres** (Drizzle soporta ambos con cambios mínimos en
-  `src/db/index.ts` y `drizzle.config.ts`). Sin DB persistente, el sitio
-  público sigue funcionando con el contenido semilla (degradación elegante).
+- **Despliegue (Vercel + Turso)**: el sitio ya es compatible con Turso.
+  1. Crear la base: `turso db create pablo-site` (requiere cuenta gratuita)
+  2. Obtener credenciales: `turso db show pablo-site --url` y `turso db tokens create pablo-site`
+  3. En Vercel, definir: `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `AUTH_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`
+  4. Deployar. El primer arranque aplica migraciones y siembra el contenido en Turso.
+  Sin DB remota configurada, el sitio sigue funcionando con SQLite local o el
+  contenido semilla (degradación elegante).
 
 ## CI
 

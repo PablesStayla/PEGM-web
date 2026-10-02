@@ -53,7 +53,7 @@ export default async function AdminProjectsPage({
   searchParams: Promise<{ saved?: string; deleted?: string; error?: string }>;
 }) {
   const params = await searchParams;
-  const items = adminAllProjects();
+  const items = await adminAllProjects();
 
   return (
     <>

@@ -24,7 +24,7 @@ export default async function AdminMessagesPage({
   searchParams: Promise<{ filter?: string }>;
 }) {
   const { filter } = await searchParams;
-  const all = adminAllMessages();
+  const all = await adminAllMessages();
   const messages = filter === "unread" ? all.filter((m) => !m.read) : all;
   const unreadCount = all.filter((m) => !m.read).length;
 

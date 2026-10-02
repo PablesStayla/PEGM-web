@@ -17,7 +17,7 @@ export default async function AdminPanelLayout({
     redirect("/admin/login");
   }
 
-  const unread = adminUnreadMessageCount();
+  const unread = await adminUnreadMessageCount();
 
   return (
     <AdminShell email={session.email} unread={unread}>

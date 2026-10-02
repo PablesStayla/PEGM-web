@@ -18,7 +18,7 @@ export default async function AdminSettingsPage({
   }>;
 }) {
   const params = await searchParams;
-  const settings = adminGetSettings();
+  const settings = await adminGetSettings();
 
   const passwordError =
     params.error === "password-short" || params.error === "password-wrong"

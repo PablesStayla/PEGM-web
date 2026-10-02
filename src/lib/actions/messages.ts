@@ -34,7 +34,8 @@ export async function sendMessage(_prev: ContactState, formData: FormData): Prom
   const { name, email, body } = parsed.data;
 
   try {
-    getDb().insert(messages).values({ name, email, body }).run();
+    const db = await getDb();
+    await db.insert(messages).values({ name, email, body }).run();
   } catch {
     return {
       error: "No se pudo enviar el mensaje en este momento. Escríbeme directo a mi correo.",
@@ -59,9 +60,10 @@ export async function toggleMessageRead(formData: FormData) {
   const id = Number(formData.get("id"));
   if (!id) redirect("/admin/mensajes");
 
-  const row = getDb().select().from(messages).where(eq(messages.id, id)).limit(1).all()[0];
+  const db = await getDb();
+  const row = (await db.select().from(messages).where(eq(messages.id, id)).limit(1).all())[0];
   if (row) {
-    getDb()
+    await db
       .update(messages)
       .set({ read: not(messages.read) })
       .where(eq(messages.id, id))
@@ -77,8 +79,9 @@ export async function deleteMessage(formData: FormData) {
   const user = await requireUser();
   const id = Number(formData.get("id"));
   if (id) {
-    getDb().delete(messages).where(eq(messages.id, id)).run();
-    getDb()
+    const db = await getDb();
+    await db.delete(messages).where(eq(messages.id, id)).run();
+    await db
       .insert(auditLog)
       .values({
         userEmail: user.email,

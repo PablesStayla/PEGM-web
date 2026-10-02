@@ -29,7 +29,8 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
   let valid = false;
 
   try {
-    const user = getDb().select().from(users).where(eq(users.email, email)).limit(1).all()[0];
+    const db = await getDb();
+    const user = (await db.select().from(users).where(eq(users.email, email)).limit(1).all())[0];
     if (user && verifyPassword(password, user.passwordHash)) {
       valid = true;
       name = user.name;

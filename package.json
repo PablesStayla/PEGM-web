@@ -2,7 +2,7 @@
   "name": "pegm-web",
   "version": "2.1.0",
   "private": true,
-  "description": "Sitio web personal de Pablo — Ingeniero Civil Metalúrgico (panel admin, laboratorio interactivo y stack SOTA)",
+  "description": "Sitio web personal de Pablo — Ingeniero Civil Metalúrgico (panel admin, laboratorio interactivo, DB Turso/libSQL, stack SOTA)",
   "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build",
@@ -20,7 +20,7 @@
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.2.0",
     "@fontsource-variable/inter": "^5.2.0",
-    "better-sqlite3": "^13.0.3",
+    "@libsql/client": "^0.18.0",
     "drizzle-orm": "^0.45.3",
     "jose": "^6.2.12",
     "next": "^16.3.8",
@@ -31,7 +31,6 @@
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
     "@tailwindcss/postcss": "^4.3.3",
-    "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^26.6.4",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

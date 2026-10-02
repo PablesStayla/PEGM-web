@@ -15,10 +15,12 @@ function formatDate(date: Date) {
   }).format(date);
 }
 
-export default function AdminDashboardPage() {
-  const stats = adminDashboardStats();
-  const messages = adminRecentMessages(5);
-  const audit = adminAuditLog(8);
+export default async function AdminDashboardPage() {
+  const [stats, messages, audit] = await Promise.all([
+    adminDashboardStats(),
+    adminRecentMessages(5),
+    adminAuditLog(8),
+  ]);
 
   const cards = [
     { label: "Proyectos", value: stats.projects, href: "/admin/proyectos" },
