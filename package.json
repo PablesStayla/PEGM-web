@@ -10,12 +10,13 @@
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "biome check src scripts",
-    "lint:fix": "biome check --write src scripts",
-    "format": "biome format --write src scripts",
+    "lint": "biome check src scripts tests",
+    "lint:fix": "biome check --write src scripts tests",
+    "format": "biome format --write src scripts tests",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
-    "db:reset": "node scripts/reset-db.mjs"
+    "db:reset": "node scripts/reset-db.mjs",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.2.0",
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^26.6.4",
     "@types/react": "^19.3.0",

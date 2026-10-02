@@ -48,6 +48,7 @@ Programado **desde cero** (SVG puro, sin librerías de gráficos):
 | **Turso / libSQL** | 0.18 | SQLite en la nube (producción) o archivo local (desarrollo) |
 | **Biome** | 2.5 | Linter + formatter (un solo binario, sin Babel) |
 | **Vitest** | 5 | Tests unitarios (23 pruebas: auth, matemática del laboratorio, slugs) |
+| **Playwright** | 1.63 | Tests E2E (19 pruebas: sitio, laboratorio, panel, contacto) |
 | **Zod** | 4 | Validación de entradas en server actions |
 | **jose** | 6 | JWT HS256 de sesiones (compatible con proxy runtime) |
 | **scrypt** | Node crypto | Hash de contraseñas sin dependencias |
@@ -139,4 +140,6 @@ node --experimental-strip-types scripts/test-auth.mts   # pruebas de auth/DB
 
 ## CI
 
-`.github/workflows/ci.yml` ejecuta `npm run build` en cada push y pull request.
+`.github/workflows/ci.yml` ejecuta en cada push y pull request: lint (Biome),
+tests unitarios (Vitest), verificación de tipos, build de producción y la suite
+E2E completa de Playwright (con Chromium y reporte HTML como artefacto).

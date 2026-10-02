@@ -23,11 +23,17 @@ export type Db = LibSQLDatabase<typeof schema>;
 let dbPromise: Promise<Db> | null = null;
 
 function resolveUrl(): { url: string; authToken?: string } {
-  const remoteUrl = process.env.TURSO_DATABASE_URL;
-  if (remoteUrl && (remoteUrl.startsWith("libsql://") || remoteUrl.startsWith("https://"))) {
-    return { url: remoteUrl, authToken: process.env.TURSO_AUTH_TOKEN };
+  const configured = process.env.TURSO_DATABASE_URL;
+  if (configured?.startsWith("libsql://") || configured?.startsWith("https://")) {
+    return { url: configured, authToken: process.env.TURSO_AUTH_TOKEN };
   }
-  // modo local: archivo SQLite
+  if (configured?.startsWith("file:")) {
+    // ruta explícita (p. ej. base de pruebas E2E) — asegura el directorio
+    const file = configured.slice("file:".length);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    return { url: configured };
+  }
+  // modo local por defecto: archivo SQLite
   const dir = path.join(process.cwd(), "data");
   fs.mkdirSync(dir, { recursive: true });
   return { url: `file:${path.join(dir, "site.db")}` };
@@ -38,6 +44,15 @@ async function initDb(): Promise<Db> {
   const isLocal = url.startsWith("file:");
 
   const client: Client = isLocal ? createClient({ url }) : createClient({ url, authToken });
+
+  // SQLite local en modo WAL: los lectores no bloquean a los escritores (y
+  // viceversa), clave cuando varias rutas/acciones comparten el archivo en
+  // desarrollo. busy_timeout hace que los escritores esperen en lugar de
+  // fallar con SQLITE_BUSY ante una contención momentánea.
+  if (isLocal) {
+    await client.execute("PRAGMA journal_mode = WAL");
+    await client.execute("PRAGMA busy_timeout = 5000");
+  }
 
   const db = drizzle(client, { schema });
 

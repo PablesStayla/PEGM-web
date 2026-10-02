@@ -31,10 +31,14 @@ const HISTORY = 60;
 function initialSeries(): Record<string, number[]> {
   const series: Record<string, number[]> = {};
   for (const metric of METRICS) {
-    series[metric.key] = Array.from(
-      { length: HISTORY },
-      () => metric.base + (Math.random() - 0.5) * metric.spread,
-    );
+    // Patrón determinista (onda suave alrededor de la base): el primer render
+    // es idéntico en servidor y cliente, lo que evita el desajuste de
+    // hidratación que provocaba Math.random() aquí. La "vida" real llega con
+    // el intervalo del useEffect, ya solo en el navegador.
+    series[metric.key] = Array.from({ length: HISTORY }, (_, i) => {
+      const fase = (i / (HISTORY - 1)) * Math.PI * 4;
+      return metric.base + Math.sin(fase) * metric.spread * 0.35;
+    });
   }
   return series;
 }
