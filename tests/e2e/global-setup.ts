@@ -19,6 +19,8 @@ const RUTAS = [
   "/proyectos",
   "/proyectos/optimizacion-circuito-flotacion-colectiva",
   "/laboratorio",
+  "/privacidad",
+  "/api/health",
   "/admin/login",
 ];
 

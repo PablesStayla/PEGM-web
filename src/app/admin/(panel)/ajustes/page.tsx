@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SubmitButton } from "@/components/admin/submit-button";
-import { errorText, Field, Flash, PageHeader, TextArea } from "@/components/admin/ui";
+import { Checkbox, errorText, Field, Flash, PageHeader, TextArea } from "@/components/admin/ui";
 import { changePassword, saveSettings } from "@/lib/actions/content";
 import { adminGetSettings } from "@/lib/data";
 
@@ -95,6 +95,23 @@ export default async function AdminSettingsPage({
               <TextArea label="Párrafo 1" name="aboutP1" defaultValue={settings.aboutP1} rows={4} />
               <TextArea label="Párrafo 2" name="aboutP2" defaultValue={settings.aboutP2} rows={4} />
               <TextArea label="Párrafo 3" name="aboutP3" defaultValue={settings.aboutP3} rows={4} />
+            </div>
+          </section>
+
+          <section className="border border-line bg-bg">
+            <header className="border-b border-line px-5 py-4">
+              <h2 className="font-serif text-lg">Control de publicación</h2>
+              <p className="mt-1 text-xs leading-relaxed text-muted">
+                Actívalo solo después de reemplazar los datos de ejemplo y verificar que las cifras
+                de experiencia y casos puedan publicarse.
+              </p>
+            </header>
+            <div className="p-5">
+              <Checkbox
+                label="Confirmo que identidad, contacto, experiencia y métricas son reales o están anonimizados correctamente"
+                name="contentVerified"
+                defaultChecked={settings.contentVerified}
+              />
             </div>
           </section>
 

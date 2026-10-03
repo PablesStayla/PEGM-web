@@ -12,6 +12,7 @@
 /data/*.db
 /data/*.db-wal
 /data/*.db-shm
+/backups/
 
 # misc
 .DS_Store

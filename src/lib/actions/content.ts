@@ -101,6 +101,7 @@ export async function saveSettings(formData: FormData) {
     aboutP1: str(formData, "aboutP1"),
     aboutP2: str(formData, "aboutP2"),
     aboutP3: str(formData, "aboutP3"),
+    contentVerified: bool(formData, "contentVerified"),
     updatedAt: new Date(),
   };
   if (!values.name || !values.title) {
@@ -165,6 +166,7 @@ export async function saveProject(formData: FormData) {
     results: lines(formData, "results"),
     closing: str(formData, "closing"),
     caseStudy: bool(formData, "caseStudy"),
+    visualStyle: str(formData, "visualStyle") || "process",
     sortOrder: num(formData, "sortOrder"),
     updatedAt: new Date(),
   };

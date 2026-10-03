@@ -99,6 +99,36 @@ export function TextArea({
   );
 }
 
+export function Select({
+  label,
+  name,
+  defaultValue,
+  options,
+  hint,
+}: {
+  label: string;
+  name: string;
+  defaultValue?: string;
+  options: { value: string; label: string }[];
+  hint?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-xs font-medium tracking-wider text-muted uppercase">
+        {label}
+      </span>
+      <select name={name} defaultValue={defaultValue} className={inputClass}>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      {hint ? <span className="mt-1 block text-xs text-muted">{hint}</span> : null}
+    </label>
+  );
+}
+
 export function Checkbox({
   label,
   name,

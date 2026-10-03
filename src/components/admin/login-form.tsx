@@ -10,7 +10,11 @@ export function LoginForm({ from }: { from: string }) {
   const [state, formAction] = useActionState<LoginState, FormData>(login, {});
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-bg px-6">
+    <main
+      id="contenido-principal"
+      tabIndex={-1}
+      className="flex min-h-dvh items-center justify-center bg-bg px-6"
+    >
       <div className="w-full max-w-sm">
         <p className="font-serif text-4xl tracking-tight">
           Panel<span className="text-accent">.</span>
@@ -60,6 +64,6 @@ export function LoginForm({ from }: { from: string }) {
           </Link>
         </p>
       </div>
-    </div>
+    </main>
   );
 }

@@ -30,6 +30,7 @@ export const settings = sqliteTable("settings", {
   aboutP1: text("about_p1").notNull(),
   aboutP2: text("about_p2").notNull(),
   aboutP3: text("about_p3").notNull(),
+  contentVerified: integer("content_verified", { mode: "boolean" }).notNull().default(false),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),
@@ -55,6 +56,7 @@ export const projects = sqliteTable("projects", {
   results: text("results", { mode: "json" }).$type<string[]>().notNull().default([]),
   closing: text("closing").notNull().default(""),
   caseStudy: integer("case_study", { mode: "boolean" }).notNull().default(false),
+  visualStyle: text("visual_style").notNull().default("process"),
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
@@ -111,6 +113,14 @@ export const messages = sqliteTable("messages", {
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),
+});
+
+/** Contadores distribuidos para limitar abuso en acciones públicas. */
+export const rateLimits = sqliteTable("rate_limits", {
+  key: text("key").primaryKey(),
+  count: integer("count").notNull().default(0),
+  windowStart: integer("window_start", { mode: "timestamp_ms" }).notNull(),
+  expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
 });
 
 export const auditLog = sqliteTable("audit_log", {

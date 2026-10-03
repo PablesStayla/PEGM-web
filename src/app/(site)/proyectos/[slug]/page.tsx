@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ProjectVisual } from "@/components/project-visual";
 import { Reveal } from "@/components/reveal";
 import { getProjectBySlug, getProjects, getSettings } from "@/lib/data";
 import { SITE_URL } from "@/lib/site";
@@ -123,6 +124,8 @@ export default async function ProjectCaseStudyPage({ params }: ProjectPageProps)
             </Reveal>
           </div>
         </header>
+
+        <ProjectVisual style={project.visualStyle} title={project.title} />
 
         {project.metrics.length > 0 ? (
           <section aria-label="Resultados principales" className="border-b border-line bg-surface">

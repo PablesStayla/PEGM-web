@@ -114,30 +114,44 @@ export async function backfillSeedCaseStudies(db: Db): Promise<void> {
   for (const project of projects) {
     const row = (
       await db
-        .select({ id: t.projects.id, slug: t.projects.slug })
+        .select({
+          id: t.projects.id,
+          slug: t.projects.slug,
+          visualStyle: t.projects.visualStyle,
+        })
         .from(t.projects)
         .where(eq(t.projects.title, project.title))
         .limit(1)
         .all()
     )[0];
 
-    if (!row || row.slug) continue;
+    if (!row) continue;
 
-    await db
-      .update(t.projects)
-      .set({
-        slug: project.slug,
-        duration: project.duration,
-        context: project.context,
-        challenge: project.challenge,
-        approach: project.approach,
-        metrics: project.metrics,
-        results: project.results,
-        closing: project.closing,
-        caseStudy: project.caseStudy,
-        updatedAt: new Date(),
-      })
-      .where(eq(t.projects.id, row.id))
-      .run();
+    if (!row.slug) {
+      await db
+        .update(t.projects)
+        .set({
+          slug: project.slug,
+          duration: project.duration,
+          context: project.context,
+          challenge: project.challenge,
+          approach: project.approach,
+          metrics: project.metrics,
+          results: project.results,
+          closing: project.closing,
+          caseStudy: project.caseStudy,
+          visualStyle: project.visualStyle,
+          updatedAt: new Date(),
+        })
+        .where(eq(t.projects.id, row.id))
+        .run();
+    } else if (row.visualStyle === "process") {
+      // La migración añade "process" por defecto a casos ya publicados.
+      await db
+        .update(t.projects)
+        .set({ visualStyle: project.visualStyle })
+        .where(eq(t.projects.id, row.id))
+        .run();
+    }
   }
 }

@@ -117,7 +117,13 @@ export function AdminShell({
           </span>
         </header>
 
-        <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-10 lg:py-12">{children}</main>
+        <main
+          id="contenido-principal"
+          tabIndex={-1}
+          className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-10 lg:py-12"
+        >
+          {children}
+        </main>
       </div>
     </div>
   );

@@ -182,6 +182,7 @@ export type Project = {
   results: string[];
   closing: string;
   caseStudy: boolean;
+  visualStyle: string;
 };
 
 export const projects: Project[] = [
@@ -218,6 +219,7 @@ export const projects: Project[] = [
     closing:
       "El principal aprendizaje fue que el reactivo no era una palanca aislada: la mejora apareció al conectar mineralogía, estabilidad del rougher y disciplina de control. Ese enfoque convirtió una prueba puntual en una práctica operacional repetible.",
     caseStudy: true,
+    visualStyle: "flotation",
   },
   {
     slug: "modelo-predictivo-ley-cabeza",
@@ -252,6 +254,7 @@ export const projects: Project[] = [
     closing:
       "El valor no estuvo en elegir el algoritmo más complejo, sino en ordenar los tiempos del proceso y mostrar incertidumbre. La adopción mejoró cuando la predicción llegó al lugar donde ya se tomaban las decisiones.",
     caseStudy: true,
+    visualStyle: "prediction",
   },
   {
     slug: "simulacion-balance-masa-planta-sx-ew",
@@ -286,6 +289,7 @@ export const projects: Project[] = [
     closing:
       "Antes de simular el futuro fue necesario acordar una sola versión del presente. La reconciliación de datos resultó tan importante como el modelo para sostener la decisión de inversión.",
     caseStudy: true,
+    visualStyle: "hydrometallurgy",
   },
   {
     slug: "prefactibilidad-planta-modular",
@@ -320,6 +324,7 @@ export const projects: Project[] = [
     closing:
       "Una prefactibilidad útil no elimina incertidumbre: la ordena. Expresar rangos, supuestos y decisiones pendientes permitió avanzar con una hoja de ruta verificable.",
     caseStudy: true,
+    visualStyle: "feasibility",
   },
   {
     slug: "reduccion-energia-molienda-sag",
@@ -354,6 +359,7 @@ export const projects: Project[] = [
     closing:
       "Normalizar por condición del mineral evitó atribuir mejoras al control cuando provenían de una alimentación más favorable. Esa disciplina hizo defendible y sostenible el resultado energético.",
     caseStudy: true,
+    visualStyle: "energy",
   },
   {
     slug: "tablero-reporte-metalurgico-diario",
@@ -388,6 +394,7 @@ export const projects: Project[] = [
     closing:
       "Automatizar un reporte no consiste en dibujar la planilla existente. El mayor avance fue hacer explícitas sus reglas y controles, para que la velocidad no redujera la confianza en el dato.",
     caseStudy: true,
+    visualStyle: "dashboard",
   },
 ];
 

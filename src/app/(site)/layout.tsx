@@ -15,6 +15,7 @@ export default async function SiteLayout({
     { group: "Páginas", label: "CV", href: "/cv" },
     { group: "Páginas", label: "Proyectos", href: "/proyectos" },
     { group: "Páginas", label: "Laboratorio", href: "/laboratorio" },
+    { group: "Páginas", label: "Privacidad", href: "/privacidad" },
     {
       group: "Laboratorio",
       label: "Simulador de cinética de flotación",
@@ -75,7 +76,9 @@ export default async function SiteLayout({
     <>
       <SiteHeader name={settings.name} />
       <CommandPalette items={paletteItems} />
-      <main>{children}</main>
+      <main id="contenido-principal" tabIndex={-1}>
+        {children}
+      </main>
       <SiteFooter settings={settings} />
       <script
         type="application/ld+json"

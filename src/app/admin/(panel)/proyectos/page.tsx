@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { SubmitButton } from "@/components/admin/submit-button";
-import { Checkbox, errorText, Field, Flash, PageHeader, TextArea } from "@/components/admin/ui";
+import {
+  Checkbox,
+  errorText,
+  Field,
+  Flash,
+  PageHeader,
+  Select,
+  TextArea,
+} from "@/components/admin/ui";
 import type { projects } from "@/db/schema";
 import { deleteProject, saveProject } from "@/lib/actions/content";
 import { adminAllProjects } from "@/lib/data";
@@ -63,7 +71,21 @@ function ProjectForm({ project }: { project?: Project }) {
         defaultValue={project?.duration}
         placeholder="12 semanas"
       />
-      <div className="flex items-end pb-2">
+      <Select
+        label="Visual técnico"
+        name="visualStyle"
+        defaultValue={project?.visualStyle ?? "process"}
+        options={[
+          { value: "flotation", label: "Circuito de flotación" },
+          { value: "prediction", label: "Serie predictiva" },
+          { value: "hydrometallurgy", label: "Circuito SX-EW" },
+          { value: "feasibility", label: "Etapas de prefactibilidad" },
+          { value: "energy", label: "Curva de energía" },
+          { value: "dashboard", label: "Dashboard metalúrgico" },
+          { value: "process", label: "Proceso genérico" },
+        ]}
+      />
+      <div className="flex items-end pb-2 sm:col-span-2">
         <Checkbox
           label="Publicar como caso de estudio"
           name="caseStudy"

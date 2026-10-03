@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ProjectVisualThumbnail } from "@/components/project-visual";
 import type { PublicProject } from "@/lib/data";
 
 type ProjectCardProps = {
@@ -16,7 +17,11 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
         <p className="text-xs tracking-[0.15em] text-muted uppercase">{project.year}</p>
       </div>
 
-      <p className="mt-6 text-xs font-medium tracking-[0.15em] text-accent uppercase">
+      <div className="mt-6">
+        <ProjectVisualThumbnail style={project.visualStyle} />
+      </div>
+
+      <p className="mt-5 text-xs font-medium tracking-[0.15em] text-accent uppercase">
         {project.category}
       </p>
 

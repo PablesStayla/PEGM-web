@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { Icon, icons } from "@/components/icons";
 import { type ContactState, sendMessage } from "@/lib/actions/messages";
@@ -101,14 +102,23 @@ export function ContactForm() {
         </p>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="inline-flex items-center gap-2 bg-ink px-6 py-3 text-sm text-bg transition-colors hover:bg-accent disabled:opacity-60"
-      >
-        {pending ? "Enviando…" : "Enviar mensaje"}
-        <Icon path={icons.send} className="size-3.5" />
-      </button>
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+        <button
+          type="submit"
+          disabled={pending}
+          className="inline-flex items-center gap-2 bg-ink px-6 py-3 text-sm text-bg transition-colors hover:bg-accent disabled:opacity-60"
+        >
+          {pending ? "Enviando…" : "Enviar mensaje"}
+          <Icon path={icons.send} className="size-3.5" />
+        </button>
+        <p className="max-w-xs text-xs leading-relaxed text-muted">
+          Tus datos se usan solo para responder. Consulta la{" "}
+          <Link href="/privacidad" className="underline underline-offset-2 hover:text-accent">
+            política de privacidad
+          </Link>
+          .
+        </p>
+      </div>
     </form>
   );
 }

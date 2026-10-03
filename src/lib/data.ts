@@ -56,6 +56,7 @@ export type PublicProject = {
   results: string[];
   closing: string;
   caseStudy: boolean;
+  visualStyle: string;
   sortOrder: number;
 };
 

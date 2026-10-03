@@ -14,10 +14,12 @@ administración completo** para editar todo el contenido sin tocar código.
 | `/proyectos` | Índice de proyectos y casos de estudio |
 | `/proyectos/[slug]` | Caso editorial: contexto, desafío, enfoque, métricas, resultados y aprendizajes |
 | `/laboratorio` | 4 herramientas metalúrgicas interactivas (ver abajo) |
+| `/privacidad` | Tratamiento de mensajes, medición y derechos sobre los datos |
+| `/api/health` | Estado operativo y conexión con la base de datos |
 
-Extras: **modo oscuro** (con persistencia y sin parpadeo), **paleta de
-comandos** (`Ctrl/⌘ + K`), animaciones al hacer scroll, SEO (sitemap, robots,
-JSON-LD), fuentes autoalojadas.
+Extras: **visuales técnicos SVG propios para cada caso**, modo oscuro, paleta de
+comandos (`Ctrl/⌘ + K`), animaciones progresivas, SEO (sitemap, robots, JSON-LD),
+Vercel Analytics + Speed Insights, navegación por teclado y fuentes autoalojadas.
 
 ### Laboratorio (`/laboratorio`)
 Programado **desde cero** (SVG puro, sin librerías de gráficos):
@@ -30,7 +32,7 @@ Programado **desde cero** (SVG puro, sin librerías de gráficos):
 ### Panel de administración (`/admin`)
 - Autenticación propia: **scrypt** (hash) + **JWT HS256** en cookie `HttpOnly`
   + middleware Edge que protege todas las rutas
-- **Dashboard** con estadísticas, últimos mensajes y actividad
+- **Dashboard** con estadísticas, actividad y checklist real de preparación para producción
 - CRUD completo: proyectos y sus casos de estudio, experiencia, educación,
   certificaciones, idiomas, habilidades y ajustes del sitio (identidad, contacto, "sobre mí")
 - **Bandeja de mensajes** del formulario de contacto (leído/no leído, borrar)
@@ -49,7 +51,8 @@ Programado **desde cero** (SVG puro, sin librerías de gráficos):
 | **Turso / libSQL** | 0.18 | SQLite en la nube (producción) o archivo local (desarrollo) |
 | **Biome** | 2.5 | Linter + formatter (un solo binario, sin Babel) |
 | **Vitest** | 5 | Tests unitarios (23 pruebas: auth, matemática del laboratorio, slugs) |
-| **Playwright** | 1.63 | Tests E2E (20 pruebas: sitio, casos, laboratorio, panel, contacto) |
+| **Playwright + axe-core** | 1.63 | 29 E2E: flujos completos + auditoría WCAG A/AA en 7 rutas |
+| **Vercel Analytics** | actual | Tráfico y Core Web Vitals sin cookies publicitarias |
 | **Zod** | 4 | Validación de entradas en server actions |
 | **jose** | 6 | JWT HS256 de sesiones (compatible con proxy runtime) |
 | **scrypt** | Node crypto | Hash de contraseñas sin dependencias |
@@ -65,7 +68,9 @@ Fuentes: **Fraunces** (serif) + **Inter** — autoalojadas con `@fontsource`.
 │   │   │   ├── page.tsx       # Portada
 │   │   │   ├── cv/            # CV
 │   │   │   ├── proyectos/     # Portafolio + páginas de casos de estudio
-│   │   │   └── laboratorio/   # Herramientas interactivas
+│   │   │   ├── laboratorio/   # Herramientas interactivas
+│   │   │   └── privacidad/    # Política clara de tratamiento de datos
+│   │   ├── api/health/        # Monitor de aplicación + base de datos
 │   │   ├── admin/
 │   │   │   ├── (auth)/login/  # Inicio de sesión
 │   │   │   └── (panel)/       # Panel protegido (dashboard, CRUD, mensajes…)
@@ -79,16 +84,16 @@ Fuentes: **Fraunces** (serif) + **Inter** — autoalojadas con `@fontsource`.
 │   │   ├── actions/           # Server Actions (auth, contenido, mensajes)
 │   │   ├── auth.ts            # JWT (compatible Edge) · password.ts (scrypt)
 │   │   └── slug.ts
-│   └── middleware.ts          # Protección de /admin
+│   └── proxy.ts               # Protección de /admin
 ├── drizzle/                   # Migraciones SQL
 ├── data/site.db               # Base de datos (gitignored, se auto-crea)
-└── scripts/                   # reset-db.mjs · test-auth.mts
+└── scripts/                   # reset · backup · verificación post-deploy
 ```
 
 ## 🚀 Desarrollo
 
 ```bash
-npm install            # better-sqlite3 compila un módulo nativo (necesita build tools)
+npm install
 cp .env.example .env.local   # y editar AUTH_SECRET
 npm run dev            # → http://localhost:3000
 ```
@@ -106,7 +111,7 @@ npm run build          # build de producción
 npm run type-check     # verificación de tipos
 npm run db:studio      # explorar la base de datos (Drizzle Studio)
 npm run db:reset       # regenerar la DB con datos semilla
-node --experimental-strip-types scripts/test-auth.mts   # pruebas de auth/DB
+npm run db:backup      # export privado de contenido y mensajes (local o Turso)
 ```
 
 ### Variables de entorno (`.env.local`)
@@ -133,7 +138,10 @@ node --experimental-strip-types scripts/test-auth.mts   # pruebas de auth/DB
 - Contraseñas: scrypt con salt aleatorio por usuario (comparación en tiempo constante).
 - Server Actions de administración validan la sesión en cada llamada y dejan
   registro en la auditoría. Next.js valida el origen de las acciones (anti-CSRF).
-- Formulario de contacto: validación server-side + honeypot anti-bots.
+- Login y contacto: validación server-side, honeypot y rate limiting distribuido en
+  Turso; los identificadores se guardan como HMAC, nunca con la IP en claro.
+- CSP, COOP, protección contra iframes/MIME sniffing y política de permisos.
+- Política de privacidad pública, health check, backups privados y observabilidad.
 - **Despliegue (Vercel + Turso)**: guía completa paso a paso en
   **[DEPLOY.md](./DEPLOY.md)** (~15 min, costo $0 con free tiers). Incluye:
   - `AUTH_SECRET` es **obligatoria** en producción (el sitio falla a propósito si falta).
