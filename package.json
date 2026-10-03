@@ -2,7 +2,7 @@
   "name": "pegm-web",
   "version": "2.1.0",
   "private": true,
-  "description": "Sitio web personal de Pablo — Ingeniero Civil Metalúrgico (panel admin, laboratorio interactivo, DB Turso/libSQL, stack SOTA)",
+  "description": "Sitio web personal de Pablo Garrido — Ingeniero Civil Metalúrgico (panel admin, laboratorio interactivo, DB Turso/libSQL, stack SOTA)",
   "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build",
@@ -16,12 +16,15 @@
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
     "db:reset": "node scripts/reset-db.mjs",
+    "db:backup": "node scripts/backup-db.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.2.0",
     "@fontsource-variable/inter": "^5.2.0",
     "@libsql/client": "^0.18.0",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "drizzle-orm": "^0.45.3",
     "jose": "^6.2.12",
     "next": "^16.3.8",
@@ -30,6 +33,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@biomejs/biome": "^2.5.15",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",

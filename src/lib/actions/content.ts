@@ -8,6 +8,7 @@ import { getDb } from "@/db";
 import * as t from "@/db/schema";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 import { hashPassword, verifyPassword } from "@/lib/password";
+import { slugify } from "@/lib/slug";
 
 /**
  * Acciones de servidor para administrar el contenido del sitio.
@@ -27,10 +28,14 @@ async function audit(userEmail: string, action: string, entity: string, detail =
   await db.insert(t.auditLog).values({ userEmail, action, entity, detail }).run();
 }
 
-function refreshPublicPages() {
+function refreshPublicPages(projectSlugs: string[] = []) {
   revalidatePath("/");
   revalidatePath("/cv");
   revalidatePath("/proyectos");
+  revalidatePath("/sitemap.xml");
+  for (const slug of new Set(projectSlugs.filter(Boolean))) {
+    revalidatePath(`/proyectos/${slug}`);
+  }
 }
 
 // ── Helpers de formulario ───────────────────────────────────────────────────
@@ -63,6 +68,16 @@ function csv(formData: FormData, key: string): string[] {
     .filter(Boolean);
 }
 
+function metricLines(formData: FormData): { value: string; label: string }[] {
+  return lines(formData, "metrics").flatMap((line) => {
+    const separator = line.indexOf("|");
+    if (separator < 1) return [];
+    const value = line.slice(0, separator).trim();
+    const label = line.slice(separator + 1).trim();
+    return value && label ? [{ value, label }] : [];
+  });
+}
+
 function idOrThrow(formData: FormData, backTo: string): number {
   const id = num(formData, "id");
   if (!id) redirect(`${backTo}?error=missing-id`);
@@ -86,6 +101,7 @@ export async function saveSettings(formData: FormData) {
     aboutP1: str(formData, "aboutP1"),
     aboutP2: str(formData, "aboutP2"),
     aboutP3: str(formData, "aboutP3"),
+    contentVerified: bool(formData, "contentVerified"),
     updatedAt: new Date(),
   };
   if (!values.name || !values.title) {
@@ -132,20 +148,62 @@ export async function changePassword(formData: FormData) {
 export async function saveProject(formData: FormData) {
   const user = await requireUser();
   const id = num(formData, "id");
+  const title = str(formData, "title");
+  const slug = slugify(str(formData, "slug") || title);
   const values = {
-    title: str(formData, "title"),
+    slug,
+    title,
     category: str(formData, "category"),
     year: str(formData, "year"),
     summary: str(formData, "summary"),
     tags: csv(formData, "tags"),
     featured: bool(formData, "featured"),
+    duration: str(formData, "duration"),
+    context: str(formData, "context"),
+    challenge: str(formData, "challenge"),
+    approach: lines(formData, "approach"),
+    metrics: metricLines(formData),
+    results: lines(formData, "results"),
+    closing: str(formData, "closing"),
+    caseStudy: bool(formData, "caseStudy"),
+    visualStyle: str(formData, "visualStyle") || "process",
     sortOrder: num(formData, "sortOrder"),
     updatedAt: new Date(),
   };
-  if (!values.title) redirect("/admin/proyectos?error=required");
+  if (!values.title || !values.slug) redirect("/admin/proyectos?error=required");
+  if (
+    values.caseStudy &&
+    (!values.summary ||
+      !values.context ||
+      !values.challenge ||
+      values.approach.length === 0 ||
+      values.results.length === 0)
+  ) {
+    redirect("/admin/proyectos?error=case-study-required");
+  }
 
   const db = await getDb();
+  const slugOwner = (
+    await db
+      .select({ id: t.projects.id })
+      .from(t.projects)
+      .where(eq(t.projects.slug, slug))
+      .limit(1)
+      .all()
+  )[0];
+  if (slugOwner && slugOwner.id !== id) redirect("/admin/proyectos?error=slug-in-use");
+
+  let previousSlug = "";
   if (id) {
+    previousSlug =
+      (
+        await db
+          .select({ slug: t.projects.slug })
+          .from(t.projects)
+          .where(eq(t.projects.id, id))
+          .limit(1)
+          .all()
+      )[0]?.slug ?? "";
     await db.update(t.projects).set(values).where(eq(t.projects.id, id)).run();
     await audit(user.email, "actualizó", "proyecto", values.title);
   } else {
@@ -153,7 +211,7 @@ export async function saveProject(formData: FormData) {
     await audit(user.email, "creó", "proyecto", values.title);
   }
 
-  refreshPublicPages();
+  refreshPublicPages([previousSlug, slug]);
   revalidatePath("/admin/proyectos");
   redirect("/admin/proyectos?saved=1");
 }
@@ -162,9 +220,17 @@ export async function deleteProject(formData: FormData) {
   const user = await requireUser();
   const id = idOrThrow(formData, "/admin/proyectos");
   const db = await getDb();
+  const project = (
+    await db
+      .select({ slug: t.projects.slug })
+      .from(t.projects)
+      .where(eq(t.projects.id, id))
+      .limit(1)
+      .all()
+  )[0];
   await db.delete(t.projects).where(eq(t.projects.id, id)).run();
   await audit(user.email, "eliminó", "proyecto", `#${id}`);
-  refreshPublicPages();
+  refreshPublicPages(project?.slug ? [project.slug] : []);
   revalidatePath("/admin/proyectos");
   redirect("/admin/proyectos?deleted=1");
 }

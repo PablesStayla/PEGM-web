@@ -1,3 +1,5 @@
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import "@fontsource-variable/fraunces";
 import "@fontsource-variable/fraunces/wght-italic.css";
@@ -57,7 +59,7 @@ async function personJsonLd() {
 /**
  * Script anti-parpadeo: aplica el tema guardado antes de hidratar React.
  */
-const themeScript = `(function(){try{var t=localStorage.getItem("theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}document.documentElement.classList.toggle("dark",t==="dark");}catch(e){}})();`;
+const themeScript = `(function(){document.documentElement.classList.add("js");try{var t=localStorage.getItem("theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}document.documentElement.classList.toggle("dark",t==="dark");}catch(e){}})();`;
 
 export default async function RootLayout({
   children,
@@ -66,7 +68,7 @@ export default async function RootLayout({
 }>) {
   const jsonLd = await personJsonLd();
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html lang="es" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <script
           // biome-ignore lint/security/noDangerouslySetInnerHtml: script inline anti-parpadeo del tema (sin origen externo)
@@ -74,7 +76,12 @@ export default async function RootLayout({
         />
       </head>
       <body className="bg-bg font-sans text-ink antialiased">
+        <a href="#contenido-principal" className="skip-link">
+          Saltar al contenido principal
+        </a>
         {children}
+        <Analytics />
+        <SpeedInsights />
         <script
           type="application/ld+json"
           // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD de schema.org generado desde la base de datos

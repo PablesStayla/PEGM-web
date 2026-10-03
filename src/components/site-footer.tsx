@@ -39,6 +39,9 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
           <Link href="/laboratorio" className="transition-colors hover:text-accent">
             Laboratorio
           </Link>
+          <Link href="/privacidad" className="transition-colors hover:text-accent">
+            Privacidad
+          </Link>
           <Link href="/admin" className="transition-colors hover:text-accent">
             Admin
           </Link>

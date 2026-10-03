@@ -14,7 +14,7 @@ export const revalidate = 120;
 export const metadata: Metadata = {
   title: "CV",
   description:
-    "Experiencia profesional, formación, certificaciones y habilidades de Pablo, Ingeniero Civil Metalúrgico.",
+    "Experiencia profesional, formación, certificaciones y habilidades de Pablo Garrido, Ingeniero Civil Metalúrgico.",
 };
 
 function Block({ title, children }: { title: string; children: React.ReactNode }) {

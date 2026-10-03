@@ -49,12 +49,28 @@ await comprobar("Portada responde 200", async () => {
   return html.includes("Ingeniero Civil Metalúrgico") ? true : "falta el contenido esperado";
 });
 
-for (const ruta of ["/cv", "/proyectos", "/laboratorio"]) {
+for (const ruta of ["/cv", "/proyectos", "/laboratorio", "/privacidad"]) {
   await comprobar(`${ruta} responde 200`, async () => {
     const r = await pedir(ruta);
     return r.status === 200 ? true : `HTTP ${r.status}`;
   });
 }
+
+await comprobar("Health check confirma aplicación y base de datos", async () => {
+  const r = await pedir("/api/health");
+  if (r.status !== 200) return `HTTP ${r.status}`;
+  const health = await r.json();
+  return health.status === "ok" && health.database === "ok"
+    ? true
+    : `estado inesperado: ${JSON.stringify(health)}`;
+});
+
+await comprobar("No quedan datos de identidad de ejemplo", async () => {
+  const html = await (await pedir("/")).text();
+  return /ejemplo\.cl|pablo-ejemplo/i.test(html)
+    ? "reemplaza correo y LinkedIn desde Panel → Ajustes"
+    : true;
+});
 
 await comprobar("Imagen Open Graph se genera", async () => {
   const r = await pedir("/opengraph-image");
@@ -70,7 +86,7 @@ await comprobar("JSON-LD (schema.org) presente", async () => {
 
 await comprobar("Sitemap lista las rutas públicas", async () => {
   const xml = await (await pedir("/sitemap.xml")).text();
-  const rutas = ["", "/cv", "/proyectos", "/laboratorio"];
+  const rutas = ["", "/cv", "/proyectos", "/laboratorio", "/privacidad"];
   const faltan = rutas.filter((r) => !xml.includes(`${base}${r}<`));
   return faltan.length === 0 ? true : `faltan: ${faltan.join(", ")}`;
 });
@@ -91,9 +107,13 @@ await comprobar("Panel protegido (redirect a login)", async () => {
 
 await comprobar("Headers de seguridad activos", async () => {
   const r = await pedir("/");
-  const faltan = ["x-content-type-options", "x-frame-options", "referrer-policy"].filter(
-    (h) => !r.headers.get(h),
-  );
+  const faltan = [
+    "content-security-policy",
+    "x-content-type-options",
+    "x-frame-options",
+    "cross-origin-opener-policy",
+    "referrer-policy",
+  ].filter((h) => !r.headers.get(h));
   return faltan.length === 0 ? true : `sin headers: ${faltan.join(", ")}`;
 });
 

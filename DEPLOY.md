@@ -57,8 +57,9 @@ Desde el repositorio, contra tu URL de Vercel (o dominio propio):
 node scripts/verify-deploy.mjs https://tu-dominio.cl
 ```
 
-Comprueba: páginas públicas, imagen OG, JSON-LD, sitemap, robots.txt, panel
-protegido y headers de seguridad. Debería terminar en
+Comprueba: páginas públicas, `/api/health`, conexión a la base, ausencia de datos
+de ejemplo, imagen OG, JSON-LD, sitemap, robots.txt, panel protegido, CSP y demás
+headers de seguridad. Debería terminar en
 `Todo en orden — deploy verificado.`
 
 También manualmente:
@@ -66,6 +67,9 @@ También manualmente:
 - [ ] La portada carga con tu nombre y contenido
 - [ ] `/admin` redirige al login y puedes entrar con `ADMIN_EMAIL`/`ADMIN_PASSWORD`
 - [ ] **Primer inicio de sesión → Panel → Ajustes → cambiar la contraseña**
+- [ ] Reemplazar correo/LinkedIn de ejemplo y validar todos los logros y métricas
+- [ ] Activar **Control de publicación** en Ajustes cuando el contenido esté verificado
+- [ ] El Dashboard muestra “Listo para producción” sin pendientes
 - [ ] Crear un proyecto y verlo aparecer en la portada (persistencia en Turso)
 - [ ] Enviar el formulario de contacto y verlo en Panel → Mensajes
 - [ ] `https://tu-dominio.cl/sitemap.xml` muestra tu dominio
@@ -84,6 +88,26 @@ redeploya (sitemap, canonical y JSON-LD usan esa variable).
 2. Envía `https://tu-dominio.cl/sitemap.xml`.
 3. Pide indexar la portada.
 
+## 7. Operación, métricas y respaldos
+
+- **Disponibilidad:** configura un monitor HTTP (Vercel Checks, Better Stack, UptimeRobot
+  u otro) contra `https://tu-dominio.cl/api/health`. Debe responder `200` con
+  `status: "ok"` y `database: "ok"`.
+- **Rendimiento:** activa Web Analytics y Speed Insights en el proyecto de Vercel.
+  Los componentes ya están integrados; el panel mostrará visitas y Core Web Vitals
+  sin añadir cookies publicitarias.
+- **Logs:** revisa Vercel → Observability ante cualquier respuesta 5xx del health check.
+- **Backup manual cifrado:** carga las variables de Turso en tu terminal y ejecuta:
+
+```bash
+npm run db:backup
+```
+
+El archivo queda en `backups/` con permisos privados y fuera de Git. Contiene mensajes y
+hashes de acceso: guárdalo cifrado. Ejecuta un respaldo antes de migraciones importantes y,
+como mínimo, mensualmente. Turso conserva además sus mecanismos administrados de recuperación
+según el plan contratado.
+
 ---
 
 ## Detalles técnicos del despliegue
@@ -92,11 +116,14 @@ redeploya (sitemap, canonical y JSON-LD usan esa variable).
   usa Turso; sin ella, cae a SQLite local (`data/site.db`). La BD de pruebas
   E2E (`data/e2e.db`) nunca se usa en producción.
 - **Seguridad**: sesiones JWT HS256 en cookie `HttpOnly`+`Secure` (producción),
-  `AUTH_SECRET` obligatoria en producción (falla ruidosamente si falta),
-  headers `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy` y
-  `Permissions-Policy` (HSTS lo añade Vercel).
+  `AUTH_SECRET` obligatoria, rate limiting distribuido en Turso para login y contacto,
+  CSP, `X-Frame-Options: DENY`, `nosniff`, `Cross-Origin-Opener-Policy`,
+  `Referrer-Policy` y `Permissions-Policy` (HSTS lo añade Vercel).
 - **Imagen OG**: se genera con `next/og` desde los ajustes del panel y se
   regenera cada hora (ISR). Cambiar nombre/título en Ajustes la actualiza.
-- **SEO**: sitemap y robots dinámicos, canonical, JSON-LD `Person`,
+- **SEO**: sitemap y robots dinámicos, canonical, JSON-LD `Person` y `Article`,
   Open Graph completo.
+- **Privacidad y accesibilidad**: política pública, identificadores de rate limit sin IP
+  en claro, navegación con teclado, enlace para saltar contenido y auditoría axe WCAG A/AA
+  en CI.
 - **Costo**: Turso free tier + Vercel Hobby = **$0** para un sitio personal.

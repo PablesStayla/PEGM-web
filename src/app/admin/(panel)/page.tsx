@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon, icons } from "@/components/icons";
-import { adminAuditLog, adminDashboardStats, adminRecentMessages } from "@/lib/data";
+import {
+  adminAuditLog,
+  adminDashboardStats,
+  adminGetSettings,
+  adminRecentMessages,
+} from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -16,11 +21,26 @@ function formatDate(date: Date) {
 }
 
 export default async function AdminDashboardPage() {
-  const [stats, messages, audit] = await Promise.all([
+  const [stats, messages, audit, settings] = await Promise.all([
     adminDashboardStats(),
     adminRecentMessages(5),
     adminAuditLog(8),
+    adminGetSettings(),
   ]);
+
+  const readinessIssues = [
+    !settings?.contentVerified
+      ? "Verifica en Ajustes que identidad, experiencia y métricas sean publicables."
+      : null,
+    settings?.email.includes("ejemplo") ? "Reemplaza el correo de ejemplo." : null,
+    settings?.linkedin.includes("ejemplo") ? "Reemplaza el perfil de LinkedIn de ejemplo." : null,
+    !process.env.TURSO_DATABASE_URL?.startsWith("libsql://")
+      ? "Configura Turso antes de desplegar para asegurar persistencia y rate limiting distribuido."
+      : null,
+    !process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_SITE_URL.includes("localhost")
+      ? "Define NEXT_PUBLIC_SITE_URL con el dominio público."
+      : null,
+  ].filter((issue): issue is string => Boolean(issue));
 
   const cards = [
     { label: "Proyectos", value: stats.projects, href: "/admin/proyectos" },
@@ -49,6 +69,45 @@ export default async function AdminDashboardPage() {
         <h1 className="font-serif text-3xl tracking-tight">Dashboard</h1>
         <p className="mt-2 text-sm text-muted">Resumen del contenido y actividad del sitio.</p>
       </div>
+
+      <section
+        aria-labelledby="estado-publicacion"
+        className={`mb-8 border p-5 ${
+          readinessIssues.length === 0
+            ? "border-emerald-700/30 bg-emerald-700/5"
+            : "border-accent/30 bg-accent/5"
+        }`}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-medium tracking-[0.16em] text-muted uppercase">
+              Estado de publicación
+            </p>
+            <h2 id="estado-publicacion" className="mt-1 font-serif text-xl">
+              {readinessIssues.length === 0 ? "Listo para producción" : "Revisión pendiente"}
+            </h2>
+          </div>
+          <span className="font-serif text-2xl text-accent">
+            {readinessIssues.length === 0 ? "✓" : readinessIssues.length}
+          </span>
+        </div>
+        {readinessIssues.length > 0 ? (
+          <ul className="mt-4 space-y-2 text-sm text-muted">
+            {readinessIssues.map((issue) => (
+              <li key={issue} className="flex gap-2">
+                <span className="text-accent" aria-hidden>
+                  —
+                </span>
+                {issue}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-3 text-sm text-muted">
+            Contenido verificado, base remota y dominio público configurados.
+          </p>
+        )}
+      </section>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map((card) => (

@@ -1,8 +1,8 @@
 import { CommandPalette, type PaletteItem } from "@/components/command-palette";
+import { ScrollProgress } from "@/components/scroll-progress";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getProjects, getSettings } from "@/lib/data";
-import { slugify } from "@/lib/slug";
 
 export default async function SiteLayout({
   children,
@@ -16,6 +16,7 @@ export default async function SiteLayout({
     { group: "Páginas", label: "CV", href: "/cv" },
     { group: "Páginas", label: "Proyectos", href: "/proyectos" },
     { group: "Páginas", label: "Laboratorio", href: "/laboratorio" },
+    { group: "Páginas", label: "Privacidad", href: "/privacidad" },
     {
       group: "Laboratorio",
       label: "Simulador de cinética de flotación",
@@ -40,9 +41,9 @@ export default async function SiteLayout({
     { group: "Secciones", label: "Especialidades", href: "/#especialidades" },
     { group: "Secciones", label: "Contacto", href: "/#contacto" },
     ...projects.map((project) => ({
-      group: "Proyectos",
+      group: "Casos de estudio",
       label: project.title,
-      href: `/proyectos#${slugify(project.title)}`,
+      href: project.caseStudy ? `/proyectos/${project.slug}` : `/proyectos#${project.slug}`,
     })),
     {
       group: "Administración",
@@ -74,9 +75,12 @@ export default async function SiteLayout({
 
   return (
     <>
+      <ScrollProgress />
       <SiteHeader name={settings.name} />
       <CommandPalette items={paletteItems} />
-      <main>{children}</main>
+      <main id="contenido-principal" tabIndex={-1}>
+        {children}
+      </main>
       <SiteFooter settings={settings} />
       <script
         type="application/ld+json"

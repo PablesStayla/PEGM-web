@@ -7,7 +7,7 @@
  */
 
 export const site = {
-  name: "Pablo",
+  name: "Pablo Garrido",
   title: "Ingeniero Civil Metalúrgico",
   tagline:
     "Especialista en procesamiento de minerales y optimización de procesos. Transformo datos de planta en decisiones que mejoran la recuperación, los costos y la sostenibilidad de la operación.",
@@ -161,17 +161,33 @@ export const languages = [
   { name: "Inglés", level: "Avanzado (C1)" },
 ];
 
+export type ProjectMetric = {
+  value: string;
+  label: string;
+};
+
 export type Project = {
+  slug: string;
   title: string;
   category: string;
   year: string;
   summary: string;
   tags: string[];
   featured: boolean;
+  duration: string;
+  context: string;
+  challenge: string;
+  approach: string[];
+  metrics: ProjectMetric[];
+  results: string[];
+  closing: string;
+  caseStudy: boolean;
+  visualStyle: string;
 };
 
 export const projects: Project[] = [
   {
+    slug: "optimizacion-circuito-flotacion-colectiva",
     title: "Optimización del circuito de flotación colectiva",
     category: "Procesamiento de minerales",
     year: "2024",
@@ -179,8 +195,34 @@ export const projects: Project[] = [
       "Aumento sostenido de 2,1 pp en recuperación de cobre a partir de caracterización mineralógica, ajuste de química de flotación y estabilización del circuito rougher.",
     tags: ["Flotación", "Recuperación Cu", "Pruebas en planta"],
     featured: true,
+    duration: "16 semanas",
+    context:
+      "Una concentradora de cobre procesaba mineral con mayor presencia de especies secundarias y variabilidad creciente en la alimentación. Aunque el tonelaje se mantenía, la recuperación del circuito colectivo había perdido estabilidad y los ajustes de turno no lograban sostener una respuesta consistente.",
+    challenge:
+      "Separar el efecto de la mineralogía, la química y la operación para recuperar desempeño sin comprometer la ley de concentrado ni reducir el tratamiento. El trabajo debía ejecutarse con la planta en marcha y producir recomendaciones que los equipos de turno pudieran aplicar.",
+    approach: [
+      "Construí una línea base con seis meses de datos de planta y concilié el balance metalúrgico para identificar pérdidas y variables de mayor influencia.",
+      "Diseñé una campaña de muestreo y pruebas cinéticas por banco, complementada con caracterización mineralógica de alimentación, concentrado y relave.",
+      "Evalué dosis y puntos de adición de colector y espumante mediante pruebas controladas, y definí ventanas operacionales para aire, nivel y profundidad de espuma.",
+      "Acompañé la prueba industrial y convertí los hallazgos en una pauta de control por turno con seguimiento semanal.",
+    ],
+    metrics: [
+      { value: "+2,1 pp", label: "recuperación de cobre" },
+      { value: "−18 %", label: "variabilidad de recuperación" },
+      { value: "0 t/h", label: "pérdida de tratamiento" },
+    ],
+    results: [
+      "La recuperación aumentó de forma sostenida manteniendo la ley de concentrado dentro de especificación.",
+      "La nueva estrategia redujo las correcciones reactivas entre turnos y entregó límites claros para las variables manipulables.",
+      "El protocolo de muestreo quedó instalado como herramienta de diagnóstico para futuros cambios mineralógicos.",
+    ],
+    closing:
+      "El principal aprendizaje fue que el reactivo no era una palanca aislada: la mejora apareció al conectar mineralogía, estabilidad del rougher y disciplina de control. Ese enfoque convirtió una prueba puntual en una práctica operacional repetible.",
+    caseStudy: true,
+    visualStyle: "flotation",
   },
   {
+    slug: "modelo-predictivo-ley-cabeza",
     title: "Modelo predictivo de ley de cabeza",
     category: "Analítica de datos",
     year: "2023",
@@ -188,8 +230,34 @@ export const projects: Project[] = [
       "Modelo de machine learning en Python que anticipa la ley de cabeza con seis horas de anticipación, integrado al reporte de turno del operador.",
     tags: ["Python", "scikit-learn", "Control de procesos"],
     featured: true,
+    duration: "10 semanas",
+    context:
+      "La planta recibía mineral desde varios frentes con tiempos de transporte y mezcla distintos. La ley reportada por laboratorio llegaba cuando parte del material ya había atravesado molienda, por lo que los equipos operaban con una señal atrasada.",
+    challenge:
+      "Entregar una estimación útil —no solo un buen ajuste estadístico— con seis horas de anticipación, datos industriales incompletos y una interfaz que se incorporara al reporte existente sin sumar carga al operador.",
+    approach: [
+      "Unifiqué datos de despacho, chancado, stockpile y laboratorio; traté desfases temporales, valores faltantes y cambios de instrumentación.",
+      "Construí variables asociadas al origen del mineral, tiempos de residencia y mezclas móviles, evitando cualquier dato que no estuviera disponible al momento de predecir.",
+      "Comparé un modelo base, ensambles de árboles y regresión regularizada con validación temporal para prevenir fuga de información.",
+      "Implementé la predicción y su intervalo de confianza en el reporte de turno, junto con monitoreo de error y reglas de uso.",
+    ],
+    metrics: [
+      { value: "6 h", label: "de anticipación" },
+      { value: "−32 %", label: "error frente al modelo base" },
+      { value: "1 reporte", label: "integración sin pantalla adicional" },
+    ],
+    results: [
+      "Los turnos obtuvieron una señal anticipada para preparar los setpoints de molienda y flotación ante cambios de alimentación.",
+      "El intervalo de confianza permitió distinguir una predicción accionable de períodos con información insuficiente.",
+      "La rutina de reentrenamiento y seguimiento dejó trazabilidad sobre la vigencia del modelo.",
+    ],
+    closing:
+      "El valor no estuvo en elegir el algoritmo más complejo, sino en ordenar los tiempos del proceso y mostrar incertidumbre. La adopción mejoró cuando la predicción llegó al lugar donde ya se tomaban las decisiones.",
+    caseStudy: true,
+    visualStyle: "prediction",
   },
   {
+    slug: "simulacion-balance-masa-planta-sx-ew",
     title: "Simulación y balance de masa de planta SX-EW",
     category: "Hidrometalurgia",
     year: "2023",
@@ -197,8 +265,34 @@ export const projects: Project[] = [
       "Modelo del circuito completo en HSC Chemistry para cuantificar pérdidas de cobre y evaluar escenarios de aumento de producción.",
     tags: ["HSC Chemistry", "SX-EW", "Balance de masa"],
     featured: false,
+    duration: "12 semanas",
+    context:
+      "Una operación hidrometalúrgica evaluaba aumentar producción, pero sus balances por área utilizaban bases y frecuencias distintas. Las discrepancias entre lixiviación, SX y EW impedían reconocer dónde se perdía cobre y cuánto margen real tenía el circuito.",
+    challenge:
+      "Construir una única representación reconciliada del proceso, capaz de cerrar agua, soluciones y cobre, y usarla para comparar alternativas sin confundir capacidad nominal con restricciones operacionales.",
+    approach: [
+      "Definí límites, corrientes y una base temporal común; luego realicé una auditoría de mediciones y criterios de muestreo.",
+      "Reconcilié el caso base con balances por especie y solución, documentando supuestos y nivel de confianza de cada dato.",
+      "Implementé el flowsheet en HSC Chemistry y lo contrasté con períodos estables de operación.",
+      "Simulé escenarios de mayor riego, eficiencia de extracción, inventario orgánico y densidad de corriente para localizar cuellos de botella.",
+    ],
+    metrics: [
+      { value: ">98 %", label: "cierre del balance de cobre" },
+      { value: "4", label: "escenarios comparados" },
+      { value: "2", label: "restricciones críticas identificadas" },
+    ],
+    results: [
+      "El modelo hizo visibles pérdidas antes absorbidas por diferencias de inventario y criterios de reporte.",
+      "La evaluación descartó una expansión que trasladaba la restricción a EW y priorizó mejoras de menor inversión en SX.",
+      "La operación recibió un balance trazable que puede actualizarse con datos mensuales.",
+    ],
+    closing:
+      "Antes de simular el futuro fue necesario acordar una sola versión del presente. La reconciliación de datos resultó tan importante como el modelo para sostener la decisión de inversión.",
+    caseStudy: true,
+    visualStyle: "hydrometallurgy",
   },
   {
+    slug: "prefactibilidad-planta-modular",
     title: "Estudio de prefactibilidad de planta modular",
     category: "Gestión de proyectos",
     year: "2022",
@@ -206,8 +300,34 @@ export const projects: Project[] = [
       "Evaluación técnico-económica de una planta modular de procesamiento para yacimiento mediano: bases de diseño, Capex/Opex y análisis de sensibilidad.",
     tags: ["Prefactibilidad", "Capex/Opex", "Ingeniería de concepto"],
     featured: false,
+    duration: "14 semanas",
+    context:
+      "Un yacimiento de escala media requería comparar una planta modular con el envío de mineral a terceros. La información metalúrgica era temprana y el proyecto necesitaba una base consistente para decidir si avanzar a ingeniería de factibilidad.",
+    challenge:
+      "Traducir información geológica y pruebas preliminares en una alternativa técnica dimensionada, con rangos de costo y riesgos explícitos, sin presentar como certeza lo que aún correspondía validar.",
+    approach: [
+      "Definí criterios de diseño, casos de mineral y disponibilidad, y levanté brechas de información con impacto en la decisión.",
+      "Desarrollé el diagrama de proceso, balance de masa, listado de equipos principales y estrategia de modularización.",
+      "Estimé Capex y Opex con cotizaciones referenciales, factores de instalación y contingencias coherentes con el nivel de estudio.",
+      "Construí sensibilidades para ley, recuperación, precio, tonelaje y logística, y facilité una revisión multidisciplinaria de riesgos.",
+    ],
+    metrics: [
+      { value: "±25 %", label: "rango de precisión de costos" },
+      { value: "3", label: "alternativas de proceso" },
+      { value: "5", label: "variables de sensibilidad" },
+    ],
+    results: [
+      "La comparación técnico-económica entregó un caso recomendado y condiciones claras para que mantuviera valor.",
+      "Se identificaron las pruebas metalúrgicas y geotécnicas que debían preceder la siguiente etapa.",
+      "La modularización permitió separar inversión inicial y expansión, reduciendo exposición temprana de capital.",
+    ],
+    closing:
+      "Una prefactibilidad útil no elimina incertidumbre: la ordena. Expresar rangos, supuestos y decisiones pendientes permitió avanzar con una hoja de ruta verificable.",
+    caseStudy: true,
+    visualStyle: "feasibility",
   },
   {
+    slug: "reduccion-energia-molienda-sag",
     title: "Reducción de energía específica en molienda SAG",
     category: "Procesamiento de minerales",
     year: "2021",
@@ -215,8 +335,34 @@ export const projects: Project[] = [
       "Disminución del consumo energético por tonelada tratada mediante control de granulometría de alimentación y estrategia de carga de bolas.",
     tags: ["Molienda SAG", "Eficiencia energética"],
     featured: false,
+    duration: "12 semanas",
+    context:
+      "El molino SAG mantenía el objetivo de tratamiento, pero con alta dispersión de energía específica y episodios de sobrecarga. Los cambios de dureza y granulometría se abordaban con ajustes distintos según el turno.",
+    challenge:
+      "Reducir consumo sin sacrificar tonelaje ni transferir el problema a molienda secundaria, distinguiendo las pérdidas asociadas al mineral de aquellas controlables mediante carga y operación.",
+    approach: [
+      "Segmenté la historia operacional por dureza, F80 y condición de revestimientos para construir comparaciones equivalentes.",
+      "Relacioné potencia, presión de descansos, nivel de carga, velocidad y carga circulante con energía y estabilidad.",
+      "Ejecuté pruebas escalonadas de carga de bolas y ventanas de granulometría, con criterios de detención acordados con Operaciones.",
+      "Definí una matriz operacional por tipo de alimentación y la incorporé a la reunión diaria de planificación.",
+    ],
+    metrics: [
+      { value: "−6,4 %", label: "energía específica" },
+      { value: "+1,2 %", label: "tratamiento promedio" },
+      { value: "−21 %", label: "eventos de sobrecarga" },
+    ],
+    results: [
+      "La energía por tonelada disminuyó sin deteriorar el P80 enviado a flotación.",
+      "La matriz redujo ajustes contradictorios y aceleró la respuesta frente a cambios de alimentación.",
+      "El seguimiento separó el ahorro operacional del efecto natural del desgaste de revestimientos.",
+    ],
+    closing:
+      "Normalizar por condición del mineral evitó atribuir mejoras al control cuando provenían de una alimentación más favorable. Esa disciplina hizo defendible y sostenible el resultado energético.",
+    caseStudy: true,
+    visualStyle: "energy",
   },
   {
+    slug: "tablero-reporte-metalurgico-diario",
     title: "Tablero de reporte metalúrgico diario",
     category: "Analítica de datos",
     year: "2020",
@@ -224,6 +370,31 @@ export const projects: Project[] = [
       "Automatización del reporte diario de metales y agua: de planillas manuales a un tablero Power BI con datos actualizados cada turno.",
     tags: ["Power BI", "Automatización", "Reportabilidad"],
     featured: false,
+    duration: "8 semanas",
+    context:
+      "El reporte diario se construía copiando datos desde múltiples planillas. El proceso tomaba varias horas, era difícil de auditar y dejaba poco tiempo para explicar desviaciones metalúrgicas antes de la reunión de producción.",
+    challenge:
+      "Automatizar sin perder los controles que daban confianza al balance, unificar definiciones entre áreas y entregar una vista útil tanto para el turno como para la jefatura.",
+    approach: [
+      "Mapeé fuentes, responsables y reglas de cálculo; luego acordé un diccionario para tonelaje, leyes, inventarios y agua.",
+      "Construí un flujo de transformación con validaciones de rango, completitud y cierre antes de publicar resultados.",
+      "Diseñé el modelo y el tablero en Power BI con navegación desde indicadores ejecutivos hasta corrientes del balance.",
+      "Implementé alertas de calidad y un registro de correcciones para mantener trazabilidad después del lanzamiento.",
+    ],
+    metrics: [
+      { value: "−2,5 h", label: "preparación diaria" },
+      { value: "3 turnos", label: "actualización de datos" },
+      { value: "100 %", label: "indicadores con trazabilidad" },
+    ],
+    results: [
+      "El equipo desplazó tiempo desde la transcripción hacia el análisis de pérdidas y causas.",
+      "Las áreas pasaron a discutir indicadores calculados con la misma definición y período de corte.",
+      "Las validaciones detectaron datos faltantes antes de que llegaran al informe oficial.",
+    ],
+    closing:
+      "Automatizar un reporte no consiste en dibujar la planilla existente. El mayor avance fue hacer explícitas sus reglas y controles, para que la velocidad no redujera la confianza en el dato.",
+    caseStudy: true,
+    visualStyle: "dashboard",
   },
 ];
 

@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { auditLog, messages } from "@/db/schema";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
+import { consumeRateLimit, requestFingerprint } from "@/lib/rate-limit";
 import { contactSchema } from "@/lib/validation";
 
 /**
@@ -34,6 +35,24 @@ export async function sendMessage(_prev: ContactState, formData: FormData): Prom
   const { name, email, body } = parsed.data;
 
   try {
+    const [requestId, senderId] = await Promise.all([
+      requestFingerprint(),
+      requestFingerprint(email.toLowerCase()),
+    ]);
+    const ipLimit = await consumeRateLimit("contact-ip", requestId, {
+      limit: 5,
+      windowMs: 60 * 60_000,
+    });
+    const senderLimit = await consumeRateLimit("contact-sender", senderId, {
+      limit: 10,
+      windowMs: 24 * 60 * 60_000,
+    });
+    if (!ipLimit.allowed || !senderLimit.allowed) {
+      return {
+        error: "Alcanzaste el límite temporal de mensajes. También puedes escribirme por correo.",
+      };
+    }
+
     const db = await getDb();
     await db.insert(messages).values({ name, email, body }).run();
   } catch {

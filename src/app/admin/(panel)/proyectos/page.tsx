@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { SubmitButton } from "@/components/admin/submit-button";
-import { Checkbox, errorText, Field, Flash, PageHeader, TextArea } from "@/components/admin/ui";
+import {
+  Checkbox,
+  errorText,
+  Field,
+  Flash,
+  PageHeader,
+  Select,
+  TextArea,
+} from "@/components/admin/ui";
 import type { projects } from "@/db/schema";
 import { deleteProject, saveProject } from "@/lib/actions/content";
 import { adminAllProjects } from "@/lib/data";
@@ -19,6 +27,15 @@ function ProjectForm({ project }: { project?: Project }) {
       {project ? <input type="hidden" name="id" value={project.id} /> : null}
       <div className="sm:col-span-2">
         <Field label="Título" name="title" defaultValue={project?.title} required />
+      </div>
+      <div className="sm:col-span-2">
+        <Field
+          label="Slug"
+          name="slug"
+          defaultValue={project?.slug ?? undefined}
+          placeholder="Se genera desde el título si se deja vacío"
+          hint="Forma la URL del caso: /proyectos/slug-del-proyecto."
+        />
       </div>
       <Field label="Categoría" name="category" defaultValue={project?.category} />
       <Field label="Año" name="year" defaultValue={project?.year} />
@@ -40,6 +57,86 @@ function ProjectForm({ project }: { project?: Project }) {
         defaultChecked={project?.featured}
       />
       <Field label="Orden" name="sortOrder" type="number" defaultValue={project?.sortOrder ?? 0} />
+
+      <div className="mt-3 border-t border-line pt-5 sm:col-span-2">
+        <h3 className="font-serif text-lg">Caso de estudio</h3>
+        <p className="mt-1 text-xs leading-relaxed text-muted">
+          Publica una página editorial con contexto, método y resultados. Una línea equivale a un
+          elemento en las listas.
+        </p>
+      </div>
+      <Field
+        label="Duración"
+        name="duration"
+        defaultValue={project?.duration}
+        placeholder="12 semanas"
+      />
+      <Select
+        label="Visual técnico"
+        name="visualStyle"
+        defaultValue={project?.visualStyle ?? "process"}
+        options={[
+          { value: "flotation", label: "Circuito de flotación" },
+          { value: "prediction", label: "Serie predictiva" },
+          { value: "hydrometallurgy", label: "Circuito SX-EW" },
+          { value: "feasibility", label: "Etapas de prefactibilidad" },
+          { value: "energy", label: "Curva de energía" },
+          { value: "dashboard", label: "Dashboard metalúrgico" },
+          { value: "process", label: "Proceso genérico" },
+        ]}
+      />
+      <div className="flex items-end pb-2 sm:col-span-2">
+        <Checkbox
+          label="Publicar como caso de estudio"
+          name="caseStudy"
+          defaultChecked={project?.caseStudy}
+        />
+      </div>
+      <div className="sm:col-span-2">
+        <TextArea label="Contexto" name="context" defaultValue={project?.context} rows={4} />
+      </div>
+      <div className="sm:col-span-2">
+        <TextArea label="Desafío" name="challenge" defaultValue={project?.challenge} rows={4} />
+      </div>
+      <div className="sm:col-span-2">
+        <TextArea
+          label="Enfoque"
+          name="approach"
+          defaultValue={project?.approach.join("\n")}
+          rows={7}
+          hint="Un paso por línea."
+        />
+      </div>
+      <div className="sm:col-span-2">
+        <TextArea
+          label="Métricas"
+          name="metrics"
+          defaultValue={project?.metrics
+            .map((metric) => `${metric.value} | ${metric.label}`)
+            .join("\n")}
+          rows={4}
+          placeholder={"+2,1 pp | recuperación de cobre\n−18 % | variabilidad"}
+          hint="Una por línea, con el formato valor | descripción."
+        />
+      </div>
+      <div className="sm:col-span-2">
+        <TextArea
+          label="Resultados"
+          name="results"
+          defaultValue={project?.results.join("\n")}
+          rows={6}
+          hint="Un resultado por línea."
+        />
+      </div>
+      <div className="sm:col-span-2">
+        <TextArea
+          label="Cierre / aprendizaje"
+          name="closing"
+          defaultValue={project?.closing}
+          rows={4}
+        />
+      </div>
+
       <div className="sm:col-span-2">
         <SubmitButton>{project ? "Guardar cambios" : "Crear proyecto"}</SubmitButton>
       </div>
@@ -58,8 +155,8 @@ export default async function AdminProjectsPage({
   return (
     <>
       <PageHeader
-        title="Proyectos"
-        description="El portafolio que se muestra en la portada y en /proyectos."
+        title="Proyectos y casos"
+        description="Administra las fichas del portafolio y publica casos de estudio con contexto, método y resultados."
       />
       <Flash
         saved={"saved" in params}
@@ -85,6 +182,7 @@ export default async function AdminProjectsPage({
                 <p className="mt-1 text-xs tracking-wider text-accent uppercase">
                   {project.category} · {project.year}
                   {project.featured ? " · ★ destacado" : ""}
+                  {project.caseStudy ? " · caso publicado" : ""}
                 </p>
               </div>
               <form action={deleteProject}>
