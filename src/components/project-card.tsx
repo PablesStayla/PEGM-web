@@ -11,14 +11,17 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
   const href = `/proyectos/${project.slug}`;
 
   return (
-    <article className="group flex h-full flex-col border border-line p-6 transition-colors hover:border-accent md:p-8">
+    <article className="group relative flex h-full flex-col overflow-hidden border border-line bg-bg p-6 transition-all duration-500 hover:-translate-y-2 hover:border-accent hover:shadow-2xl hover:shadow-ink/10 md:p-8">
+      <span className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-accent transition-transform duration-500 group-hover:scale-x-100" />
       <div className="flex items-baseline justify-between">
         <p className="font-serif text-sm text-muted">{String(index + 1).padStart(2, "0")}</p>
         <p className="text-xs tracking-[0.15em] text-muted uppercase">{project.year}</p>
       </div>
 
-      <div className="mt-6">
-        <ProjectVisualThumbnail style={project.visualStyle} />
+      <div className="mt-6 overflow-hidden">
+        <div className="transition-transform duration-700 ease-out group-hover:scale-[1.04]">
+          <ProjectVisualThumbnail style={project.visualStyle} />
+        </div>
       </div>
 
       <p className="mt-5 text-xs font-medium tracking-[0.15em] text-accent uppercase">

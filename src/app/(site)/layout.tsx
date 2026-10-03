@@ -1,4 +1,5 @@
 import { CommandPalette, type PaletteItem } from "@/components/command-palette";
+import { ScrollProgress } from "@/components/scroll-progress";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getProjects, getSettings } from "@/lib/data";
@@ -74,6 +75,7 @@ export default async function SiteLayout({
 
   return (
     <>
+      <ScrollProgress />
       <SiteHeader name={settings.name} />
       <CommandPalette items={paletteItems} />
       <main id="contenido-principal" tabIndex={-1}>
