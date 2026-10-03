@@ -62,9 +62,9 @@ export default async function Image() {
           {settings.name}
           <span style={{ color: "#b47152" }}>.</span>
         </div>
-          <div style={{ fontSize: 30, color: "#57534e", lineHeight: 1.4, maxWidth: 900 }}>
-            {settings.tagline.slice(0, 150) + (settings.tagline.length > 150 ? "…" : "")}
-          </div>
+        <div style={{ fontSize: 30, color: "#57534e", lineHeight: 1.4, maxWidth: 900 }}>
+          {settings.tagline.slice(0, 150) + (settings.tagline.length > 150 ? "…" : "")}
+        </div>
       </div>
 
       {/* pie */}
