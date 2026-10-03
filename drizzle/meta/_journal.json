@@ -8,6 +8,13 @@
       "when": 1790897429807,
       "tag": "0000_low_the_professor",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1791008667378,
+      "tag": "0001_smooth_starbolt",
+      "breakpoints": true
     }
   ]
 }

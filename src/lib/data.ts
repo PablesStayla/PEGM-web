@@ -11,6 +11,7 @@ import {
   skills as seedSkills,
   site,
 } from "@/lib/content";
+import { slugify } from "@/lib/slug";
 
 // Contenido estático (no administrado desde el panel)
 export { specialities, stats, techStack } from "@/lib/content";
@@ -40,12 +41,21 @@ export type SiteSettings = {
 
 export type PublicProject = {
   id: number;
+  slug: string;
   title: string;
   category: string;
   year: string;
   summary: string;
   tags: string[];
   featured: boolean;
+  duration: string;
+  context: string;
+  challenge: string;
+  approach: string[];
+  metrics: { value: string; label: string }[];
+  results: string[];
+  closing: string;
+  caseStudy: boolean;
   sortOrder: number;
 };
 
@@ -107,7 +117,14 @@ export async function getProjects(): Promise<PublicProject[]> {
       .from(t.projects)
       .orderBy(asc(t.projects.sortOrder), asc(t.projects.id))
       .all();
-    if (rows.length > 0) return rows;
+    if (rows.length > 0) {
+      return rows.map((project) => ({
+        ...project,
+        // Las filas creadas antes de la migración pueden no tener slug hasta
+        // que corra el backfill. El título mantiene sus enlaces utilizables.
+        slug: project.slug || slugify(project.title),
+      }));
+    }
   } catch {
     // degradación: contenido semilla
   }
@@ -116,6 +133,11 @@ export async function getProjects(): Promise<PublicProject[]> {
     id: index + 1,
     sortOrder: index,
   }));
+}
+
+export async function getProjectBySlug(slug: string): Promise<PublicProject | null> {
+  const projects = await getProjects();
+  return projects.find((project) => project.slug === slug && project.caseStudy) ?? null;
 }
 
 export async function getExperience(): Promise<PublicExperience[]> {

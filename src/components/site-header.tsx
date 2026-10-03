@@ -9,7 +9,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 const links = [
   { href: "/", label: "Inicio" },
   { href: "/cv", label: "CV" },
-  { href: "/proyectos", label: "Proyectos" },
+  { href: "/proyectos", label: "Casos" },
   { href: "/laboratorio", label: "Laboratorio" },
 ];
 
@@ -58,7 +58,7 @@ export function SiteHeader({ name }: { name: string }) {
           <ThemeToggle />
 
           <a
-            href="#contacto"
+            href="/#contacto"
             className="hidden border border-ink px-4 py-2 text-sm text-ink transition-colors hover:border-accent hover:bg-accent hover:text-bg md:inline-block"
           >
             Contacto

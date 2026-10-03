@@ -13,7 +13,14 @@
 
 const BASE_URL = process.env.E2E_BASE_URL ?? "http://localhost:3100";
 
-const RUTAS = ["/", "/cv", "/proyectos", "/laboratorio", "/admin/login"];
+const RUTAS = [
+  "/",
+  "/cv",
+  "/proyectos",
+  "/proyectos/optimizacion-circuito-flotacion-colectiva",
+  "/laboratorio",
+  "/admin/login",
+];
 
 async function calentar(url: string, intentos = 60): Promise<void> {
   for (let i = 1; i <= intentos; i++) {

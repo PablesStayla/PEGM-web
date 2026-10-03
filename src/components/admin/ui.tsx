@@ -154,6 +154,10 @@ export function errorText(code?: string): string | undefined {
       return "La nueva contraseña debe tener al menos 8 caracteres.";
     case "password-wrong":
       return "La contraseña actual no coincide.";
+    case "case-study-required":
+      return "Para publicar el caso completa resumen, contexto, desafío, enfoque y resultados.";
+    case "slug-in-use":
+      return "La URL (slug) ya está siendo usada por otro proyecto.";
     default:
       return undefined;
   }

@@ -11,7 +11,8 @@ administración completo** para editar todo el contenido sin tocar código.
 |---|---|
 | `/` | Portada: hero, quién soy, especialidades, laboratorio, proyectos destacados y formulario de contacto |
 | `/cv` | CV completo: experiencia (timeline), educación, certificaciones, software e idiomas |
-| `/proyectos` | Portafolio completo |
+| `/proyectos` | Índice de proyectos y casos de estudio |
+| `/proyectos/[slug]` | Caso editorial: contexto, desafío, enfoque, métricas, resultados y aprendizajes |
 | `/laboratorio` | 4 herramientas metalúrgicas interactivas (ver abajo) |
 
 Extras: **modo oscuro** (con persistencia y sin parpadeo), **paleta de
@@ -30,8 +31,8 @@ Programado **desde cero** (SVG puro, sin librerías de gráficos):
 - Autenticación propia: **scrypt** (hash) + **JWT HS256** en cookie `HttpOnly`
   + middleware Edge que protege todas las rutas
 - **Dashboard** con estadísticas, últimos mensajes y actividad
-- CRUD completo: proyectos, experiencia, educación, certificaciones,
-  idiomas, habilidades y ajustes del sitio (identidad, contacto, "sobre mí")
+- CRUD completo: proyectos y sus casos de estudio, experiencia, educación,
+  certificaciones, idiomas, habilidades y ajustes del sitio (identidad, contacto, "sobre mí")
 - **Bandeja de mensajes** del formulario de contacto (leído/no leído, borrar)
 - **Auditoría** de todas las acciones del panel
 - Cambio de contraseña desde Ajustes
@@ -48,7 +49,7 @@ Programado **desde cero** (SVG puro, sin librerías de gráficos):
 | **Turso / libSQL** | 0.18 | SQLite en la nube (producción) o archivo local (desarrollo) |
 | **Biome** | 2.5 | Linter + formatter (un solo binario, sin Babel) |
 | **Vitest** | 5 | Tests unitarios (23 pruebas: auth, matemática del laboratorio, slugs) |
-| **Playwright** | 1.63 | Tests E2E (19 pruebas: sitio, laboratorio, panel, contacto) |
+| **Playwright** | 1.63 | Tests E2E (20 pruebas: sitio, casos, laboratorio, panel, contacto) |
 | **Zod** | 4 | Validación de entradas en server actions |
 | **jose** | 6 | JWT HS256 de sesiones (compatible con proxy runtime) |
 | **scrypt** | Node crypto | Hash de contraseñas sin dependencias |
@@ -63,7 +64,7 @@ Fuentes: **Fraunces** (serif) + **Inter** — autoalojadas con `@fontsource`.
 │   │   ├── (site)/            # Sitio público (layout con header/footer/paleta)
 │   │   │   ├── page.tsx       # Portada
 │   │   │   ├── cv/            # CV
-│   │   │   ├── proyectos/     # Portafolio
+│   │   │   ├── proyectos/     # Portafolio + páginas de casos de estudio
 │   │   │   └── laboratorio/   # Herramientas interactivas
 │   │   ├── admin/
 │   │   │   ├── (auth)/login/  # Inicio de sesión
@@ -120,6 +121,8 @@ node --experimental-strip-types scripts/test-auth.mts   # pruebas de auth/DB
 
 - **Desde el panel** (`/admin`): todo el contenido se guarda en la base de
   datos y se refleja en el sitio público de inmediato (revalidación on-demand).
+  En Proyectos puedes guardar una ficha breve o publicar un caso completo con
+  slug propio, contexto, desafío, pasos, métricas, resultados y cierre.
 - **Contenido inicial** (usado para sembrar la DB y como respaldo si la DB no
   está disponible): `src/lib/content.ts`.
 - **Colores/tema**: bloque `@theme` y `.dark` en `src/app/globals.css`.

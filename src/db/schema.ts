@@ -37,12 +37,24 @@ export const settings = sqliteTable("settings", {
 
 export const projects = sqliteTable("projects", {
   id: integer("id").primaryKey({ autoIncrement: true }),
+  slug: text("slug").unique(),
   title: text("title").notNull(),
   category: text("category").notNull(),
   year: text("year").notNull(),
   summary: text("summary").notNull(),
   tags: text("tags", { mode: "json" }).$type<string[]>().notNull(),
   featured: integer("featured", { mode: "boolean" }).notNull().default(false),
+  duration: text("duration").notNull().default(""),
+  context: text("context").notNull().default(""),
+  challenge: text("challenge").notNull().default(""),
+  approach: text("approach", { mode: "json" }).$type<string[]>().notNull().default([]),
+  metrics: text("metrics", { mode: "json" })
+    .$type<{ value: string; label: string }[]>()
+    .notNull()
+    .default([]),
+  results: text("results", { mode: "json" }).$type<string[]>().notNull().default([]),
+  closing: text("closing").notNull().default(""),
+  caseStudy: integer("case_study", { mode: "boolean" }).notNull().default(false),
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()

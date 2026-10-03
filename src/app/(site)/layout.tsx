@@ -2,7 +2,6 @@ import { CommandPalette, type PaletteItem } from "@/components/command-palette";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getProjects, getSettings } from "@/lib/data";
-import { slugify } from "@/lib/slug";
 
 export default async function SiteLayout({
   children,
@@ -40,9 +39,9 @@ export default async function SiteLayout({
     { group: "Secciones", label: "Especialidades", href: "/#especialidades" },
     { group: "Secciones", label: "Contacto", href: "/#contacto" },
     ...projects.map((project) => ({
-      group: "Proyectos",
+      group: "Casos de estudio",
       label: project.title,
-      href: `/proyectos#${slugify(project.title)}`,
+      href: project.caseStudy ? `/proyectos/${project.slug}` : `/proyectos#${project.slug}`,
     })),
     {
       group: "Administración",

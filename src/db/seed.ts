@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import {
   about,
   certifications,
@@ -102,4 +103,41 @@ export async function seedIfEmpty(db: Db): Promise<void> {
       })
       .run();
   });
+}
+
+/**
+ * Completa los proyectos semilla creados antes de existir los casos de estudio.
+ * Solo actúa sobre títulos conocidos que aún no tienen slug, por lo que nunca
+ * pisa contenido que el administrador ya haya publicado.
+ */
+export async function backfillSeedCaseStudies(db: Db): Promise<void> {
+  for (const project of projects) {
+    const row = (
+      await db
+        .select({ id: t.projects.id, slug: t.projects.slug })
+        .from(t.projects)
+        .where(eq(t.projects.title, project.title))
+        .limit(1)
+        .all()
+    )[0];
+
+    if (!row || row.slug) continue;
+
+    await db
+      .update(t.projects)
+      .set({
+        slug: project.slug,
+        duration: project.duration,
+        context: project.context,
+        challenge: project.challenge,
+        approach: project.approach,
+        metrics: project.metrics,
+        results: project.results,
+        closing: project.closing,
+        caseStudy: project.caseStudy,
+        updatedAt: new Date(),
+      })
+      .where(eq(t.projects.id, row.id))
+      .run();
+  }
 }

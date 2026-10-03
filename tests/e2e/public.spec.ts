@@ -8,7 +8,7 @@ test.describe("Sitio público", () => {
     await expect(page.getByRole("heading", { level: 1, name: /Pablo/ })).toBeVisible();
     await expect(page.getByText("Ingeniero Civil Metalúrgico").first()).toBeVisible();
     await expect(page.getByRole("heading", { name: "Laboratorio digital" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Proyectos destacados" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Casos destacados" })).toBeVisible();
   });
 
   test("el CV muestra experiencia y formación", async ({ page }) => {
@@ -18,10 +18,25 @@ test.describe("Sitio público", () => {
     await expect(page.getByText("Educación", { exact: true })).toBeVisible();
   });
 
-  test("el portafolio lista los proyectos sembrados", async ({ page }) => {
+  test("el portafolio lista los casos de estudio sembrados", async ({ page }) => {
     await appReady(page, "/proyectos");
-    await expect(page.getByRole("heading", { level: 1, name: "Proyectos." })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Casos de estudio." })).toBeVisible();
     await expect(page.getByText("Optimización del circuito de flotación colectiva")).toBeVisible();
+    await expect(page.getByText("6 casos publicados")).toBeVisible();
+  });
+
+  test("un caso de estudio explica desafío, enfoque y resultados", async ({ page }) => {
+    await appReady(page, "/proyectos/optimizacion-circuito-flotacion-colectiva");
+    await expect(
+      page.getByRole("heading", {
+        level: 1,
+        name: "Optimización del circuito de flotación colectiva.",
+      }),
+    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "El desafío" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "El enfoque" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Los resultados" })).toBeVisible();
+    await expect(page.getByText("+2,1 pp")).toBeVisible();
   });
 
   test("el laboratorio renderiza las cuatro herramientas", async ({ page }) => {

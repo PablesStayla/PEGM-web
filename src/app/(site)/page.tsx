@@ -173,8 +173,8 @@ export default async function HomePage() {
           <Reveal>
             <SectionHeading
               label="Portafolio"
-              title="Proyectos destacados"
-              description="Una selección de trabajos donde el análisis técnico se tradujo en resultados medibles."
+              title="Casos destacados"
+              description="El contexto, las decisiones y los resultados detrás de trabajos donde el análisis técnico se convirtió en impacto medible."
             />
             <div className="grid gap-6 md:grid-cols-3">
               {featured.map((project, index) => (
@@ -186,7 +186,7 @@ export default async function HomePage() {
                 href="/proyectos"
                 className="text-sm font-medium text-accent transition-colors hover:text-accent-strong"
               >
-                Ver todos los proyectos →
+                Ver todos los casos →
               </Link>
             </div>
           </Reveal>
