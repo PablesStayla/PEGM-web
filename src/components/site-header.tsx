@@ -46,7 +46,7 @@ export function SiteHeader({ name }: { name: string }) {
                     active ? "text-accent" : "text-muted"
                   }`}
                 >
-                  <span className="mr-1.5 font-serif text-[9px] opacity-55">0{index + 1}</span>
+                  <span className="mr-1.5 font-serif text-[9px] text-muted">0{index + 1}</span>
                   {link.label}
                   <span
                     className={`absolute inset-x-3 bottom-0 h-px origin-left bg-accent transition-transform duration-300 ${
