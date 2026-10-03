@@ -26,18 +26,20 @@ test.describe("Autenticación del panel", () => {
     await expect(page.getByText("Ingresa un correo válido.")).toBeVisible();
   });
 
-  test("limita intentos repetidos por cuenta e IP", async ({ page }) => {
+  test("limita intentos repetidos por cuenta e IP", async ({ page }, testInfo) => {
     await appReady(page, "/admin/login");
-    await page.locator('input[name="email"]').fill("bloqueo-rate-limit@example.com");
+    await page
+      .locator('input[name="email"]')
+      .fill(`bloqueo-${testInfo.retry}-${Date.now()}@example.com`);
     await page.locator('input[name="password"]').fill("incorrecta");
 
     for (let attempt = 0; attempt < 5; attempt++) {
       await page.getByRole("button", { name: "Entrar" }).click();
-      await expect(page.getByRole("alert")).toHaveText("Credenciales inválidas.");
+      await expect(page.getByText("Credenciales inválidas.", { exact: true })).toBeVisible();
     }
 
     await page.getByRole("button", { name: "Entrar" }).click();
-    await expect(page.getByRole("alert")).toContainText("Demasiados intentos");
+    await expect(page.getByText(/Demasiados intentos/)).toBeVisible();
   });
 
   test("login correcto lleva al dashboard", async ({ page }) => {

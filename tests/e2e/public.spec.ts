@@ -36,7 +36,9 @@ test.describe("Sitio público", () => {
     await expect(page.getByRole("heading", { name: "El desafío" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "El enfoque" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Los resultados" })).toBeVisible();
-    await expect(page.getByText("+2,1 pp")).toBeVisible();
+    await expect(
+      page.getByRole("region", { name: "Resultados principales" }).getByText("+2,1 pp"),
+    ).toBeVisible();
     await expect(
       page.getByRole("img", { name: /Esquema del circuito y curva de recuperación/ }),
     ).toBeVisible();

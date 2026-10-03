@@ -64,7 +64,10 @@ export default async function PrivacyPage() {
           </h2>
           <p className="mt-4">
             Puedes solicitar acceso, corrección o eliminación de un mensaje escribiendo a{" "}
-            <a href={`mailto:${settings.email}`} className="text-accent hover:text-accent-strong">
+            <a
+              href={`mailto:${settings.email}`}
+              className="text-accent underline underline-offset-2 hover:text-accent-strong"
+            >
               {settings.email}
             </a>
             . Los mensajes que dejan de ser necesarios se eliminan desde el panel privado.
