@@ -1,26 +1,41 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tools" },
-    { "path": "./apps/admin" },
-    { "path": "./apps/api" },
-    { "path": "./apps/web" },
-    { "path": "./packages/cart" },
-    { "path": "./packages/core-building-blocks" },
-    { "path": "./packages/catalog" },
-    { "path": "./packages/checkout" },
-    { "path": "./packages/communications" },
-    { "path": "./packages/domain" },
-    { "path": "./packages/identity" },
-    { "path": "./packages/infrastructure" },
-    { "path": "./packages/inventory" },
-    { "path": "./packages/logistics" },
-    { "path": "./packages/payments" },
-    { "path": "./packages/pricing" },
-    { "path": "./packages/shared-kernel" },
-    { "path": "./packages/shipping" },
-    { "path": "./packages/supplier" },
-    { "path": "./packages/testkit" },
-    { "path": "./packages/ui" }
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

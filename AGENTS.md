@@ -1,131 +1,65 @@
-# AGENTS.md - PranaKaia E-Commerce Platform
+# AGENTS.md — Guía para agentes de IA
 
-> Open-format instructions for coding agents.
-> Version: 1.00 - open-format baseline.
-> Domain: enterprise e-commerce, dropshipping, catalog integrity, payments, fulfillment, vendor operations, and customer trust.
+Instrucciones para cualquier agente (Claude, Codex, Cursor, Gemini…) que trabaje
+en este repositorio. Léela completa antes de tocar código.
 
-## Project Overview
+## El proyecto
 
-- Monorepo managed with `pnpm` and `turbo`.
-- Apps live in `apps/` (`web`, `admin`, `api`).
-- Shared domain and platform code lives in `packages/`.
-- Source of truth lives in `docs/`.
-- If a closer `AGENTS.md` exists in a subdirectory, it takes precedence.
+Sitio personal de **Pablo — Ingeniero Civil Metalúrgico** (español, estética
+minimalista clara: papel cálido, serif Fraunces, acento cobre) con panel de
+administración propio y laboratorio interactivo de metalurgia.
 
-## Setup Commands
+## Stack (no cambiar de tooling)
 
-- Install deps: `pnpm install`
-- Validate environment: `pnpm env:validate`
-- Start all dev services: `pnpm dev`
-- Start web: `pnpm dev:web`
-- Start admin: `pnpm dev:admin`
-- Build: `pnpm build`
-- Lint: `pnpm lint`
-- Format: `pnpm format`
-- Type check: `pnpm type-check`
-- Full quality gate: `pnpm quality:strict`
-- World-class audit: `pnpm world-class:audit`
-- Validate packages: `pnpm packages:validate`
-- Validate exports: `pnpm packages:exports:validate`
-- Check architecture boundaries: `pnpm archi:check`
-- Verify backups and recovery: `pnpm db:verify`
-- Run disaster recovery drill checks: `pnpm dr:drill:check`
+- **Next.js 16** (App Router, Turbopack, Server Actions, `proxy.ts`) · **React 19** · **TypeScript 7**
+- **Tailwind CSS 4** — el tema vive en `src/app/globals.css` (`@theme` + `.dark`, variables CSS)
+- **Drizzle ORM** + **libSQL/Turso** · **Biome** (lint + format) · **Vitest** · **Playwright**
+- **npm** — nunca pnpm/yarn. Sin monorepo ni turbo.
 
-## Code Style
+## Comandos
 
-- TypeScript strict mode only.
-- Match existing repo conventions in the touched package.
-- Prefer small, focused changes.
-- Use Biome for formatting and linting.
-- Do not introduce `any` or hidden mutable shared state.
-- Prefer immutable domain objects, explicit result/error handling, and branded identifiers where the codebase already uses them.
-- Keep pricing, taxes, shipping, and checkout calculations server-side.
-- Avoid broad refactors unless the task requires them.
+```bash
+npm run dev          # desarrollo en :3000
+npm run lint         # biome (src scripts tests) — debe pasar siempre
+npm test             # vitest (pruebas unitarias)
+npm run test:e2e     # playwright (pruebas E2E)
+npm run type-check   # tsc --noEmit
+npm run build        # build de producción
+```
 
-## Testing Instructions
+Todo lo anterior debe quedar en verde antes de commitear.
 
-- Run the smallest relevant test set first.
-- Use package-local scripts or `pnpm turbo run test --filter <package-name>` for targeted work.
-- Critical flows:
-  - Checkout: `pnpm test:e2e:checkout`
-  - Admin inventory: `pnpm test:e2e:admin`
-  - Supplier onboarding: `pnpm test:e2e:supplier`
-  - Combined critical path: `pnpm test:e2e:critical`
-- For broader changes, run `pnpm test`, `pnpm test:coverage`, and any affected integration or Playwright suites.
-- Add or update tests for every behavior change.
-- Mock external APIs and vendors at the boundary.
-- Keep tests deterministic.
-- For security-sensitive changes, run `pnpm security:audit` and `pnpm security:secrets:check`.
+## Base de datos — tres modos (`src/db/index.ts`)
 
-## Commerce and Dropshipping Rules
+1. `TURSO_DATABASE_URL=libsql://…` + `TURSO_AUTH_TOKEN` → **Turso** (producción).
+2. `TURSO_DATABASE_URL=file:ruta` → SQLite en ruta explícita (así corre la suite E2E).
+3. Sin variables → `data/site.db` local (se crea, migra y siembra sola).
 
-- Never oversell.
-- Treat vendor inventory as eventual and untrusted until verified.
-- Quarantine suppliers that drift from schema or freshness expectations.
-- Maintain idempotency for payment, order, and vendor write paths.
-- Reconcile payment state against provider webhooks before state transitions.
-- Source customer-facing ETA and shipping promises from fulfillment data only.
-- Require canonical product data, compliance review, and media rights validation before publication.
-- Enforce vendor circuit isolation so one failing supplier does not break the rest of the catalog.
-- Never log PII.
+- Migraciones (`drizzle/`) y semilla (`src/db/seed.ts`) son idempotentes: se aplican en el primer arranque, no requieren pasos manuales.
+- **Nunca editar ni commitear** `data/*.db` (está en .gitignore). La suite E2E borra `data/e2e.db` en cada corrida — lo hace el comando del `webServer` en `playwright.config.ts`; no mover esa limpieza a `globalSetup` (crea una carrera con el health-check de Playwright que corrompe la BD).
+- SQLite local corre con `journal_mode=WAL` + `busy_timeout` (necesario bajo la concurrencia del dev server). Turso remoto no lleva PRAGMAs.
 
-## Security and Compliance
+## Convenciones de código
 
-- Use `docs/context`, `docs/architecture`, `docs/domain`, `docs/quality`, `docs/operations`, `docs/policies`, and `docs/runbooks` as the source of truth for sensitive flows.
-- Treat breaking API, schema, or contract changes as release-sensitive.
-- Keep secrets in approved secret stores only.
-- Prefer explicit rollback and recovery steps for risky changes.
-- For persistence or schema work, validate recovery assumptions with `pnpm db:verify` and `pnpm dr:drill:check`.
-- For threat modeling and incident response, consult `docs/operations/SECURITY.md` and `docs/runbooks/incident-response.md` before changing sensitive flows.
+- UI 100 % en **español** (es-CL), tono profesional.
+- Comentarios de código en español.
+- Biome: comillas dobles, punto y coma, 100 columnas → `npx biome check --write .`
+- La capa de datos (`src/lib/data.ts`) es **async en todo el contrato**; primero `const db = await getDb()`, luego las consultas.
+- Nada de `Math.random()`/`Date.now()` en el primer render de componentes cliente: rompe la hidratación SSR (referencia: `src/components/lab/live-dashboard.tsx`).
 
-## Release Governance
+## Pruebas E2E (`tests/e2e/`)
 
-- Use changesets for published package changes.
-- Prefer staged or canary rollouts for user-facing changes with financial, inventory, or fulfillment impact.
-- Document rollback criteria before merge for payment, checkout, inventory, and vendor integration work.
-- Treat contract, schema, and public API changes as release-blocking until validation passes.
+- Servidor propio en el puerto **3100** con BD aislada. `globalSetup` pre-compila rutas — no quitarlo (evita carreras de Turbopack).
+- **2 workers** máximo: más workers hacen inestable `next dev` (compilación on-demand a mitad de test).
+- Entornos sin acceso al CDN de Playwright (sandboxes): definir `PLAYWRIGHT_CHROMIUM_EXECUTABLE` con la ruta de un binario Chromium compatible (misma versión mayor) — el config lo inyecta como `executablePath`.
+- Tras `page.goto` en dev, esperar hidratación antes de interactuar: helper `appReady()` (`networkidle`).
+- Para ejercer la validación Zod del **servidor**, saltar la nativa del navegador: helper `submitBypassingNativeValidation()`.
+- Cambios en la BD que deban verse en páginas públicas: confiar en la revalidación on-demand (`revalidatePath` en las server actions) — no añadir polling.
 
-## PR and Release Instructions
+## Producción
 
-- Keep pull requests small and focused.
-- Include what changed, why, and what was tested.
-- Document risk, rollout, and rollback considerations for high-impact changes.
-- For published packages, add a Changeset with `pnpm changeset` when required.
-- If you change shared contracts or package exports, rerun `pnpm packages:validate` and `pnpm packages:exports:validate`.
-- For broader changes, prefer `pnpm staff:ready` or `pnpm staff:ready:extended` before asking for review.
-
-## Reference Docs
-
-- `README.md`
-- `docs/README.md`
-- `docs/context/README.md`
-- `docs/context/architecture-overview.md`
-- `docs/context/domain.md`
-- `docs/context/database.md`
-- `docs/context/api-design.md`
-- `docs/adr/README.md`
-- `docs/architecture/OVERVIEW.md`
-- `docs/architecture/PATTERNS.md`
-- `docs/domain/RULES.md`
-- `docs/domain/EVENTS.md`
-- `docs/quality/TESTING.md`
-- `docs/quality/CHECKLISTS.md`
-- `docs/operations/OBSERVABILITY.md`
-- `docs/operations/SECURITY.md`
-- `docs/policies/README.md`
-- `docs/policies/coding-standard.md`
-- `docs/policies/security-standard.md`
-- `docs/policies/testing-standard.md`
-- `docs/policies/performance-standard.md`
-- `docs/policies/operations-reliability-standard.md`
-- `docs/runbooks/README.md`
-- `docs/runbooks/incident-response.md`
-- `docs/runbooks/deployment-production.md`
-- `docs/runbooks/recovery-rollback.md`
-- `docs/runbooks/recovery-disaster.md`
-- `tests/README.md`
-
-## MCP Tools Usage
-
-- When you need to search docs, use `context7` tools.
-- If you are unsure how to do something, use `gh_grep` to search code examples from GitHub.
+- Guía completa de despliegue: **[DEPLOY.md](./DEPLOY.md)** (Vercel + Turso, ~15 min, $0).
+- `AUTH_SECRET` es **obligatoria** en producción: `src/lib/auth.ts` lanza a propósito si falta. No suavizar ese guard.
+- `NEXT_PUBLIC_SITE_URL` alimenta sitemap, robots, canonical, OG y JSON-LD (`src/lib/site.ts`). En local tiene default; en Vercel debe definirse.
+- Imagen OG (`src/app/opengraph-image.tsx`): satori **no soporta woff2** — Fraunces va embebida en base64 (`src/app/og-font.ts`). Regla de satori: todo `<div>` con más de un hijo necesita `display` explícito.
+- Headers de seguridad HTTP solo se activan en build de producción (`next.config.ts`) — no esperarlos en `next dev`.

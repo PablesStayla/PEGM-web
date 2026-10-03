@@ -1,154 +1,38 @@
-# 🛡️ PranaKaia Monorepo Exclusion Map
-# Role: Resource Isolation & Secret Leak Protection
-# Tier: Absolute Zero (S+)
-# Compliance: SOTA Absolute Zero Taxonomy
-# Last Updated: 2026-05-05
+# dependencias
+/node_modules
 
-# ============================================================
-# SECRETS — NUNCA COMMITEAR
-# ============================================================
-.env
-.env.local
-.env.local.*
-.env.production
-.env.development
-.env.staging
-.env*.local
-.env.vercel
-.env.vercel.*
-*.env.vercel*
-# Bloqueo explícito de cualquier archivo con valores reales
-*.secret
-*.secrets
+# next.js
+/.next/
+/out/
 
-# ============================================================
-# DEPENDENCIES
-# ============================================================
-node_modules/
-.pnpm-store/
-*pnpm-store*
+# producción
+/build
 
-# ============================================================
-# BUILD OUTPUTS
-# ============================================================
-.next/
-out/
-dist/
-build/
+# base de datos (se recrea con datos semilla automáticamente)
+/data/*.db
+/data/*.db-wal
+/data/*.db-shm
 
-# ============================================================
-# TURBO / BUILD CACHES
-# ============================================================
-.turbo/
-**/.turbo/
-*.tsbuildinfo
-
-# ============================================================
-# COVERAGE & TESTS
-# ============================================================
-coverage/
-.coverage/
-test-results/
-playwright-report/
-blob-report/
-playwright/.cache/
-storybook-static/
-
-# ============================================================
-# LOGS & ARTIFACTS TEMPORALES
-# ============================================================
-*.log
-*.log.*
-tmp/
-reports/
-*.bak
-
-# ============================================================
-# ARCHIVOS DE DEBUG / SESIONES DE TRABAJO
-
-# (nunca deben commitearse)
-# ============================================================
-upload-*.js
-upload-*.ps1
-upload-*.sh
-vercel-*.txt
-vercel-*.json
-deployment-list.txt
-pnpm10-upgrade.txt
-skills-lock.json
-build_errors.txt
-lint-results.txt
-lint_output.txt
-biome-errors.txt
-biome_errors*.txt
-full_build_audit.txt
-full_test_audit.txt
-knip-report*.txt
-tsc-errors.txt
-typecheck*.txt
-type-check-result.txt
-web-typecheck-errors.txt
-health_report.json
-html.meta.json.gz
-
-# ============================================================
-# DATABASE
-# ============================================================
-*.db
-*.sqlite
-*.sqlite3
-database.json
-db_backup.*
-supabase_data.*
-trending_cache.*
-analytics_data.*
-
-# ============================================================
-# INFRA / DOCKER VOLUMES
-# ============================================================
-infra/docker/**/*.mem
-infra/docker/**/*.vlog
-infra/docker/**/*.log
-infra/docker/**/*.sst
-infra/docker/**/data/
-infra/docker/**/key/
-infra/docker/**/value/
-infra/docker/**/tmp/
-infra/docker/secrets/*
-!infra/docker/secrets/README.md
-
-# ============================================================
-# PYTHON (scripts de data)
-# ============================================================
-__pycache__/
-*.py[cod]
-*.so
-venv/
-env/
-ENV/
-generate_trending_data.py
-update_trending.sh
-
-# ============================================================
-# VERCEL / DEPLOYMENT
-# ============================================================
-.vercel/
-
-# ============================================================
-# SISTEMA & IDE
-# ============================================================
+# misc
 .DS_Store
-.DS_Store?
-._*
-.idea/
-*.swp
-*.swo
+*.pem
 
-# ============================================================
-# SANDBOX / EXPERIMENTOS LOCALES
-# ============================================================
-.swarm/
-sandbox-*/
-cloudflare-*/
-test-agent-sdk/
-test-cloudflare/
+# depuración
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# variables de entorno
+.env*
+!.env.example
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# vercel
+.vercel
+
+# playwright
+/playwright-report
+/test-results
