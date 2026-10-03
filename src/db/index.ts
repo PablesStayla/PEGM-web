@@ -4,7 +4,7 @@ import { type Client, createClient } from "@libsql/client";
 import { drizzle, type LibSQLDatabase } from "drizzle-orm/libsql";
 import { migrate } from "drizzle-orm/libsql/migrator";
 import * as schema from "./schema";
-import { backfillSeedCaseStudies, seedIfEmpty } from "./seed";
+import { backfillSeedCaseStudies, backfillSeedIdentity, seedIfEmpty } from "./seed";
 
 export type Db = LibSQLDatabase<typeof schema>;
 
@@ -73,6 +73,7 @@ async function initDb(): Promise<Db> {
   // si otro proceso la sembró primero, el único duplicado salta y se ignora.
   try {
     await seedIfEmpty(db);
+    await backfillSeedIdentity(db);
     await backfillSeedCaseStudies(db);
   } catch (error) {
     console.error("[db] semilla:", error);

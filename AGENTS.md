@@ -5,7 +5,7 @@ en este repositorio. Léela completa antes de tocar código.
 
 ## El proyecto
 
-Sitio personal de **Pablo — Ingeniero Civil Metalúrgico** (español, estética
+Sitio personal de **Pablo Garrido — Ingeniero Civil Metalúrgico** (español, estética
 minimalista clara: papel cálido, serif Fraunces, acento cobre) con panel de
 administración propio y laboratorio interactivo de metalurgia.
 

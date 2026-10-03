@@ -105,11 +105,17 @@ export async function seedIfEmpty(db: Db): Promise<void> {
   });
 }
 
-/**
- * Completa los proyectos semilla creados antes de existir los casos de estudio.
- * Solo actúa sobre títulos conocidos que aún no tienen slug, por lo que nunca
- * pisa contenido que el administrador ya haya publicado.
- */
+/** Actualiza únicamente el nombre genérico de la semilla original. */
+export async function backfillSeedIdentity(db: Db): Promise<void> {
+  await db
+    .update(t.settings)
+    .set({ name: site.name, updatedAt: new Date() })
+    .where(eq(t.settings.name, "Pablo"))
+    .run();
+  await db.update(t.users).set({ name: site.name }).where(eq(t.users.name, "Pablo")).run();
+}
+
+/** Completa detalles y visuales de los proyectos semilla de versiones anteriores. */
 export async function backfillSeedCaseStudies(db: Db): Promise<void> {
   for (const project of projects) {
     const row = (

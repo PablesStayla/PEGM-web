@@ -68,7 +68,7 @@ export default async function RootLayout({
 }>) {
   const jsonLd = await personJsonLd();
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html lang="es" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <script
           // biome-ignore lint/security/noDangerouslySetInnerHtml: script inline anti-parpadeo del tema (sin origen externo)

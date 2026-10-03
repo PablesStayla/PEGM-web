@@ -7,7 +7,7 @@
  */
 
 export const site = {
-  name: "Pablo",
+  name: "Pablo Garrido",
   title: "Ingeniero Civil Metalúrgico",
   tagline:
     "Especialista en procesamiento de minerales y optimización de procesos. Transformo datos de planta en decisiones que mejoran la recuperación, los costos y la sostenibilidad de la operación.",

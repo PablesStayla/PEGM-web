@@ -4,8 +4,8 @@ import { appReady } from "./helpers";
 test.describe("Sitio público", () => {
   test("la portada muestra identidad, secciones y contacto", async ({ page }) => {
     await appReady(page, "/");
-    // el h1 es "Pablo" + punto en acento: usar regex para el nombre accesible
-    await expect(page.getByRole("heading", { level: 1, name: /Pablo/ })).toBeVisible();
+    // el h1 incluye el punto en acento: usar regex para el nombre accesible
+    await expect(page.getByRole("heading", { level: 1, name: /Pablo Garrido/ })).toBeVisible();
     await expect(page.getByText("Ingeniero Civil Metalúrgico").first()).toBeVisible();
     await expect(page.getByRole("heading", { name: "Laboratorio digital" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Casos destacados" })).toBeVisible();

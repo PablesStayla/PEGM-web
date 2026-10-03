@@ -1,7 +1,7 @@
-# Pablo — Ingeniero Civil Metalúrgico · Sitio personal
+# Pablo Garrido — Ingeniero Civil Metalúrgico · Sitio personal
 
 Sitio web personal, portafolio y **laboratorio metalúrgico interactivo** de
-**Pablo**, Ingeniero Civil Metalúrgico (Concepción, Chile) — con **panel de
+**Pablo Garrido**, Ingeniero Civil Metalúrgico (Concepción, Chile) — con **panel de
 administración completo** para editar todo el contenido sin tocar código.
 
 ## ✨ Qué incluye
