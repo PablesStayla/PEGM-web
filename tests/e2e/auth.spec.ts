@@ -28,17 +28,21 @@ test.describe("Autenticación del panel", () => {
 
   test("limita intentos repetidos por cuenta e IP", async ({ page }, testInfo) => {
     await appReady(page, "/admin/login");
-    await page
-      .locator('input[name="email"]')
-      .fill(`bloqueo-${testInfo.retry}-${Date.now()}@example.com`);
-    await page.locator('input[name="password"]').fill("incorrecta");
+    const email = `bloqueo-${testInfo.retry}-${Date.now()}@example.com`;
+    const submit = page.getByRole("button", { name: "Entrar" });
 
     for (let attempt = 0; attempt < 5; attempt++) {
-      await page.getByRole("button", { name: "Entrar" }).click();
+      // React limpia los campos no controlados después de resolver una action.
+      await page.locator('input[name="email"]').fill(email);
+      await page.locator('input[name="password"]').fill("incorrecta");
+      await submit.click();
       await expect(page.getByText("Credenciales inválidas.", { exact: true })).toBeVisible();
+      await expect(submit).toBeEnabled();
     }
 
-    await page.getByRole("button", { name: "Entrar" }).click();
+    await page.locator('input[name="email"]').fill(email);
+    await page.locator('input[name="password"]').fill("incorrecta");
+    await submit.click();
     await expect(page.getByText(/Demasiados intentos/)).toBeVisible();
   });
 
