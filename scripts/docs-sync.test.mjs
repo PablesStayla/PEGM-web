@@ -134,6 +134,9 @@ describe("syncFile", () => {
 import { mkdirSync } from "node:fs";
 import pathAlias from "node:path";
 import {
+  checkPaths,
+  checkPnpmRefs,
+  checkStructure,
   ENV_INTERNAL,
   readSources,
   renderCommands,
@@ -229,5 +232,31 @@ describe("ENV_INTERNAL", () => {
     for (const v of ["CI", "NODE_ENV", "VERCEL", "PLAYWRIGHT_CHROMIUM_EXECUTABLE"]) {
       expect(ENV_INTERNAL.has(v)).toBe(true);
     }
+  });
+});
+
+describe("checkPnpmRefs", () => {
+  it("acepta scripts existentes y subcomandos pnpm; rechaza citas muertas", () => {
+    const text = "Usa `pnpm test` y `pnpm add -g @turso/cli`; no `pnpm foo:inexistente`.";
+    const problems = checkPnpmRefs(text, ["test"]);
+    expect(problems).toEqual(['pnpm: "foo:inexistente" no existe como script en package.json']);
+  });
+});
+
+describe("checkPaths", () => {
+  it("rechaza rutas inexistentes y acepta existentes", () => {
+    const root = makeRepo();
+    const problems = checkPaths("Mira `src/db/index.ts` y `src/no-existe.ts`.", root);
+    expect(problems).toEqual(['ruta: "src/no-existe.ts" no existe en disco']);
+  });
+});
+
+describe("checkStructure", () => {
+  it("exige que cada directorio de src/ aparezca en el árbol", () => {
+    const problems = checkStructure(
+      "## 📁 Estructura\n```\n├── src/\n│   ├── app/\n│   └── lib/\n```\n",
+      ["app", "lib", "nueva"],
+    );
+    expect(problems).toEqual(['estructura: falta "src/nueva/" en el árbol del README']);
   });
 });

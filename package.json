@@ -15,11 +15,14 @@
     "lint:fix": "biome check --write src scripts tests",
     "format": "biome format --write src scripts tests",
     "check:agents": "node scripts/agents-check.mjs",
+    "docs:sync": "node scripts/docs-sync.mjs sync",
+    "docs:check": "node scripts/docs-sync.mjs check",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
     "db:reset": "node scripts/reset-db.mjs",
     "test:e2e": "playwright test",
-    "cv:pdf": "node scripts/generate-public-cv.mjs"
+    "cv:pdf": "node scripts/generate-public-cv.mjs",
+    "prepare": "lefthook install"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.2.0",
@@ -36,6 +39,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
     "@playwright/test": "^1.63.0",
+    "lefthook": "^2.2.2",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^26.6.4",
     "@types/react": "^19.3.0",
