@@ -64,6 +64,14 @@ Todo lo anterior debe quedar en verde antes de commitear.
 - Imagen OG (`src/app/opengraph-image.tsx`): satori **no soporta woff2** — Fraunces va embebida en base64 (`src/app/og-font.ts`). Regla de satori: todo `<div>` con más de un hijo necesita `display` explícito.
 - Headers de seguridad HTTP solo se activan en build de producción (`next.config.ts`) — no esperarlos en `next dev`.
 
+## Harness multiagente
+
+- **`AGENTS.md` es la fuente de verdad** para cualquier agente (Codex, Claude Code, Antigravity y OpenCode leen este archivo). No crear adaptadores; si hiciera falta uno, debe delegar (`@AGENTS.md`) — `pnpm run check:agents` lo verifica en CI.
+- Contrato de ingeniería, flujo multiagente y reglas de contexto completos: **[docs/agentes.md](./docs/agentes.md)**.
+- **Una sesión por worktree**: si otra sesión trabaja en el repo, usar `git worktree` con rama propia; nunca dos escritores en el mismo árbol.
+- Transferencias entre modelos/sesiones: skill `task-handoff` (`.agents/skills/task-handoff/SKILL.md`).
+- Finales de línea: **LF** en todo el repo (`.gitattributes` + Biome). No cambiar esa política.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know
