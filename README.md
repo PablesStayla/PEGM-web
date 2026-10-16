@@ -78,17 +78,17 @@ Programado **desde cero** (SVG puro, sin librerías de gráficos):
 <!-- BEGIN:docs-sync:stack -->
 | Herramienta | Versión | Rol |
 |---|---|---|
-| Next.js | 16.3.8 | Framework App Router, Server Actions, ISR, proxy (Turbopack) |
+| Next.js | 16.4.0 | Framework App Router, Server Actions, ISR, proxy (Turbopack) |
 | React | 19.3.0 | UI |
 | TypeScript | 7.0.2 | Tipado estricto (compilador nativo) |
 | Tailwind CSS | 4.3.3 | Estilos con tema claro/oscuro (variables CSS) |
-| Drizzle ORM | 0.45.3 | libSQL tipado + migraciones + semilla automática |
+| Drizzle ORM | 0.45.4 | libSQL tipado + migraciones + semilla automática |
 | Turso / libSQL | 0.18.0 | SQLite en la nube (producción) o archivo local (desarrollo) |
 | Biome | 2.5.15 | Linter + formatter (un solo binario, sin Babel) |
 | lefthook | 2.2.2 | Hook de pre-commit (docs:check) |
-| Vitest | 5.0.3 | Tests unitarios |
-| Playwright | 1.63.0 | Tests E2E |
-| Zod | 4.6.5 | Validación de entradas en server actions |
+| Vitest | 5.0.4 | Tests unitarios |
+| Playwright | 1.64.0 | Tests E2E |
+| Zod | 4.6.7 | Validación de entradas en server actions |
 | jose | 6.2.12 | JWT HS256 de sesiones (compatible con proxy runtime) |
 | scrypt | — | Hash de contraseñas sin dependencias (Node crypto) |
 <!-- END:docs-sync:stack -->
