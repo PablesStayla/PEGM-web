@@ -1,7 +1,7 @@
 /**
  * Verifica la consistencia de la configuración multiagente del repositorio:
  * AGENTS.md como fuente de verdad, adaptadores que delegan (no duplican),
- * packageManager pnpm y formato de las skills en .agents/skills/.
+ * packageManager pnpm y skills en .agents/skills/ (presencia y formato).
  *
  * Uso: node scripts/agents-check.mjs   (sale 1 si hay errores)
  */
@@ -52,7 +52,9 @@ export function checkAgentsConfig(root = process.cwd()) {
   }
 
   const skillsDir = join(root, ".agents", "skills");
-  if (existsSync(skillsDir)) {
+  if (!existsSync(skillsDir)) {
+    error("Falta .agents/skills/: son las skills compartidas del harness multiagente.");
+  } else {
     for (const entrada of readdirSync(skillsDir, { withFileTypes: true })) {
       if (!entrada.isDirectory()) continue;
       const skillPath = join(skillsDir, entrada.name, "SKILL.md");
@@ -61,9 +63,10 @@ export function checkAgentsConfig(root = process.cwd()) {
         continue;
       }
       const contenido = readFileSync(skillPath, "utf8");
-      const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/.exec(contenido)?.[1] ?? "";
-      const tieneNombre = /^name:\s*\S+/m.test(frontmatter);
-      const tieneDescripcion = /^description:\s*\S+/m.test(frontmatter);
+      const frontmatter =
+        /^\uFEFF?---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/.exec(contenido)?.[1] ?? "";
+      const tieneNombre = /^name:[ \t]*\S+/m.test(frontmatter);
+      const tieneDescripcion = /^description:[ \t]*\S+/m.test(frontmatter);
       if (tieneNombre && tieneDescripcion) {
         ok(`Skill ${entrada.name}: frontmatter válido.`);
       } else {
