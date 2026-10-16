@@ -14,17 +14,17 @@ administración propio y laboratorio interactivo de metalurgia.
 - **Next.js 16** (App Router, Turbopack, Server Actions, `proxy.ts`) · **React 19** · **TypeScript 7**
 - **Tailwind CSS 4** — el tema vive en `src/app/globals.css` (`@theme` + `.dark`, variables CSS)
 - **Drizzle ORM** + **libSQL/Turso** · **Biome** (lint + format) · **Vitest** · **Playwright**
-- **npm** — nunca pnpm/yarn. Sin monorepo ni turbo.
+- **pnpm** — nunca npm/yarn (gestor fijado en `packageManager`). Sin monorepo ni turbo.
 
 ## Comandos
 
 ```bash
-npm run dev          # desarrollo en :3000
-npm run lint         # biome (src scripts tests) — debe pasar siempre
-npm test             # vitest (pruebas unitarias)
-npm run test:e2e     # playwright (pruebas E2E)
-npm run type-check   # tsc --noEmit
-npm run build        # build de producción
+pnpm dev          # desarrollo en :3000
+pnpm lint         # biome (src scripts tests) — debe pasar siempre
+pnpm test         # vitest (pruebas unitarias)
+pnpm test:e2e     # playwright (pruebas E2E)
+pnpm type-check   # tsc --noEmit
+pnpm build        # build de producción
 ```
 
 Todo lo anterior debe quedar en verde antes de commitear.
@@ -43,7 +43,7 @@ Todo lo anterior debe quedar en verde antes de commitear.
 
 - UI 100 % en **español** (es-CL), tono profesional.
 - Comentarios de código en español.
-- Biome: comillas dobles, punto y coma, 100 columnas → `npx biome check --write .`
+- Biome: comillas dobles, punto y coma, 100 columnas → `pnpm lint:fix`
 - La capa de datos (`src/lib/data.ts`) es **async en todo el contrato**; primero `const db = await getDb()`, luego las consultas.
 - Nada de `Math.random()`/`Date.now()` en el primer render de componentes cliente: rompe la hidratación SSR (referencia: `src/components/lab/live-dashboard.tsx`).
 

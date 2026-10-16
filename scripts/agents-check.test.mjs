@@ -78,6 +78,23 @@ describe("checkAgentsConfig", () => {
     expect(errores().join("\n")).toMatch(/pnpm/);
   });
 
+  it("falla si AGENTS.md usa comandos npm con packageManager pnpm", () => {
+    escribir("AGENTS.md", "# Guía\n\nnpm run dev\n");
+    escribir("package.json", PKG_VALIDO);
+    escribir(".agents/skills/ejemplo/SKILL.md", SKILL_VALIDA);
+    expect(errores().join("\n")).toMatch(/contradice packageManager/);
+  });
+
+  it("acepta menciones inocuas de npm (p. ej. la negación de política)", () => {
+    escribir(
+      "AGENTS.md",
+      "# Guía\n\n- **pnpm** — nunca npm/yarn (gestor fijado en `packageManager`).\n",
+    );
+    escribir("package.json", PKG_VALIDO);
+    escribir(".agents/skills/ejemplo/SKILL.md", SKILL_VALIDA);
+    expect(errores()).toEqual([]);
+  });
+
   it("valida el frontmatter de las skills", () => {
     escribir("AGENTS.md", "# Guía\n");
     escribir("package.json", PKG_VALIDO);

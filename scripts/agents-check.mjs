@@ -51,6 +51,21 @@ export function checkAgentsConfig(root = process.cwd()) {
     error("package.json debe fijar packageManager con pnpm (p. ej. pnpm@11.7.0).");
   }
 
+  if (packageManager.startsWith("pnpm@") && agents) {
+    const contradicciones = [
+      /\bnpm run\b/.test(agents) ? "`npm run`" : null,
+      /\bnpx\b/.test(agents) ? "`npx`" : null,
+      /\bnunca pnpm\b/.test(agents) ? 'la frase "nunca pnpm"' : null,
+    ].filter(Boolean);
+    if (contradicciones.length > 0) {
+      error(
+        `AGENTS.md contradice packageManager (pnpm): usa pnpm/pnpm exec en lugar de ${contradicciones.join(", ")}.`,
+      );
+    } else {
+      ok("AGENTS.md es coherente con el gestor pnpm.");
+    }
+  }
+
   const skillsDir = join(root, ".agents", "skills");
   if (!existsSync(skillsDir)) {
     error("Falta .agents/skills/: son las skills compartidas del harness multiagente.");

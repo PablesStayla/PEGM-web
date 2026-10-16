@@ -98,3 +98,16 @@ pnpm lint; pnpm test; pnpm run type-check; pnpm run check:agents
 
 **Rollback:** los commits son temáticos e independientes; revertir la rama completa
 (`git revert`) o commits sueltos sin tocar los demás cambios.
+
+## 8. Adenda — hallazgos de la auditoría externa (mismo día)
+
+- **Revocación de sesiones (Alta)**: el layout del panel y el proxy validaban firma/epoch,
+  pero las Server Actions (`content.ts`, `messages.ts`) solo validaban la firma del JWT:
+  un cookie robado podía seguir ejecutando acciones tras cambiar la contraseña.
+  Corregido con el guard compartido `src/lib/admin-session.ts` (`requireAdminSession`),
+  que exige que el `epoch` del token coincida con el de la cuenta.
+- **`AGENTS.md` vs. gestor real (Alta)**: el documento decía "npm — nunca pnpm/yarn"
+  mientras el repo usa pnpm. Corregido, y `check:agents` ahora falla si `AGENTS.md`
+  menciona `npm run`, `npx` o "nunca pnpm" con `packageManager` en pnpm.
+- Siguen pendientes y fuera de esta rama: protección de `main` (requiere permisos de
+  administración de GitHub) y la verificación del CI del PR (se dispara al crear el PR).
