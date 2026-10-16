@@ -1,6 +1,6 @@
 import { asc, count, desc, eq, max } from "drizzle-orm";
 import { cache } from "react";
-import { getDb } from "@/db";
+import { type Db, getDb } from "@/db";
 import * as t from "@/db/schema";
 import {
   about,
@@ -105,74 +105,94 @@ export const getSettings = cache(async (): Promise<SiteSettings> => {
 export const getProjects = cache(async (): Promise<PublicProject[]> => {
   try {
     const db = await getDb();
-    const rows = await db
-      .select()
-      .from(t.projects)
-      .orderBy(asc(t.projects.sortOrder), asc(t.projects.id))
-      .all();
+    const rows = await getProjectsFromDb(db);
     if (rows.length > 0) return rows;
+    return []; // tabla correctamente vacía: resultado válido, no semilla
   } catch (error) {
     quiet(error, "getProjects");
+    return seedProjects.map((project, index) => ({
+      ...project,
+      id: index + 1,
+      sortOrder: index,
+    })); // BD no disponible: degradación elegante (sitio no se rompe)
   }
-  return seedProjects.map((project, index) => ({
-    ...project,
-    id: index + 1,
-    sortOrder: index,
-  }));
 });
+
+/** Consulta de proyectos sin caché: inyectable para pruebas. */
+export async function getProjectsFromDb(db: Db): Promise<PublicProject[]> {
+  return db.select().from(t.projects).orderBy(asc(t.projects.sortOrder), asc(t.projects.id)).all();
+}
 
 export const getExperience = cache(async (): Promise<PublicExperience[]> => {
   try {
     const db = await getDb();
-    const rows = await db
-      .select()
-      .from(t.experience)
-      .orderBy(asc(t.experience.sortOrder), asc(t.experience.id))
-      .all();
+    const rows = await getExperienceFromDb(db);
     if (rows.length > 0) return rows;
+    return []; // tabla correctamente vacía: resultado válido, no semilla
   } catch (error) {
     quiet(error, "getExperience");
+    return seedExperience.map((item, index) => ({
+      ...item,
+      id: index + 1,
+      sortOrder: index,
+    })); // BD no disponible: degradación elegante (sitio no se rompe)
   }
-  return seedExperience.map((item, index) => ({
-    ...item,
-    id: index + 1,
-    sortOrder: index,
-  }));
 });
+
+/** Consulta de experiencia sin caché: inyectable para pruebas. */
+export async function getExperienceFromDb(db: Db): Promise<PublicExperience[]> {
+  return db
+    .select()
+    .from(t.experience)
+    .orderBy(asc(t.experience.sortOrder), asc(t.experience.id))
+    .all();
+}
 
 export const getEducation = cache(async (): Promise<PublicEducation[]> => {
   try {
     const db = await getDb();
-    const rows = await db
-      .select()
-      .from(t.education)
-      .orderBy(asc(t.education.sortOrder), asc(t.education.id))
-      .all();
+    const rows = await getEducationFromDb(db);
     if (rows.length > 0) return rows;
+    return []; // tabla correctamente vacía: resultado válido, no semilla
   } catch (error) {
     quiet(error, "getEducation");
+    return seedEducation.map((item, index) => ({
+      ...item,
+      id: index + 1,
+      sortOrder: index,
+    })); // BD no disponible: degradación elegante (sitio no se rompe)
   }
-  return seedEducation.map((item, index) => ({
-    ...item,
-    id: index + 1,
-    sortOrder: index,
-  }));
 });
+
+/** Consulta de educación sin caché: inyectable para pruebas. */
+export async function getEducationFromDb(db: Db): Promise<PublicEducation[]> {
+  return db
+    .select()
+    .from(t.education)
+    .orderBy(asc(t.education.sortOrder), asc(t.education.id))
+    .all();
+}
 
 export const getCertifications = cache(async (): Promise<string[]> => {
   try {
     const db = await getDb();
-    const rows = await db
-      .select()
-      .from(t.certifications)
-      .orderBy(asc(t.certifications.sortOrder), asc(t.certifications.id))
-      .all();
+    const rows = await getCertificationsFromDb(db);
     if (rows.length > 0) return rows.map((row) => row.name);
+    return []; // tabla correctamente vacía: resultado válido, no semilla
   } catch (error) {
     quiet(error, "getCertifications");
+    return seedCertifications; // BD no disponible: degradación elegante (sitio no se rompe)
   }
-  return seedCertifications;
 });
+
+/** Consulta de certificaciones sin caché: inyectable para pruebas. */
+export async function getCertificationsFromDb(db: Db): Promise<{ name: string }[]> {
+  return db
+    .select()
+    .from(t.certifications)
+    .orderBy(asc(t.certifications.sortOrder), asc(t.certifications.id))
+    .all();
+}
 
 export const getSkills = cache(
   async (): Promise<{
@@ -181,38 +201,46 @@ export const getSkills = cache(
   }> => {
     try {
       const db = await getDb();
-      const rows = await db
-        .select()
-        .from(t.skills)
-        .orderBy(asc(t.skills.sortOrder), asc(t.skills.id))
-        .all();
+      const rows = await getSkillsFromDb(db);
       if (rows.length > 0) {
         return {
           software: rows.filter((r) => r.kind === "software").map((r) => r.name),
           areas: rows.filter((r) => r.kind === "area").map((r) => r.name),
         };
       }
+      return { software: [], areas: [] }; // tabla correctamente vacía: resultado válido, no semilla
     } catch (error) {
       quiet(error, "getSkills");
+      return seedSkills; // BD no disponible: degradación elegante (sitio no se rompe)
     }
-    return seedSkills;
   },
 );
+
+/** Consulta de skills sin caché: inyectable para pruebas. */
+export async function getSkillsFromDb(db: Db): Promise<{ kind: string; name: string }[]> {
+  return db.select().from(t.skills).orderBy(asc(t.skills.sortOrder), asc(t.skills.id)).all();
+}
 
 export const getLanguages = cache(async (): Promise<{ name: string; level: string }[]> => {
   try {
     const db = await getDb();
-    const rows = await db
-      .select()
-      .from(t.languages)
-      .orderBy(asc(t.languages.sortOrder), asc(t.languages.id))
-      .all();
+    const rows = await getLanguagesFromDb(db);
     if (rows.length > 0) return rows.map((row) => ({ name: row.name, level: row.level }));
+    return []; // tabla correctamente vacía: resultado válido, no semilla
   } catch (error) {
     quiet(error, "getLanguages");
+    return seedLanguages; // BD no disponible: degradación elegante (sitio no se rompe)
   }
-  return seedLanguages;
 });
+
+/** Consulta de idiomas sin caché: inyectable para pruebas. */
+export async function getLanguagesFromDb(db: Db): Promise<{ name: string; level: string }[]> {
+  return db
+    .select()
+    .from(t.languages)
+    .orderBy(asc(t.languages.sortOrder), asc(t.languages.id))
+    .all();
+}
 
 /** Última modificación real por zona del sitio (undefined si la BD no responde). */
 export const contentLastModified = cache(

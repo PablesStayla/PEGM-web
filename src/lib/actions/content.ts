@@ -11,6 +11,16 @@ import { audit } from "@/lib/audit";
 import { createSessionToken, SESSION_COOKIE, sessionCookieOptions } from "@/lib/auth";
 import { adminGetSettings } from "@/lib/data";
 import { hashPassword, verifyPassword } from "@/lib/password";
+import {
+  certificationSchema,
+  changePasswordSchema,
+  educationSchema,
+  experienceSchema,
+  languageSchema,
+  projectSchema,
+  settingsSchema,
+  skillSchema,
+} from "@/lib/validation";
 
 /**
  * Acciones de servidor para administrar el contenido del sitio.
@@ -63,7 +73,7 @@ function idOrThrow(formData: FormData, backTo: string): number {
 
 export async function saveSettings(formData: FormData) {
   const user = await requireAdminSession();
-  const values = {
+  const raw = {
     name: str(formData, "name"),
     title: str(formData, "title"),
     tagline: str(formData, "tagline"),
@@ -76,11 +86,12 @@ export async function saveSettings(formData: FormData) {
     aboutP1: str(formData, "aboutP1"),
     aboutP2: str(formData, "aboutP2"),
     aboutP3: str(formData, "aboutP3"),
-    updatedAt: new Date(),
   };
-  if (!values.name || !values.title) {
-    redirect("/admin/ajustes?error=required");
+  const parsed = settingsSchema.safeParse(raw);
+  if (!parsed.success) {
+    redirect("/admin/ajustes?error=invalid");
   }
+  const values = { ...parsed.data, updatedAt: new Date() };
 
   const db = await getDb();
   const before = await adminGetSettings();
@@ -100,12 +111,15 @@ export async function saveSettings(formData: FormData) {
 
 export async function changePassword(formData: FormData) {
   const user = await requireAdminSession();
-  const current = str(formData, "current");
-  const next = str(formData, "next");
-
-  if (next.length < 8) {
-    redirect("/admin/ajustes?error=password-short");
+  const raw = {
+    current: str(formData, "current"),
+    next: str(formData, "next"),
+  };
+  const parsed = changePasswordSchema.safeParse(raw);
+  if (!parsed.success) {
+    redirect("/admin/ajustes?error=invalid");
   }
+  const { current, next } = parsed.data;
 
   const db = await getDb();
   const row = (
@@ -147,7 +161,7 @@ export async function changePassword(formData: FormData) {
 export async function saveProject(formData: FormData) {
   const user = await requireAdminSession();
   const id = num(formData, "id");
-  const values = {
+  const raw = {
     title: str(formData, "title"),
     category: str(formData, "category"),
     year: str(formData, "year"),
@@ -155,9 +169,12 @@ export async function saveProject(formData: FormData) {
     tags: csv(formData, "tags"),
     featured: bool(formData, "featured"),
     sortOrder: num(formData, "sortOrder"),
-    updatedAt: new Date(),
   };
-  if (!values.title) redirect("/admin/proyectos?error=required");
+  const parsed = projectSchema.safeParse(raw);
+  if (!parsed.success) {
+    redirect("/admin/proyectos?error=invalid");
+  }
+  const values = { ...parsed.data, updatedAt: new Date() };
 
   const db = await getDb();
   if (id) {
@@ -217,16 +234,18 @@ export async function deleteProject(formData: FormData) {
 export async function saveExperience(formData: FormData) {
   const user = await requireAdminSession();
   const id = num(formData, "id");
-  const values = {
+  const raw = {
     period: str(formData, "period"),
     role: str(formData, "role"),
     company: str(formData, "company"),
     highlights: lines(formData, "highlights"),
     sortOrder: num(formData, "sortOrder"),
   };
-  if (!values.role || !values.company) {
-    redirect("/admin/experiencia?error=required");
+  const parsed = experienceSchema.safeParse(raw);
+  if (!parsed.success) {
+    redirect("/admin/experiencia?error=invalid");
   }
+  const values = { ...parsed.data, updatedAt: new Date() };
 
   const db = await getDb();
   if (id) {
@@ -286,14 +305,18 @@ export async function deleteExperience(formData: FormData) {
 export async function saveEducation(formData: FormData) {
   const user = await requireAdminSession();
   const id = num(formData, "id");
-  const values = {
+  const raw = {
     period: str(formData, "period"),
     degree: str(formData, "degree"),
     school: str(formData, "school"),
     note: str(formData, "note"),
     sortOrder: num(formData, "sortOrder"),
   };
-  if (!values.degree) redirect("/admin/educacion?error=required");
+  const parsed = educationSchema.safeParse(raw);
+  if (!parsed.success) {
+    redirect("/admin/educacion?error=invalid");
+  }
+  const values = { ...parsed.data, updatedAt: new Date() };
 
   const db = await getDb();
   if (id) {
@@ -353,9 +376,15 @@ export async function deleteEducation(formData: FormData) {
 export async function saveCertification(formData: FormData) {
   const user = await requireAdminSession();
   const id = num(formData, "id");
-  const name = str(formData, "name");
-  const sortOrder = num(formData, "sortOrder");
-  if (!name) redirect("/admin/educacion?error=required");
+  const raw = {
+    name: str(formData, "name"),
+    sortOrder: num(formData, "sortOrder"),
+  };
+  const parsed = certificationSchema.safeParse(raw);
+  if (!parsed.success) {
+    redirect("/admin/educacion?error=invalid");
+  }
+  const { name, sortOrder } = parsed.data;
 
   const db = await getDb();
   if (id) {
@@ -419,12 +448,16 @@ export async function deleteCertification(formData: FormData) {
 export async function saveLanguage(formData: FormData) {
   const user = await requireAdminSession();
   const id = num(formData, "id");
-  const values = {
+  const raw = {
     name: str(formData, "name"),
     level: str(formData, "level"),
     sortOrder: num(formData, "sortOrder"),
   };
-  if (!values.name) redirect("/admin/educacion?error=required");
+  const parsed = languageSchema.safeParse(raw);
+  if (!parsed.success) {
+    redirect("/admin/educacion?error=invalid");
+  }
+  const values = { ...parsed.data, updatedAt: new Date() };
 
   const db = await getDb();
   if (id) {
@@ -484,12 +517,16 @@ export async function deleteLanguage(formData: FormData) {
 export async function saveSkill(formData: FormData) {
   const user = await requireAdminSession();
   const id = num(formData, "id");
-  const values = {
+  const raw = {
     kind: str(formData, "kind") === "area" ? "area" : "software",
     name: str(formData, "name"),
     sortOrder: num(formData, "sortOrder"),
   };
-  if (!values.name) redirect("/admin/habilidades?error=required");
+  const parsed = skillSchema.safeParse(raw);
+  if (!parsed.success) {
+    redirect("/admin/habilidades?error=invalid");
+  }
+  const values = { ...parsed.data, updatedAt: new Date() };
 
   const db = await getDb();
   if (id) {
