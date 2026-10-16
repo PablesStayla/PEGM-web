@@ -1,0 +1,7 @@
+# Documentación viva: regenera los bloques docs-sync y valida referencias
+# antes de cada commit. Instalación: `pnpm install` (prepare) o
+# `pnpm exec lefthook install`. Desactivable con LEFTHOOK=0.
+pre-commit:
+  commands:
+    docs-sync:
+      run: node scripts/docs-hook.mjs

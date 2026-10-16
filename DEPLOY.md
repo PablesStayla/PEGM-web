@@ -13,7 +13,7 @@ Tiempo estimado total: **~15 minutos**.
 Turso es SQLite en la nube — capa gratuita generosa, perfecta para este sitio.
 
 ```bash
-npm i -g @turso/cli
+pnpm add -g @turso/cli
 turso auth signup          # o `turso auth login` si ya tienes cuenta
 
 turso db create pablo-site
@@ -37,14 +37,16 @@ git push origin main
    (Vercel detecta Next.js solo — no toques nada de build).
 2. **Antes de desplegar**, añade las variables de entorno:
 
-| Variable | Valor | Obligatoria |
-|---|---|---|
-| `TURSO_DATABASE_URL` | `libsql://pablo-site-….turso.io` | ✅ |
-| `TURSO_AUTH_TOKEN` | token del paso 1 | ✅ |
-| `AUTH_SECRET` | `openssl rand -hex 32` | ✅ (sin ella el sitio falla a propósito en producción) |
-| `NEXT_PUBLIC_SITE_URL` | `https://tu-dominio.cl` (sin `/` final) | ✅ para SEO/sitemap correcto |
-| `ADMIN_EMAIL` | tu correo real | ✅ para sembrar el admin en el primer arranque (sin ella, falla a propósito) |
-| `ADMIN_PASSWORD` | una contraseña fuerte (no la de ejemplo) | ✅ junto a `ADMIN_EMAIL` (ídem) |
+<!-- BEGIN:docs-sync:env -->
+| Variable | Detalle |
+|---|---|
+| `AUTH_SECRET` | Secreto para firmar sesiones del panel (`openssl rand -hex 32`); **obligatoria en producción** |
+| `ADMIN_EMAIL` | Correo del administrador; solo al sembrar la DB por primera vez |
+| `ADMIN_PASSWORD` | Contraseña del administrador; solo al sembrar la DB por primera vez |
+| `TURSO_DATABASE_URL` | URL de Turso (`libsql://…`); sin ella se usa SQLite local (`data/site.db`) |
+| `TURSO_AUTH_TOKEN` | Token de Turso (acompaña a `TURSO_DATABASE_URL`) |
+| `NEXT_PUBLIC_SITE_URL` | URL pública (sitemap, canonical, JSON-LD); solo producción |
+<!-- END:docs-sync:env -->
 
 3. Deploy. En el primer arranque el sitio aplica las migraciones y siembra el
    contenido inicial **directamente en Turso**.

@@ -1,5 +1,6 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 // Bloques de documentación viva: contenido generado entre marcadores.
 // Formato: <!-- BEGIN:docs-sync:<bloque> --> … <!-- END:docs-sync:<bloque> -->
@@ -64,6 +65,7 @@ export const SCRIPT_DOCS = {
   lint: "Biome: lint + formato (src, scripts, tests)",
   "lint:fix": "Biome con corrección automática",
   format: "Biome: solo formato",
+  "check:agents": "Verificación multiagente (AGENTS.md, adaptadores, skills, packageManager pnpm)",
   "db:generate": "Generar migración Drizzle",
   "db:studio": "Drizzle Studio (explorar la BD)",
   "db:reset": "Regenerar la DB local con datos semilla",
@@ -71,6 +73,7 @@ export const SCRIPT_DOCS = {
   "cv:pdf": "Regenerar el PDF público del CV (requiere dev activo)",
   "docs:sync": "Regenerar los bloques de documentación viva",
   "docs:check": "Verificar la documentación viva (candado de CI)",
+  prepare: "Instalar el hook de pre-commit (lefthook)",
 };
 
 export const ENV_DOCS = {
@@ -107,6 +110,7 @@ export const STACK = [
     role: "SQLite en la nube (producción) o archivo local (desarrollo)",
   },
   { pkg: "@biomejs/biome", name: "Biome", role: "Linter + formatter (un solo binario, sin Babel)" },
+  { pkg: "lefthook", name: "lefthook", role: "Hook de pre-commit (docs:check)" },
   { pkg: "vitest", name: "Vitest", role: "Tests unitarios" },
   { pkg: "@playwright/test", name: "Playwright", role: "Tests E2E" },
   { pkg: "zod", name: "Zod", role: "Validación de entradas en server actions" },
@@ -282,3 +286,142 @@ export function checkEnvCoverage(envDeclared, envUsage) {
   }
   return problems;
 }
+
+// ————— Verificadores —————
+
+const PNPM_SUBCOMMANDS = new Set([
+  "install",
+  "add",
+  "remove",
+  "exec",
+  "dlx",
+  "import",
+  "update",
+  "why",
+  "audit",
+  "link",
+  "store",
+  "ff",
+  "run",
+]);
+
+export function checkPnpmRefs(text, scriptNames) {
+  const scripts = new Set(scriptNames);
+  const problems = [];
+  for (const match of text.matchAll(/\bpnpm\s+(?:run\s+)?([\w:@.-]+)/g)) {
+    const name = match[1];
+    if (PNPM_SUBCOMMANDS.has(name) || scripts.has(name)) continue;
+    problems.push(`pnpm: "${name}" no existe como script en package.json`);
+  }
+  return problems;
+}
+
+const PATH_ROOTS = ["src/", "scripts/", "tests/", "docs/", "drizzle/"];
+
+export function checkPaths(text, root) {
+  const problems = [];
+  for (const match of text.matchAll(/`([^`\n]+)`/g)) {
+    let token = match[1].trim();
+    if (token.includes(" ")) continue;
+    if (!PATH_ROOTS.some((prefix) => token.startsWith(prefix))) continue;
+    token = token.replace(/:\d+(?:-\d+)?$/, "").replace(/\/$/, "");
+    if (!existsSync(path.join(root, token))) {
+      problems.push(`ruta: "${match[1]}" no existe en disco`);
+    }
+  }
+  return problems;
+}
+
+export function checkStructure(readmeText, srcDirs) {
+  const problems = [];
+  const tree = readmeText.match(/## 📁 Estructura[\s\S]*?```([\s\S]*?)```/);
+  const block = tree ? tree[1] : "";
+  for (const dir of srcDirs) {
+    if (!block.includes(`${dir}/`)) {
+      problems.push(`estructura: falta "src/${dir}/" en el árbol del README`);
+    }
+  }
+  return problems;
+}
+
+// ————— Orquestación —————
+
+const DOCS = [
+  { file: "AGENTS.md", blocks: ["commands", "env", "stack"] },
+  { file: "README.md", blocks: ["commands", "routes", "stack"] },
+  { file: "DEPLOY.md", blocks: ["env"] },
+];
+
+const VERIFY_FILES = ["AGENTS.md", "README.md", "DEPLOY.md", ".env.example"];
+
+export function runSync({ root, write }) {
+  const sources = readSources(root);
+  const commands = renderCommands(sources.pkg);
+  const env = renderEnv(sources.envDeclared);
+  const stack = renderStack(sources.pkg);
+  const content = {
+    commands: commands.content,
+    env: env.content,
+    routes: renderRoutes(sources.routes),
+    stack: stack.content,
+  };
+  const problems = [
+    ...commands.problems,
+    ...env.problems,
+    ...stack.problems,
+    ...checkEnvCoverage(sources.envDeclared, sources.envUsage),
+  ];
+  const changed = [];
+  for (const doc of DOCS) {
+    const blocks = doc.blocks.map((name) => ({ name, content: content[name] ?? "" }));
+    const result = syncFile({ filePath: path.join(root, doc.file), blocks, write });
+    problems.push(...result.problems);
+    if (result.changed) changed.push(doc.file);
+  }
+  return { changed, problems };
+}
+
+export function runCheck({ root }) {
+  const sources = readSources(root);
+  const sync = runSync({ root, write: false });
+  const problems = [
+    ...sync.problems,
+    ...sync.changed.map((file) => `${file}: bloque(s) desactualizados — ejecuta "pnpm docs:sync"`),
+  ];
+  for (const file of VERIFY_FILES) {
+    const text = readFileSync(path.join(root, file), "utf8");
+    problems.push(...checkPnpmRefs(text, sources.scriptNames));
+    problems.push(...checkPaths(text, root));
+  }
+  problems.push(
+    ...checkStructure(readFileSync(path.join(root, "README.md"), "utf8"), sources.srcDirs),
+  );
+  return problems;
+}
+
+export function main(argv = process.argv.slice(2)) {
+  const modeName = argv[0];
+  if (modeName !== "sync" && modeName !== "check") {
+    console.error("uso: node scripts/docs-sync.mjs <sync|check>");
+    return 2;
+  }
+  const root = process.cwd();
+  if (modeName === "sync") {
+    const { changed, problems } = runSync({ root, write: true });
+    console.log(
+      changed.length ? `docs-sync: actualizado ${changed.join(", ")}` : "docs-sync: sin cambios",
+    );
+    for (const problem of problems) console.error(`- ${problem}`);
+    return problems.length ? 1 : 0;
+  }
+  const problems = runCheck({ root });
+  if (problems.length === 0) {
+    console.log("docs-sync: documentación en orden");
+    return 0;
+  }
+  for (const problem of problems) console.error(`- ${problem}`);
+  return 1;
+}
+
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) process.exit(main());

@@ -10,7 +10,7 @@ profesional sin los datos de contacto de las referencias; el maestro permanece p
 fuera de `public/`. Para regenerarlo desde `/cv`, con el servidor de desarrollo activo:
 
 ```bash
-npm run cv:pdf
+pnpm cv:pdf
 ```
 
 La portada en inglés tiene contenido editorial propio; las páginas detalladas de CV,
@@ -27,13 +27,29 @@ administración completo** para editar todo el contenido sin tocar código.
 
 ## ✨ Qué incluye
 
-### Sitio público
-| Ruta | Contenido |
+### Rutas
+
+<!-- BEGIN:docs-sync:routes -->
+| Ruta | Tipo |
 |---|---|
-| `/` | Portada: hero, quién soy, especialidades, laboratorio, proyectos destacados y formulario de contacto |
-| `/cv` | CV completo: experiencia (timeline), educación, certificaciones, software e idiomas |
-| `/proyectos` | Portafolio completo |
-| `/laboratorio` | 4 herramientas metalúrgicas interactivas (ver abajo) |
+| `/` | Página |
+| `/admin` | Página |
+| `/admin/ajustes` | Página |
+| `/admin/analitica` | Página |
+| `/admin/auditoria` | Página |
+| `/admin/educacion` | Página |
+| `/admin/experiencia` | Página |
+| `/admin/habilidades` | Página |
+| `/admin/login` | Página |
+| `/admin/mensajes` | Página |
+| `/admin/proyectos` | Página |
+| `/api/analytics` | API |
+| `/cv` | Página |
+| `/en` | Página |
+| `/laboratorio` | Página |
+| `/llms.txt` | API |
+| `/proyectos` | Página |
+<!-- END:docs-sync:routes -->
 
 Extras: **modo oscuro** (con persistencia y sin parpadeo), **paleta de
 comandos** (`Ctrl/⌘ + K`), animaciones al hacer scroll, SEO (sitemap, robots,
@@ -59,20 +75,23 @@ Programado **desde cero** (SVG puro, sin librerías de gráficos):
 
 ## 🛠️ Stack (SOTA)
 
+<!-- BEGIN:docs-sync:stack -->
 | Herramienta | Versión | Rol |
 |---|---|---|
-| **Next.js** | 16.x (Turbopack) | Framework App Router, Server Actions, ISR, proxy |
-| **React** | 19.3 | UI |
-| **TypeScript** | 7 (compilador nativo) | Tipado estricto |
-| **Tailwind CSS** | 4.3 | Estilos con tema claro/oscuro (variables CSS) |
-| **Drizzle ORM** | 0.45 | libSQL tipado + migraciones + semilla automática |
-| **Turso / libSQL** | 0.18 | SQLite en la nube (producción) o archivo local (desarrollo) |
-| **Biome** | 2.5 | Linter + formatter (un solo binario, sin Babel) |
-| **Vitest** | 5 | Tests unitarios (23 pruebas: auth, matemática del laboratorio, slugs) |
-| **Playwright** | 1.63 | Tests E2E (19 pruebas: sitio, laboratorio, panel, contacto) |
-| **Zod** | 4 | Validación de entradas en server actions |
-| **jose** | 6 | JWT HS256 de sesiones (compatible con proxy runtime) |
-| **scrypt** | Node crypto | Hash de contraseñas sin dependencias |
+| Next.js | 16.3.8 | Framework App Router, Server Actions, ISR, proxy (Turbopack) |
+| React | 19.3.0 | UI |
+| TypeScript | 7.0.2 | Tipado estricto (compilador nativo) |
+| Tailwind CSS | 4.3.3 | Estilos con tema claro/oscuro (variables CSS) |
+| Drizzle ORM | 0.45.3 | libSQL tipado + migraciones + semilla automática |
+| Turso / libSQL | 0.18.0 | SQLite en la nube (producción) o archivo local (desarrollo) |
+| Biome | 2.5.15 | Linter + formatter (un solo binario, sin Babel) |
+| lefthook | 2.2.2 | Hook de pre-commit (docs:check) |
+| Vitest | 5.0.3 | Tests unitarios |
+| Playwright | 1.63.0 | Tests E2E |
+| Zod | 4.6.5 | Validación de entradas en server actions |
+| jose | 6.2.12 | JWT HS256 de sesiones (compatible con proxy runtime) |
+| scrypt | — | Hash de contraseñas sin dependencias (Node crypto) |
+<!-- END:docs-sync:stack -->
 
 Fuentes: **Fraunces** (serif) + **Inter** — autoalojadas con `@fontsource`.
 
@@ -102,15 +121,15 @@ Fuentes: **Fraunces** (serif) + **Inter** — autoalojadas con `@fontsource`.
 │   └── middleware.ts          # Protección de /admin
 ├── drizzle/                   # Migraciones SQL
 ├── data/site.db               # Base de datos (gitignored, se auto-crea)
-└── scripts/                   # reset-db.mjs · test-auth.mts
+└── scripts/                   # Utilidades Node (DB, E2E, CV, deploy, docs-sync)
 ```
 
 ## 🚀 Desarrollo
 
 ```bash
-npm install            # better-sqlite3 compila un módulo nativo (necesita build tools)
+pnpm install           # dependencias (libSQL trae binarios precompilados)
 cp .env.example .env.local   # y editar AUTH_SECRET
-npm run dev            # → http://localhost:3000
+pnpm dev               # → http://localhost:3000
 ```
 
 Sin variables de Turso, la base de datos es **SQLite local** (`data/site.db`) y se
@@ -121,13 +140,30 @@ definidos, la misma lógica corre contra **Turso** (persistente en serverless).
 **Acceso al panel:** `/admin` → `admin@pablo.cl` / `admin1234`
 *(credenciales por defecto: cámbialas en Ajustes → Contraseña)*
 
-```bash
-npm run build          # build de producción
-npm run type-check     # verificación de tipos
-npm run db:studio      # explorar la base de datos (Drizzle Studio)
-npm run db:reset       # regenerar la DB con datos semilla
-node --experimental-strip-types scripts/test-auth.mts   # pruebas de auth/DB
-```
+Más comandos del proyecto:
+
+<!-- BEGIN:docs-sync:commands -->
+| Comando | Descripción |
+|---|---|
+| `pnpm dev` | Servidor de desarrollo en :3000 (Turbopack) |
+| `pnpm build` | Build de producción (Next.js) |
+| `pnpm start` | Servidor de producción en :3000 |
+| `pnpm type-check` | TypeScript estricto (tsc --noEmit) |
+| `pnpm test` | Pruebas unitarias (Vitest) |
+| `pnpm test:watch` | Pruebas unitarias en modo watch |
+| `pnpm lint` | Biome: lint + formato (src, scripts, tests) |
+| `pnpm lint:fix` | Biome con corrección automática |
+| `pnpm format` | Biome: solo formato |
+| `pnpm check:agents` | Verificación multiagente (AGENTS.md, adaptadores, skills, packageManager pnpm) |
+| `pnpm docs:sync` | Regenerar los bloques de documentación viva |
+| `pnpm docs:check` | Verificar la documentación viva (candado de CI) |
+| `pnpm db:generate` | Generar migración Drizzle |
+| `pnpm db:studio` | Drizzle Studio (explorar la BD) |
+| `pnpm db:reset` | Regenerar la DB local con datos semilla |
+| `pnpm test:e2e` | Suite E2E (Playwright, puerto 3100, BD aislada) |
+| `pnpm cv:pdf` | Regenerar el PDF público del CV (requiere dev activo) |
+| `pnpm prepare` | Instalar el hook de pre-commit (lefthook) |
+<!-- END:docs-sync:commands -->
 
 ### Variables de entorno (`.env.local`)
 
