@@ -1,4 +1,5 @@
 import { asc, count, desc, eq, max } from "drizzle-orm";
+import { cache } from "react";
 import { getDb } from "@/db";
 import * as t from "@/db/schema";
 import {
@@ -11,6 +12,7 @@ import {
   skills as seedSkills,
   site,
 } from "@/lib/content";
+import { quiet } from "@/lib/log";
 
 // Contenido estático (no administrado desde el panel)
 export { specialities, stats, techStack } from "@/lib/content";
@@ -77,7 +79,7 @@ function fallbackSettings(): SiteSettings {
   };
 }
 
-export async function getSettings(): Promise<SiteSettings> {
+export const getSettings = cache(async (): Promise<SiteSettings> => {
   try {
     const db = await getDb();
     const row = (await db.select().from(t.settings).where(eq(t.settings.id, 1)).limit(1).all())[0];
@@ -94,12 +96,13 @@ export async function getSettings(): Promise<SiteSettings> {
       aboutHeading: row.aboutHeading,
       aboutParagraphs: [row.aboutP1, row.aboutP2, row.aboutP3].filter(Boolean),
     };
-  } catch {
+  } catch (error) {
+    quiet(error, "getSettings");
     return fallbackSettings();
   }
-}
+});
 
-export async function getProjects(): Promise<PublicProject[]> {
+export const getProjects = cache(async (): Promise<PublicProject[]> => {
   try {
     const db = await getDb();
     const rows = await db
@@ -108,17 +111,17 @@ export async function getProjects(): Promise<PublicProject[]> {
       .orderBy(asc(t.projects.sortOrder), asc(t.projects.id))
       .all();
     if (rows.length > 0) return rows;
-  } catch {
-    // degradación: contenido semilla
+  } catch (error) {
+    quiet(error, "getProjects");
   }
   return seedProjects.map((project, index) => ({
     ...project,
     id: index + 1,
     sortOrder: index,
   }));
-}
+});
 
-export async function getExperience(): Promise<PublicExperience[]> {
+export const getExperience = cache(async (): Promise<PublicExperience[]> => {
   try {
     const db = await getDb();
     const rows = await db
@@ -127,17 +130,17 @@ export async function getExperience(): Promise<PublicExperience[]> {
       .orderBy(asc(t.experience.sortOrder), asc(t.experience.id))
       .all();
     if (rows.length > 0) return rows;
-  } catch {
-    // degradación
+  } catch (error) {
+    quiet(error, "getExperience");
   }
   return seedExperience.map((item, index) => ({
     ...item,
     id: index + 1,
     sortOrder: index,
   }));
-}
+});
 
-export async function getEducation(): Promise<PublicEducation[]> {
+export const getEducation = cache(async (): Promise<PublicEducation[]> => {
   try {
     const db = await getDb();
     const rows = await db
@@ -146,17 +149,17 @@ export async function getEducation(): Promise<PublicEducation[]> {
       .orderBy(asc(t.education.sortOrder), asc(t.education.id))
       .all();
     if (rows.length > 0) return rows;
-  } catch {
-    // degradación
+  } catch (error) {
+    quiet(error, "getEducation");
   }
   return seedEducation.map((item, index) => ({
     ...item,
     id: index + 1,
     sortOrder: index,
   }));
-}
+});
 
-export async function getCertifications(): Promise<string[]> {
+export const getCertifications = cache(async (): Promise<string[]> => {
   try {
     const db = await getDb();
     const rows = await db
@@ -165,36 +168,38 @@ export async function getCertifications(): Promise<string[]> {
       .orderBy(asc(t.certifications.sortOrder), asc(t.certifications.id))
       .all();
     if (rows.length > 0) return rows.map((row) => row.name);
-  } catch {
-    // degradación
+  } catch (error) {
+    quiet(error, "getCertifications");
   }
   return seedCertifications;
-}
+});
 
-export async function getSkills(): Promise<{
-  software: string[];
-  areas: string[];
-}> {
-  try {
-    const db = await getDb();
-    const rows = await db
-      .select()
-      .from(t.skills)
-      .orderBy(asc(t.skills.sortOrder), asc(t.skills.id))
-      .all();
-    if (rows.length > 0) {
-      return {
-        software: rows.filter((r) => r.kind === "software").map((r) => r.name),
-        areas: rows.filter((r) => r.kind === "area").map((r) => r.name),
-      };
+export const getSkills = cache(
+  async (): Promise<{
+    software: string[];
+    areas: string[];
+  }> => {
+    try {
+      const db = await getDb();
+      const rows = await db
+        .select()
+        .from(t.skills)
+        .orderBy(asc(t.skills.sortOrder), asc(t.skills.id))
+        .all();
+      if (rows.length > 0) {
+        return {
+          software: rows.filter((r) => r.kind === "software").map((r) => r.name),
+          areas: rows.filter((r) => r.kind === "area").map((r) => r.name),
+        };
+      }
+    } catch (error) {
+      quiet(error, "getSkills");
     }
-  } catch {
-    // degradación
-  }
-  return seedSkills;
-}
+    return seedSkills;
+  },
+);
 
-export async function getLanguages(): Promise<{ name: string; level: string }[]> {
+export const getLanguages = cache(async (): Promise<{ name: string; level: string }[]> => {
   try {
     const db = await getDb();
     const rows = await db
@@ -203,44 +208,47 @@ export async function getLanguages(): Promise<{ name: string; level: string }[]>
       .orderBy(asc(t.languages.sortOrder), asc(t.languages.id))
       .all();
     if (rows.length > 0) return rows.map((row) => ({ name: row.name, level: row.level }));
-  } catch {
-    // degradación
+  } catch (error) {
+    quiet(error, "getLanguages");
   }
   return seedLanguages;
-}
+});
 
 /** Última modificación real por zona del sitio (undefined si la BD no responde). */
-export async function contentLastModified(): Promise<{
-  home?: Date;
-  cv?: Date;
-  projects?: Date;
-}> {
-  try {
-    const db = await getDb();
-    const settingsRow = (
-      await db
-        .select({ updatedAt: t.settings.updatedAt })
-        .from(t.settings)
-        .where(eq(t.settings.id, 1))
-        .limit(1)
-        .all()
-    )[0];
-    const projectsMax = (
-      await db
-        .select({ value: max(t.projects.updatedAt) })
-        .from(t.projects)
-        .all()
-    )[0]?.value;
-    if (!settingsRow && !projectsMax) return {};
-    return {
-      home: settingsRow?.updatedAt,
-      cv: settingsRow?.updatedAt,
-      projects: projectsMax ?? settingsRow?.updatedAt,
-    };
-  } catch {
-    return {};
-  }
-}
+export const contentLastModified = cache(
+  async (): Promise<{
+    home?: Date;
+    cv?: Date;
+    projects?: Date;
+  }> => {
+    try {
+      const db = await getDb();
+      const settingsRow = (
+        await db
+          .select({ updatedAt: t.settings.updatedAt })
+          .from(t.settings)
+          .where(eq(t.settings.id, 1))
+          .limit(1)
+          .all()
+      )[0];
+      const projectsMax = (
+        await db
+          .select({ value: max(t.projects.updatedAt) })
+          .from(t.projects)
+          .all()
+      )[0]?.value;
+      if (!settingsRow && !projectsMax) return {};
+      return {
+        home: settingsRow?.updatedAt,
+        cv: settingsRow?.updatedAt,
+        projects: projectsMax ?? settingsRow?.updatedAt,
+      };
+    } catch (error) {
+      quiet(error, "contentLastModified");
+      return {};
+    }
+  },
+);
 
 // ── Consultas de administración (sin degradación) ───────────────────────────
 
@@ -259,20 +267,21 @@ export async function adminSessionEpoch(email: string): Promise<number | null> {
 
 export async function adminDashboardStats() {
   const db = await getDb();
-  const [projects, experienceRows, total, read] = await Promise.all([
+  const [projects, experienceRows, total, read, certifications, skills] = await Promise.all([
     db.select({ value: count() }).from(t.projects).all(),
     db.select({ value: count() }).from(t.experience).all(),
     db.select({ value: count() }).from(t.messages).all(),
     db.select({ value: count() }).from(t.messages).where(eq(t.messages.read, true)).all(),
+    db.select({ value: count() }).from(t.certifications).all(),
+    db.select({ value: count() }).from(t.skills).all(),
   ]);
   return {
     projects: projects[0]?.value ?? 0,
     experience: experienceRows[0]?.value ?? 0,
     messages: total[0]?.value ?? 0,
     unreadMessages: (total[0]?.value ?? 0) - (read[0]?.value ?? 0),
-    certifications:
-      (await db.select({ value: count() }).from(t.certifications).all())[0]?.value ?? 0,
-    skills: (await db.select({ value: count() }).from(t.skills).all())[0]?.value ?? 0,
+    certifications: certifications[0]?.value ?? 0,
+    skills: skills[0]?.value ?? 0,
   };
 }
 
