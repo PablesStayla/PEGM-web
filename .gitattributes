@@ -1,0 +1,13 @@
+# Política de finales de línea: LF en el repositorio y en el árbol de trabajo,
+# en todas las plataformas. Biome exige el mismo EOL (biome.json → lineEnding: "lf").
+* text=auto eol=lf
+
+# Binarios — nunca convertir
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.pdf binary

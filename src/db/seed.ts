@@ -10,6 +10,7 @@ import {
   skills,
 } from "@/lib/content";
 import { hashPassword } from "@/lib/password";
+import { resolveInitialAdminCredentials } from "@/lib/seed-credentials";
 import type { Db } from "./index";
 import * as t from "./schema";
 
@@ -22,8 +23,7 @@ export async function seedIfEmpty(db: Db): Promise<void> {
     const existing = await tx.select({ id: t.users.id }).from(t.users).limit(1).all();
     if (existing.length > 0) return;
 
-    const email = process.env.ADMIN_EMAIL ?? "admin@pablo.cl";
-    const password = process.env.ADMIN_PASSWORD ?? "admin1234";
+    const { email, password } = resolveInitialAdminCredentials();
 
     await tx
       .insert(t.users)

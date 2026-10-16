@@ -14,6 +14,7 @@
     "lint": "biome check src scripts tests",
     "lint:fix": "biome check --write src scripts tests",
     "format": "biome format --write src scripts tests",
+    "check:agents": "node scripts/agents-check.mjs",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
     "db:reset": "node scripts/reset-db.mjs",

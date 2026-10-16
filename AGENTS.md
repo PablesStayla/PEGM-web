@@ -14,17 +14,17 @@ administración propio y laboratorio interactivo de metalurgia.
 - **Next.js 16** (App Router, Turbopack, Server Actions, `proxy.ts`) · **React 19** · **TypeScript 7**
 - **Tailwind CSS 4** — el tema vive en `src/app/globals.css` (`@theme` + `.dark`, variables CSS)
 - **Drizzle ORM** + **libSQL/Turso** · **Biome** (lint + format) · **Vitest** · **Playwright**
-- **npm** — nunca pnpm/yarn. Sin monorepo ni turbo.
+- **pnpm** — nunca npm/yarn (gestor fijado en `packageManager`). Sin monorepo ni turbo.
 
 ## Comandos
 
 ```bash
-npm run dev          # desarrollo en :3000
-npm run lint         # biome (src scripts tests) — debe pasar siempre
-npm test             # vitest (pruebas unitarias)
-npm run test:e2e     # playwright (pruebas E2E)
-npm run type-check   # tsc --noEmit
-npm run build        # build de producción
+pnpm dev          # desarrollo en :3000
+pnpm lint         # biome (src scripts tests) — debe pasar siempre
+pnpm test         # vitest (pruebas unitarias)
+pnpm test:e2e     # playwright (pruebas E2E)
+pnpm type-check   # tsc --noEmit
+pnpm build        # build de producción
 ```
 
 Todo lo anterior debe quedar en verde antes de commitear.
@@ -43,7 +43,7 @@ Todo lo anterior debe quedar en verde antes de commitear.
 
 - UI 100 % en **español** (es-CL), tono profesional.
 - Comentarios de código en español.
-- Biome: comillas dobles, punto y coma, 100 columnas → `npx biome check --write .`
+- Biome: comillas dobles, punto y coma, 100 columnas → `pnpm lint:fix`
 - La capa de datos (`src/lib/data.ts`) es **async en todo el contrato**; primero `const db = await getDb()`, luego las consultas.
 - Nada de `Math.random()`/`Date.now()` en el primer render de componentes cliente: rompe la hidratación SSR (referencia: `src/components/lab/live-dashboard.tsx`).
 
@@ -63,6 +63,14 @@ Todo lo anterior debe quedar en verde antes de commitear.
 - `NEXT_PUBLIC_SITE_URL` alimenta sitemap, robots, canonical, OG y JSON-LD (`src/lib/site.ts`). En local tiene default; en Vercel debe definirse.
 - Imagen OG (`src/app/opengraph-image.tsx`): satori **no soporta woff2** — Fraunces va embebida en base64 (`src/app/og-font.ts`). Regla de satori: todo `<div>` con más de un hijo necesita `display` explícito.
 - Headers de seguridad HTTP solo se activan en build de producción (`next.config.ts`) — no esperarlos en `next dev`.
+
+## Harness multiagente
+
+- **`AGENTS.md` es la fuente de verdad** para cualquier agente (Codex, Claude Code, Antigravity y OpenCode leen este archivo). No crear adaptadores; si hiciera falta uno, debe delegar (`@AGENTS.md`) — `pnpm run check:agents` lo verifica en CI.
+- Contrato de ingeniería, flujo multiagente y reglas de contexto completos: **[docs/agentes.md](./docs/agentes.md)**.
+- **Una sesión por worktree**: si otra sesión trabaja en el repo, usar `git worktree` con rama propia; nunca dos escritores en el mismo árbol.
+- Transferencias entre modelos/sesiones: skill `task-handoff` (`.agents/skills/task-handoff/SKILL.md`).
+- Finales de línea: **LF** en todo el repo (`.gitattributes` + Biome). No cambiar esa política.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
