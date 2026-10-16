@@ -5,7 +5,7 @@ export const site = {
   tagline:
     "Procesos, simulación CFD y analítica de datos aplicada a minería y metalurgia. Transformo evidencia experimental y modelos numéricos en decisiones técnicas trazables.",
   location: "Concepción, Chile",
-  email: "PabloEGarridoM@gmail.com",
+  email: "contacto@pablogarrido.cl",
   linkedin: "",
   github: "https://github.com/PablesStayla",
   availability: "Abierto a oportunidades · Movilidad nacional",
