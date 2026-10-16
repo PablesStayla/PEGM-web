@@ -8,6 +8,7 @@ export const revalidate = 120;
 
 export const metadata: Metadata = {
   title: "Proyectos",
+  alternates: { canonical: "/proyectos" },
   description:
     "Portafolio de proyectos de ingeniería metalúrgica: optimización de procesos, analítica de datos, hidrometalurgia y gestión de proyectos.",
 };
@@ -22,9 +23,8 @@ export default async function ProjectsPage() {
         Proyectos<span className="text-accent">.</span>
       </h1>
       <p className="mt-6 max-w-2xl leading-relaxed text-muted">
-        Trabajos seleccionados donde apliqué ingeniería metalúrgica y análisis de datos para
-        resolver problemas reales de la operación. Cada proyecto parte de una pregunta de planta y
-        termina en un resultado medible.
+        Investigación experimental, modelamiento CFD y desarrollo de herramientas digitales. Cada
+        proyecto presenta su contexto y alcance; los trabajos en curso se identifican como tales.
       </p>
 
       <div className="mt-16 grid gap-6 border-t border-line pt-16 md:grid-cols-2">

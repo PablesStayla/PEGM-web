@@ -51,38 +51,15 @@ export default async function SiteLayout({
     },
   ];
 
-  const personJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    name: settings.name,
-    jobTitle: settings.title,
-    description: settings.tagline,
-    email: `mailto:${settings.email}`,
-    url: settings.linkedin,
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: settings.location,
-      addressCountry: "CL",
-    },
-    knowsAbout: [
-      "Metalurgia extractiva",
-      "Procesamiento de minerales",
-      "Hidrometalurgia",
-      "Pirometalurgia",
-    ],
-  };
-
   return (
     <>
       <SiteHeader name={settings.name} />
       <CommandPalette items={paletteItems} />
-      <main>{children}</main>
+      <a href="#contenido" className="skip-link">
+        Saltar al contenido
+      </a>
+      <main id="contenido">{children}</main>
       <SiteFooter settings={settings} />
-      <script
-        type="application/ld+json"
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD de schema.org generado desde datos propios
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
-      />
     </>
   );
 }

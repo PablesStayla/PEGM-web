@@ -54,7 +54,7 @@ export default async function Image() {
           style={{
             display: "flex",
             fontFamily: "Fraunces",
-            fontSize: 168,
+            fontSize: 106,
             color: "#1c1917",
             lineHeight: 1,
           }}

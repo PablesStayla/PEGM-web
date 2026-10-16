@@ -1,4 +1,25 @@
-# Pablo — Ingeniero Civil Metalúrgico · Sitio personal
+# Pablo Garrido — Procesos, CFD y analítica de datos
+
+Portafolio profesional con un recorrido visual al hacer scroll, perfil en español
+y portada en inglés (`/en`). El contenido en `src/lib/content.ts` procede del CV
+maestro: CODELCO, investigación CFD, formación y desarrollo de software.
+METSIM se presenta como formación básica y JKSimMet como próximo aprendizaje.
+
+La foto pública vive en `public/pablo-garrido-sin-reflejo.png`. El CV descargable es una versión
+profesional sin los datos de contacto de las referencias; el maestro permanece privado
+fuera de `public/`. Para regenerarlo desde `/cv`, con el servidor de desarrollo activo:
+
+```bash
+npm run cv:pdf
+```
+
+La portada en inglés tiene contenido editorial propio; las páginas detalladas de CV,
+proyectos, laboratorio y panel siguen en español. Antes de publicar, configurar el
+dominio en `NEXT_PUBLIC_SITE_URL` y las variables de producción de [DEPLOY.md](./DEPLOY.md).
+El enlace de LinkedIn se oculta hasta introducir la URL real en Ajustes.
+
+El sitio conserva el panel y el formulario con SQLite local/Turso. No hay servicios
+de analítica ni IA de pago activados por defecto.
 
 Sitio web personal, portafolio y **laboratorio metalúrgico interactivo** de
 **Pablo**, Ingeniero Civil Metalúrgico (Concepción, Chile) — con **panel de

@@ -23,6 +23,14 @@ export async function generateMetadata(): Promise<Metadata> {
       "flotación",
       "hidrometalurgia",
       "Chile",
+      "Pablo Garrido",
+      "ingeniero de procesos",
+      "ingeniero de proyectos",
+      "CFD",
+      "OpenFOAM",
+      "ANSYS Fluent",
+      "METSIM",
+      "analítica de datos",
     ],
     openGraph: {
       title: `${settings.name} — ${settings.title}`,
@@ -51,6 +59,15 @@ async function personJsonLd() {
       addressCountry: "CL",
     },
     sameAs: [settings.linkedin, settings.github].filter(Boolean),
+    image: `${SITE_URL}/pablo-garrido-sin-reflejo.png`,
+    alumniOf: { "@type": "CollegeOrUniversity", name: "Universidad de Concepción" },
+    knowsAbout: [
+      "Ingeniería metalúrgica",
+      "CFD",
+      "Hidrometalurgia",
+      "METSIM",
+      "Analítica de datos",
+    ],
   };
 }
 
@@ -66,7 +83,7 @@ export default async function RootLayout({
 }>) {
   const jsonLd = await personJsonLd();
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html lang="es" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <script
           // biome-ignore lint/security/noDangerouslySetInnerHtml: script inline anti-parpadeo del tema (sin origen externo)
@@ -78,7 +95,7 @@ export default async function RootLayout({
         <script
           type="application/ld+json"
           // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD de schema.org generado desde la base de datos
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
         />
       </body>
     </html>

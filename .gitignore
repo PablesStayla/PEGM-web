@@ -4,6 +4,7 @@
 # next.js
 /.next/
 /out/
+/.turbo/
 
 # producción
 /build
@@ -36,3 +37,7 @@ next-env.d.ts
 # playwright
 /playwright-report
 /test-results
+/tmp/pdfs/
+
+# fuente privada; se publica únicamente el CV profesional de public/
+/CV_Master_Pablo_Garrido.pdf

@@ -63,3 +63,13 @@ Todo lo anterior debe quedar en verde antes de commitear.
 - `NEXT_PUBLIC_SITE_URL` alimenta sitemap, robots, canonical, OG y JSON-LD (`src/lib/site.ts`). En local tiene default; en Vercel debe definirse.
 - Imagen OG (`src/app/opengraph-image.tsx`): satori **no soporta woff2** — Fraunces va embebida en base64 (`src/app/og-font.ts`). Regla de satori: todo `<div>` con más de un hijo necesita `display` explícito.
 - Headers de seguridad HTTP solo se activan en build de producción (`next.config.ts`) — no esperarlos en `next dev`.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

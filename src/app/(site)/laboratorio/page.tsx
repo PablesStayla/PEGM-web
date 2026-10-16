@@ -7,6 +7,7 @@ import { Reveal } from "@/components/reveal";
 
 export const metadata: Metadata = {
   title: "Laboratorio",
+  alternates: { canonical: "/laboratorio" },
   description:
     "Herramientas metalúrgicas interactivas: cinética de flotación, balance de masa, diagrama Eh-pH del cobre e instrumentación virtual de planta. Programadas desde cero.",
 };

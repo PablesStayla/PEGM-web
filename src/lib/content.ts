@@ -1,166 +1,173 @@
-/**
- * ─────────────────────────────────────────────────────────────────────────────
- *  CONTENIDO DEL SITIO
- *  Este es el único archivo que necesitas editar para actualizar el sitio:
- *  textos, experiencia, educación, proyectos, habilidades y contacto.
- * ─────────────────────────────────────────────────────────────────────────────
- */
-
+/** Fuente editorial: CV maestro de Pablo Garrido. Sin métricas inventadas. */
 export const site = {
-  name: "Pablo",
+  name: "Pablo Garrido",
   title: "Ingeniero Civil Metalúrgico",
   tagline:
-    "Especialista en procesamiento de minerales y optimización de procesos. Transformo datos de planta en decisiones que mejoran la recuperación, los costos y la sostenibilidad de la operación.",
+    "Procesos, simulación CFD y analítica de datos aplicada a minería y metalurgia. Transformo evidencia experimental y modelos numéricos en decisiones técnicas trazables.",
   location: "Concepción, Chile",
-  email: "pablo@ejemplo.cl", // ← reemplazar por tu correo real
-  linkedin: "https://www.linkedin.com/in/pablo-ejemplo", // ← reemplazar por tu perfil real
+  email: "PabloEGarridoM@gmail.com",
+  linkedin: "",
   github: "https://github.com/PablesStayla",
-  availability: "Disponible para consultoría y proyectos",
+  availability: "Abierto a oportunidades · Movilidad nacional",
 };
-
 export const stats = [
-  { value: "8+", label: "Años de experiencia" },
-  { value: "20+", label: "Proyectos y estudios" },
-  { value: "5", label: "Plantas y operaciones" },
+  { value: "20", label: "Simulaciones CFD documentadas" },
+  { value: "46", label: "Estudiantes en software de ingeniería" },
+  { value: "220+", label: "Horas de formación certificada" },
 ];
-
 export const about = {
   label: "Quién soy",
-  heading: "Ingeniería metalúrgica con mirada práctica",
+  heading: "Entre el experimento, el modelo y la decisión",
   paragraphs: [
-    "Soy ingeniero civil metalúrgico con experiencia en operaciones y proyectos de la gran y mediana minería chilena. He trabajado en plantas concentradoras, hidrometalúrgicas y de fundición, siempre con el mismo objetivo: que el proceso entregue su máximo valor.",
-    "Mi trabajo combina la rigor técnico del laboratorio con la lectura del día a día de la planta: caracterización mineralógica, balances de masa, pruebas en planta y análisis de datos para tomar decisiones que se sostienen en el tiempo.",
-    "Vivo en Concepción, Chile. Además de la ingeniería, me interesa la programación aplicada al análisis de datos operacionales y la automatización de reportabilidad metalúrgica.",
+    "Soy Ingeniero Civil Metalúrgico de la Universidad de Concepción, titulado con Distinción Máxima y estudiante de Magíster en Ingeniería Metalúrgica, con foco en procesamiento de minerales.",
+    "Mi experiencia conecta la investigación experimental en CODELCO Chuquicamata con la simulación CFD en OpenFOAM y ANSYS Fluent. Me interesa comprender los fenómenos físicos para aportar a procesos y proyectos metalúrgicos.",
+    "Integro Python, SQL, visualización y desarrollo de software para organizar evidencia, automatizar análisis y comunicar resultados reproducibles. Busco oportunidades en procesos, proyectos, modelamiento e innovación.",
   ],
 };
-
 export const specialities = [
   {
-    title: "Procesamiento de minerales",
+    title: "Procesos e hidrometalurgia",
     description:
-      "Conminución, clasificación y flotación: auditoría, diseño y optimización de circuitos para maximizar recuperación y ley de concentrado.",
+      "Lixiviación, aglomeración, humectación y caracterización experimental de minerales oxidados de cobre.",
   },
   {
-    title: "Hidrometalurgia",
+    title: "Simulación CFD",
     description:
-      "Lixiviación en pilas, extracción por solventes (SX) y electroobtención (EW): control de impurezas y eficiencia del circuito.",
+      "OpenFOAM y ANSYS Fluent: geometría, mallado, condiciones de borde, convergencia y análisis paramétrico.",
   },
   {
-    title: "Pirometalurgia",
+    title: "Datos y automatización",
     description:
-      "Fundición y refinación de concentrados: balance de energía, control de impurezas y calidad de producto.",
+      "Python/pandas, R, SQL, Excel/VBA, Power BI y Tableau para reportabilidad reproducible.",
   },
   {
-    title: "Modelación y simulación",
+    title: "Simulación de procesos",
     description:
-      "Balances de masa y energía, simulación de procesos en HSC y Aspen, y modelos predictivos con Python.",
+      "Formación básica en METSIM y herramientas HSC Chemistry. JKSimMet como próximo objetivo de aprendizaje.",
   },
   {
-    title: "Optimización y control",
+    title: "Proyectos e investigación",
     description:
-      "Análisis de variabilidad operacional, control avanzado de procesos y mejora continua (Six Sigma).",
+      "Planificación experimental, documentación técnica y comunicación con equipos industriales y académicos.",
   },
   {
-    title: "Gestión de proyectos",
+    title: "Software e IA aplicada",
     description:
-      "Estudios de prefactibilidad, ingeniería de concepto, QA/QC y coordinación de equipos multidisciplinarios.",
+      "Desarrollo con TypeScript y Python, integración de servicios y servidores MCP. Fundamentos de evaluación de modelos.",
   },
 ];
-
-export type Experience = {
-  period: string;
-  role: string;
-  company: string;
-  highlights: string[];
-};
-
+export type Experience = { period: string; role: string; company: string; highlights: string[] };
 export const experience: Experience[] = [
   {
-    period: "2022 — Actualidad",
-    role: "Ingeniero Senior de Procesos",
-    company: "Gran minería del cobre · Chile",
+    period: "Enero 2026 — Actualidad",
+    role: "Desarrollador Full Stack independiente",
+    company: "Servicios profesionales · Remoto",
     highlights: [
-      "Lideré la optimización del circuito de flotación colectiva, logrando un aumento sostenido de 2,1 puntos porcentuales en la recuperación de cobre.",
-      "Implementé un modelo predictivo de ley de cabeza en Python, reduciendo la variabilidad operacional del circuito de molienda.",
-      "Coordiné campañas de pruebas metalúrgicas en planta y laboratorio, desde el diseño experimental hasta la puesta en marcha.",
+      "Aplicaciones web con TypeScript y Python e integración con servicios externos.",
+      "Servidores MCP para conectar herramientas, datos y asistentes de IA.",
+      "Prototipado, componentes reutilizables y documentación técnica.",
     ],
   },
   {
-    period: "2019 — 2022",
-    role: "Ingeniero Metalúrgico de Planta",
-    company: "Fundición y refinería · Chile",
+    period: "Octubre 2024 — Febrero 2025",
+    role: "Investigador colaborador y analista de modelamiento CFD",
+    company: "Universidad de Concepción · FONDECYT N.º 11220582 · Colaboración SMI–ICE–Chile",
     highlights: [
-      "Responsable del balance metalúrgico diario y de la reportabilidad de producción hacia gerencia y casa matriz.",
-      "Reduje en 4% el consumo específico de energía del horno mediante ajustes de operación y control de carga.",
-      "Participé en el proyecto de control de impurezas (As, Sb, Bi) en línea de producción de ánodos.",
+      "12 simulaciones CFD en ANSYS Fluent de minihidrociclones conectados en serie.",
+      "Evaluación de vortex finder y apex, mallado, condiciones de borde y convergencia.",
+      "Organización de parámetros y resultados para comparación y discusión técnica.",
     ],
   },
   {
-    period: "2017 — 2019",
-    role: "Ingeniero de Proyectos",
-    company: "Consultoría minera · Santiago, Chile",
+    period: "Mayo 2022 — Enero 2023",
+    role: "Memorista · Hidrometalurgia, lixiviación y CFD",
+    company: "CODELCO · División Chuquicamata · Dirección de Procesos Metalúrgicos",
     highlights: [
-      "Desarrollé estudios de prefactibilidad para plantas modulares de procesamiento de minerales, incluyendo Capex/Opex y bases de diseño.",
-      "Elaboré especificaciones técnicas y apoyé la evaluación técnica de propuestas de proveedores.",
+      "Estudio experimental de mojabilidad e infiltración en minerales oxidados del Distrito Norte.",
+      "Caracterización con FRX, DRX, BET, gota sésil, goniometría y procesamiento de imágenes.",
+      "8 simulaciones CFD 2D en OpenFOAM 10 sobre capilaridad y aire atrapado en medios porosos.",
     ],
   },
   {
-    period: "2016",
-    role: "Práctica profesional",
-    company: "Planta concentradora · Chile",
+    period: "Septiembre 2020 — Diciembre 2021",
+    role: "Ayudante de docencia universitaria",
+    company: "Departamento de Ingeniería Metalúrgica · Universidad de Concepción",
     highlights: [
-      "Seguimiento operacional de molienda y flotación, y apoyo en el control de calidad de concentrados.",
+      "Software de ingeniería para 46 estudiantes: MATLAB/Octave, HSC Chemistry y Excel/VBA.",
+      "Apoyo académico en cinco asignaturas: software, concentración, cinética, flotación e hidrometalurgia.",
+      "Guía de experiencias, evaluación de informes y comunicación de resultados experimentales.",
     ],
   },
 ];
-
 export const education = [
   {
-    period: "2012 — 2017",
-    degree: "Ingeniería Civil Metalúrgica",
+    period: "En curso",
+    degree: "Magíster en Ingeniería Metalúrgica",
     school: "Universidad de Concepción",
-    note: "Título de Ingeniero Civil Metalúrgico",
+    note: "Procesamiento de minerales. Tesis: CFD de dos minihidrociclones con segunda etapa asimétrica para remoción de caolinita ultrafina.",
   },
   {
-    period: "2020",
-    degree: "Diplomado en Gestión de Operaciones Mineras",
-    school: "Institución de educación continua",
+    period: "Febrero 2024",
+    degree: "Ingeniería Civil Metalúrgica",
+    school: "Universidad de Concepción",
+    note: "Distinción Máxima. Beca de Articulación Pregrado–Postgrado (2023).",
+  },
+  {
+    period: "Agosto 2021",
+    degree: "Licenciatura en Ciencias de la Ingeniería",
+    school: "Universidad de Concepción",
     note: "",
   },
+  {
+    period: "Junio 2014",
+    degree: "Técnico de Nivel Medio en Mecánica Industrial",
+    school: "Liceo Industrial de Concepción",
+    note: "Práctica técnica en INDAMA LTDA: mantenimiento, fabricación e interpretación de planos.",
+  },
 ];
-
 export const certifications = [
-  "Six Sigma Green Belt",
-  "Simulación de procesos con HSC Chemistry",
-  "Analítica de datos operacionales con Power BI",
+  "Lean Six Sigma White Belt · CSSC · 2026 (introductorio)",
+  "Certificado Profesional en Análisis de Datos · Google/Coursera · 2024 · 178 horas",
+  "Hidrógeno Verde: Oportunidades & Aplicaciones · CORFO · 2024 · 30 horas",
+  "Básico de Software METSIM · One Brain · 2021 · 16 horas",
+  "Project Management Foundations · LinkedIn Learning · 2021",
+  "Introducción al Procesado de Minerales de Cobre · Nube Minera · 2021",
+  "Crash Course on Python · Google/Coursera · 2021",
+  "Power BI Desktop · Udemy · 2021",
+  "Excel avanzado y MATLAB · Udemy · 2021",
 ];
-
 export const skills = {
   software: [
-    "Python (pandas, scikit-learn)",
+    "ANSYS Fluent",
+    "OpenFOAM",
+    "METSIM (formación básica)",
     "HSC Chemistry",
-    "Aspen Plus",
-    "JKSimMet",
-    "MATLAB",
-    "Excel avanzado / VBA",
-    "Power BI",
+    "Python / pandas",
     "SQL",
+    "R / RStudio",
+    "Power BI",
+    "Tableau",
+    "MATLAB / Simulink",
+    "Excel avanzado / VBA",
+    "TypeScript",
+    "MS Project",
+    "AutoCAD / Inventor",
   ],
   areas: [
-    "Flotación de sulfuros",
-    "Lixiviación SX-EW",
-    "Balance de masa y energía",
-    "Control de impurezas",
-    "Caracterización mineralógica",
-    "Análisis de datos de planta",
+    "Hidrometalurgia y lixiviación",
+    "Simulación CFD y medios porosos",
+    "Procesamiento y separación de minerales",
+    "Caracterización FRX / DRX / BET",
+    "Balances de masa y análisis paramétrico",
+    "Analítica, automatización y reportabilidad",
+    "IA/ML: fundamentos y calidad de datos",
+    "Próximo aprendizaje: JKSimMet",
   ],
 };
-
 export const languages = [
   { name: "Español", level: "Nativo" },
-  { name: "Inglés", level: "Avanzado (C1)" },
+  { name: "Inglés", level: "B2 estimado · lectura técnica alta" },
 ];
-
 export type Project = {
   title: string;
   category: string;
@@ -169,100 +176,58 @@ export type Project = {
   tags: string[];
   featured: boolean;
 };
-
 export const projects: Project[] = [
   {
-    title: "Optimización del circuito de flotación colectiva",
-    category: "Procesamiento de minerales",
-    year: "2024",
+    title: "Mojabilidad e infiltración en minerales oxidados",
+    category: "CODELCO · Memoria de título",
+    year: "2022–2023",
     summary:
-      "Aumento sostenido de 2,1 pp en recuperación de cobre a partir de caracterización mineralógica, ajuste de química de flotación y estabilización del circuito rougher.",
-    tags: ["Flotación", "Recuperación Cu", "Pruebas en planta"],
+      "Diseño experimental y caracterización de minerales DGM y DRT, integrados con 8 simulaciones CFD 2D para estudiar interacción mineral–solución, capilaridad y aire atrapado.",
+    tags: ["OpenFOAM", "Hidrometalurgia", "FRX / DRX / BET"],
     featured: true,
   },
   {
-    title: "Modelo predictivo de ley de cabeza",
-    category: "Analítica de datos",
-    year: "2023",
+    title: "Minihidrociclones en serie: geometría y separación",
+    category: "UdeC · Proyecto FONDECYT",
+    year: "2024–2025",
     summary:
-      "Modelo de machine learning en Python que anticipa la ley de cabeza con seis horas de anticipación, integrado al reporte de turno del operador.",
-    tags: ["Python", "scikit-learn", "Control de procesos"],
+      "12 simulaciones en ANSYS Fluent variando vortex finder y apex. Comparación de geometrías, parámetros y convergencia para apoyar el estudio hidráulico y de separación.",
+    tags: ["ANSYS Fluent", "CFD", "Análisis paramétrico"],
     featured: true,
   },
   {
-    title: "Simulación y balance de masa de planta SX-EW",
-    category: "Hidrometalurgia",
-    year: "2023",
+    title: "Software e integración de herramientas con IA",
+    category: "Desarrollo independiente",
+    year: "2026",
     summary:
-      "Modelo del circuito completo en HSC Chemistry para cuantificar pérdidas de cobre y evaluar escenarios de aumento de producción.",
-    tags: ["HSC Chemistry", "SX-EW", "Balance de masa"],
-    featured: false,
+      "Aplicaciones y prototipos con TypeScript y Python; servidores MCP para conectar servicios y recursos externos con asistentes de IA, con foco en modularidad y documentación.",
+    tags: ["TypeScript", "Python", "MCP"],
+    featured: true,
   },
   {
-    title: "Estudio de prefactibilidad de planta modular",
-    category: "Gestión de proyectos",
-    year: "2022",
+    title: "Modelación CFD para remoción de caolinita ultrafina",
+    category: "Tesis de magíster · En curso",
+    year: "En curso",
     summary:
-      "Evaluación técnico-económica de una planta modular de procesamiento para yacimiento mediano: bases de diseño, Capex/Opex y análisis de sensibilidad.",
-    tags: ["Prefactibilidad", "Capex/Opex", "Ingeniería de concepto"],
-    featured: false,
-  },
-  {
-    title: "Reducción de energía específica en molienda SAG",
-    category: "Procesamiento de minerales",
-    year: "2021",
-    summary:
-      "Disminución del consumo energético por tonelada tratada mediante control de granulometría de alimentación y estrategia de carga de bolas.",
-    tags: ["Molienda SAG", "Eficiencia energética"],
-    featured: false,
-  },
-  {
-    title: "Tablero de reporte metalúrgico diario",
-    category: "Analítica de datos",
-    year: "2020",
-    summary:
-      "Automatización del reporte diario de metales y agua: de planillas manuales a un tablero Power BI con datos actualizados cada turno.",
-    tags: ["Power BI", "Automatización", "Reportabilidad"],
+      "Modelación de un sistema O–F de dos minihidrociclones con segunda etapa asimétrica, como línea de investigación del Magíster en Ingeniería Metalúrgica.",
+    tags: ["Modelamiento", "Minihidrociclones", "Investigación"],
     featured: false,
   },
 ];
-
 export const contact = {
   label: "Contacto",
-  heading: "Trabajemos juntos",
-  text: "Si tienes un desafío metalúrgico, un proyecto que evaluar o un proceso que optimizar, escríbeme. Respondí normalmente en menos de 24 horas.",
+  heading: "Conversemos de tu próximo proyecto",
+  text: "Abierto a oportunidades en procesos, proyectos, simulación y analítica aplicada. Movilidad nacional y disposición a trabajo en terreno.",
   cta: "Escribir un correo",
-  secondary: "O encuéntrame en",
+  secondary: "También en",
 };
-
-/**
- * Stack técnico que se muestra en el sitio (sección "Ingeniería + código").
- */
 export const techStack = [
-  "TypeScript",
-  "React",
-  "Next.js",
-  "Tailwind CSS",
+  "OpenFOAM",
+  "ANSYS Fluent",
+  "METSIM",
   "Python",
   "SQL",
-  "Drizzle ORM",
-  "SVG",
+  "Power BI",
+  "TypeScript",
 ];
-
-/**
- * Mensajes de ejemplo para la bandeja de entrada del panel (solo semilla).
- */
-export const sampleMessages = [
-  {
-    name: "María González",
-    email: "maria@minera-ejemplo.cl",
-    body: "Hola Pablo, vi tu perfil y nos interesa conversar sobre una consultoría de optimización de flotación para nuestra planta. ¿Tienes disponibilidad la próxima semana?",
-    read: false,
-  },
-  {
-    name: "Diego Rojas",
-    email: "diego.rojas@ejemplo.com",
-    body: "Excelente tu simulador de cinética de flotación. ¿Podrías compartir el enfoque que usaste para el ajuste de parámetros? Saludos.",
-    read: true,
-  },
-];
+export const sampleMessages: { name: string; email: string; body: string; read: boolean }[] = [];

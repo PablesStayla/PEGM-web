@@ -27,6 +27,7 @@ export default defineConfig({
   expect: { timeout: 10_000 },
 
   use: {
+    ...(process.platform === "win32" && !executablePath ? { channel: "msedge" } : {}),
     baseURL: `http://localhost:${PORT}`,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
@@ -54,7 +55,7 @@ export default defineConfig({
     // después (p. ej. en globalSetup), el health-check de Playwright puede ganar
     // la carrera e inicializar la BD con una conexión abierta que quedaría
     // apuntando a un archivo eliminado (inode fantasma)
-    command: `rm -f data/e2e.db data/e2e.db-wal data/e2e.db-shm && TURSO_DATABASE_URL=file:./data/e2e.db npx next dev -p ${PORT}`,
+    command: `node scripts/start-e2e.mjs ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: false,
     // ver los errores del servidor en la salida de la suite (diagnóstico)

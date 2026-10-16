@@ -6,9 +6,9 @@ test.describe("Sitio público", () => {
     await appReady(page, "/");
     // el h1 es "Pablo" + punto en acento: usar regex para el nombre accesible
     await expect(page.getByRole("heading", { level: 1, name: /Pablo/ })).toBeVisible();
-    await expect(page.getByText("Ingeniero Civil Metalúrgico").first()).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Laboratorio digital" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Proyectos destacados" })).toBeVisible();
+    await expect(page.getByText(/Ingeniero Civil Metalúrgico/).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Laboratorio digital/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /al proyecto/ })).toBeVisible();
   });
 
   test("el CV muestra experiencia y formación", async ({ page }) => {
@@ -21,7 +21,7 @@ test.describe("Sitio público", () => {
   test("el portafolio lista los proyectos sembrados", async ({ page }) => {
     await appReady(page, "/proyectos");
     await expect(page.getByRole("heading", { level: 1, name: "Proyectos." })).toBeVisible();
-    await expect(page.getByText("Optimización del circuito de flotación colectiva")).toBeVisible();
+    await expect(page.getByText("Mojabilidad e infiltración en minerales oxidados")).toBeVisible();
   });
 
   test("el laboratorio renderiza las cuatro herramientas", async ({ page }) => {

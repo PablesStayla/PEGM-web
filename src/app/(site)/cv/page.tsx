@@ -13,6 +13,7 @@ export const revalidate = 120;
 
 export const metadata: Metadata = {
   title: "CV",
+  alternates: { canonical: "/cv" },
   description:
     "Experiencia profesional, formación, certificaciones y habilidades de Pablo, Ingeniero Civil Metalúrgico.",
 };
@@ -42,14 +43,22 @@ export default async function CvPage() {
       <h1 className="mt-4 font-serif text-4xl tracking-tight md:text-6xl">
         CV<span className="text-accent">.</span>
       </h1>
+      <p className="mt-5 font-serif text-2xl">
+        {settings.name} · {settings.title}
+      </p>
+      <p className="mt-2 text-sm text-muted">
+        {settings.location} · {settings.email} · github.com/PablesStayla
+      </p>
       <p className="mt-6 max-w-2xl leading-relaxed text-muted">
         {settings.tagline} {settings.availability.toLowerCase()}.
       </p>
       <a
-        href={`mailto:${settings.email}?subject=Solicitud%20de%20CV%20(PDF)`}
+        href="/cv-pablo-garrido.pdf"
+        download
+        data-print-hide
         className="mt-8 inline-block border border-line px-6 py-3 text-sm transition-colors hover:border-accent hover:text-accent"
       >
-        Solicitar versión PDF
+        Descargar CV en PDF
       </a>
 
       <div className="mt-16 grid gap-16 border-t border-line pt-16 lg:grid-cols-[1.6fr_1fr]">
@@ -114,6 +123,9 @@ export default async function CvPage() {
           </Block>
         </div>
       </div>
+      <p className="mt-12 border-t border-line pt-6 text-sm text-muted">
+        Referencias disponibles a solicitud.
+      </p>
     </div>
   );
 }

@@ -49,7 +49,7 @@ await comprobar("Portada responde 200", async () => {
   return html.includes("Ingeniero Civil Metalúrgico") ? true : "falta el contenido esperado";
 });
 
-for (const ruta of ["/cv", "/proyectos", "/laboratorio"]) {
+for (const ruta of ["/en", "/cv", "/proyectos", "/laboratorio", "/cv-pablo-garrido.pdf"]) {
   await comprobar(`${ruta} responde 200`, async () => {
     const r = await pedir(ruta);
     return r.status === 200 ? true : `HTTP ${r.status}`;
@@ -70,7 +70,7 @@ await comprobar("JSON-LD (schema.org) presente", async () => {
 
 await comprobar("Sitemap lista las rutas públicas", async () => {
   const xml = await (await pedir("/sitemap.xml")).text();
-  const rutas = ["", "/cv", "/proyectos", "/laboratorio"];
+  const rutas = ["", "/en", "/cv", "/proyectos", "/laboratorio"];
   const faltan = rutas.filter((r) => !xml.includes(`${base}${r}<`));
   return faltan.length === 0 ? true : `faltan: ${faltan.join(", ")}`;
 });

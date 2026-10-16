@@ -15,12 +15,13 @@ const links = [
 
 export function SiteHeader({ name }: { name: string }) {
   const pathname = usePathname();
+  const english = pathname === "/en";
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-bg/85 backdrop-blur-sm">
-      <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-3 px-6">
+      <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-3 px-5 md:px-12">
         <Link
-          href="/"
+          href={english ? "/en" : "/"}
           className="font-serif text-xl tracking-tight transition-colors hover:text-accent"
         >
           {name}
@@ -30,20 +31,36 @@ export function SiteHeader({ name }: { name: string }) {
         <div className="flex items-center gap-2 sm:gap-4">
           <nav className="hidden items-center gap-5 text-sm md:flex">
             {links.map((link) => {
-              const active = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
+              const href = english && link.href === "/" ? "/en" : link.href;
+              const active = link.href === "/" ? pathname === href : pathname.startsWith(href);
               return (
                 <Link
                   key={link.href}
-                  href={link.href}
+                  href={href}
                   className={`transition-colors hover:text-accent ${
                     active ? "text-accent" : "text-muted"
                   }`}
                 >
-                  {link.label}
+                  {english
+                    ? {
+                        Inicio: "Home",
+                        CV: "CV (ES)",
+                        Proyectos: "Projects (ES)",
+                        Laboratorio: "Lab (ES)",
+                      }[link.label]
+                    : link.label}
                 </Link>
               );
             })}
           </nav>
+          <Link
+            href={english ? "/" : "/en"}
+            hrefLang={english ? "es" : "en"}
+            aria-label={english ? "Cambiar a español" : "Switch to English"}
+            className="text-xs text-muted hover:text-accent"
+          >
+            {english ? "ES" : "EN"}
+          </Link>
 
           <button
             type="button"
@@ -58,10 +75,10 @@ export function SiteHeader({ name }: { name: string }) {
           <ThemeToggle />
 
           <a
-            href="#contacto"
+            href={english ? "/en#contacto" : "/#contacto"}
             className="hidden border border-ink px-4 py-2 text-sm text-ink transition-colors hover:border-accent hover:bg-accent hover:text-bg md:inline-block"
           >
-            Contacto
+            {english ? "Contact" : "Contacto"}
           </a>
 
           {/* En móvil, el menú es la paleta de comandos */}

@@ -20,14 +20,16 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
           <a href={`mailto:${settings.email}`} className="transition-colors hover:text-accent">
             Correo
           </a>
-          <a
-            href={settings.linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="transition-colors hover:text-accent"
-          >
-            LinkedIn
-          </a>
+          {settings.linkedin ? (
+            <a
+              href={settings.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-accent"
+            >
+              LinkedIn
+            </a>
+          ) : null}
           <a
             href={settings.github}
             target="_blank"

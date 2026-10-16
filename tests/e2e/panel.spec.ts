@@ -64,7 +64,7 @@ test.describe("Panel: CRUD de proyectos", () => {
     await login(page);
     await appReady(page, "/admin/proyectos");
 
-    const sembrado = "Optimización del circuito de flotación colectiva";
+    const sembrado = "Mojabilidad e infiltración en minerales oxidados";
     const card = page.locator("article", { hasText: sembrado });
     await card.getByText("Editar", { exact: true }).click();
 

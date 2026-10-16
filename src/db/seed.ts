@@ -90,7 +90,9 @@ export async function seedIfEmpty(db: Db): Promise<void> {
       .values(languages.map((item, index) => ({ ...item, sortOrder: index })))
       .run();
 
-    await tx.insert(t.messages).values(sampleMessages).run();
+    if (sampleMessages.length > 0) {
+      await tx.insert(t.messages).values(sampleMessages).run();
+    }
 
     await tx
       .insert(t.auditLog)
