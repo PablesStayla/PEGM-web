@@ -16,11 +16,12 @@ function formatDate(date: Date) {
 }
 
 export default async function AdminDashboardPage() {
-  const [stats, messages, audit] = await Promise.all([
+  const [stats, messages, auditPage] = await Promise.all([
     adminDashboardStats(),
     adminRecentMessages(5),
-    adminAuditLog(8),
+    adminAuditLog({ page: 1 }),
   ]);
+  const audit = auditPage.rows.slice(0, 8);
 
   const cards = [
     { label: "Proyectos", value: stats.projects, href: "/admin/proyectos" },

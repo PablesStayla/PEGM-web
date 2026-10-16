@@ -101,6 +101,7 @@ export async function seedIfEmpty(db: Db): Promise<void> {
         action: "inicializó",
         entity: "base de datos",
         detail: "Contenido inicial sembrado desde src/lib/content.ts",
+        event: "system.seed",
       })
       .run();
   });

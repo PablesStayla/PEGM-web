@@ -296,9 +296,42 @@ export async function adminUnreadMessageCount() {
   return rows[0]?.value ?? 0;
 }
 
-export async function adminAuditLog(limit = 50) {
+export async function adminAuditLog({
+  page = 1,
+  action = "",
+}: {
+  page?: number;
+  action?: string;
+} = {}) {
   const db = await getDb();
-  return db.select().from(t.auditLog).orderBy(desc(t.auditLog.createdAt)).limit(limit).all();
+  const perPage = 25;
+  const where = action ? eq(t.auditLog.action, action) : undefined;
+
+  const total =
+    (await db.select({ value: count() }).from(t.auditLog).where(where).all())[0]?.value ?? 0;
+  const pageCount = Math.max(1, Math.ceil(total / perPage));
+  const current = Math.min(Math.max(1, page), pageCount);
+
+  const rows = await db
+    .select()
+    .from(t.auditLog)
+    .where(where)
+    .orderBy(desc(t.auditLog.createdAt))
+    .limit(perPage)
+    .offset((current - 1) * perPage)
+    .all();
+
+  return { rows, total, page: current, pageCount };
+}
+
+export async function adminDistinctAuditActions(): Promise<string[]> {
+  const db = await getDb();
+  const rows = await db
+    .selectDistinct({ action: t.auditLog.action })
+    .from(t.auditLog)
+    .orderBy(asc(t.auditLog.action))
+    .all();
+  return rows.map((row) => row.action);
 }
 
 export async function adminAllProjects() {

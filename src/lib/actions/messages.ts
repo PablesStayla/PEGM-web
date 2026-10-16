@@ -5,7 +5,8 @@ import { revalidatePath } from "next/cache";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
-import { auditLog, messages } from "@/db/schema";
+import { messages } from "@/db/schema";
+import { audit } from "@/lib/audit";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 import { clientIp, consumeRateLimit, rateLimitKey } from "@/lib/rate-limit";
 import { contactSchema } from "@/lib/validation";
@@ -68,7 +69,7 @@ async function requireUser() {
 }
 
 export async function toggleMessageRead(formData: FormData) {
-  await requireUser();
+  const user = await requireUser();
   const id = Number(formData.get("id"));
   if (!id) redirect("/admin/mensajes");
 
@@ -80,6 +81,15 @@ export async function toggleMessageRead(formData: FormData) {
       .set({ read: not(messages.read) })
       .where(eq(messages.id, id))
       .run();
+    await audit({
+      userEmail: user.email,
+      action: row.read ? "marcó como no leído" : "marcó como leído",
+      entity: "mensaje",
+      detail: `#${id}`,
+      event: "message.toggle_read",
+      before: { read: row.read },
+      after: { read: !row.read },
+    });
   }
 
   revalidatePath("/admin");
@@ -93,15 +103,13 @@ export async function deleteMessage(formData: FormData) {
   if (id) {
     const db = await getDb();
     await db.delete(messages).where(eq(messages.id, id)).run();
-    await db
-      .insert(auditLog)
-      .values({
-        userEmail: user.email,
-        action: "eliminó",
-        entity: "mensaje",
-        detail: `#${id}`,
-      })
-      .run();
+    await audit({
+      userEmail: user.email,
+      action: "eliminó",
+      entity: "mensaje",
+      detail: `#${id}`,
+      event: "message.delete",
+    });
   }
   revalidatePath("/admin");
   revalidatePath("/admin/mensajes");

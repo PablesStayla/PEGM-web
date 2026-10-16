@@ -5,7 +5,13 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { users } from "@/db/schema";
-import { createSessionToken, SESSION_COOKIE, sessionCookieOptions } from "@/lib/auth";
+import { audit, purgeOldAuditLog } from "@/lib/audit";
+import {
+  createSessionToken,
+  SESSION_COOKIE,
+  sessionCookieOptions,
+  verifySessionToken,
+} from "@/lib/auth";
 import { verifyPassword } from "@/lib/password";
 import { clientIp, consumeRateLimit, rateLimitKey, resetRateLimit } from "@/lib/rate-limit";
 import { loginSchema } from "@/lib/validation";
@@ -50,6 +56,17 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
   }
 
   if (!userRow) {
+    try {
+      await audit({
+        userEmail: email,
+        action: "intentó iniciar sesión",
+        entity: "sesión",
+        detail: "credenciales inválidas",
+        event: "auth.login_failure",
+      });
+    } catch {
+      // la auditoría no debe bloquear la respuesta
+    }
     return { error: "Credenciales inválidas." };
   }
 
@@ -58,6 +75,18 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
     await resetRateLimit(key);
   } catch {
     // el reset es best-effort
+  }
+
+  try {
+    await audit({
+      userEmail: email,
+      action: "inició sesión",
+      entity: "sesión",
+      event: "auth.login_success",
+    });
+    await purgeOldAuditLog();
+  } catch {
+    // la auditoría no debe bloquear el acceso
   }
 
   const token = await createSessionToken({
@@ -73,6 +102,20 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
 
 export async function logout() {
   const store = await cookies();
+  const token = store.get(SESSION_COOKIE)?.value;
+  const session = token ? await verifySessionToken(token) : null;
+  if (session) {
+    try {
+      await audit({
+        userEmail: session.email,
+        action: "cerró sesión",
+        entity: "sesión",
+        event: "auth.logout",
+      });
+    } catch {
+      // la auditoría no debe bloquear la salida
+    }
+  }
   store.delete(SESSION_COOKIE);
   redirect("/admin/login");
 }

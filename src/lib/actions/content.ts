@@ -6,12 +6,14 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import * as t from "@/db/schema";
+import { audit } from "@/lib/audit";
 import {
   createSessionToken,
   SESSION_COOKIE,
   sessionCookieOptions,
   verifySessionToken,
 } from "@/lib/auth";
+import { adminGetSettings } from "@/lib/data";
 import { hashPassword, verifyPassword } from "@/lib/password";
 
 /**
@@ -25,11 +27,6 @@ async function requireUser() {
   const session = token ? await verifySessionToken(token) : null;
   if (!session) throw new Error("No autorizado");
   return session;
-}
-
-async function audit(userEmail: string, action: string, entity: string, detail = "") {
-  const db = await getDb();
-  await db.insert(t.auditLog).values({ userEmail, action, entity, detail }).run();
 }
 
 function refreshPublicPages() {
@@ -98,8 +95,16 @@ export async function saveSettings(formData: FormData) {
   }
 
   const db = await getDb();
+  const before = await adminGetSettings();
   await db.update(t.settings).set(values).where(eq(t.settings.id, 1)).run();
-  await audit(user.email, "actualizó", "ajustes del sitio");
+  await audit({
+    userEmail: user.email,
+    action: "actualizó",
+    entity: "ajustes del sitio",
+    event: "content.save_settings",
+    before,
+    after: values,
+  });
   refreshPublicPages();
   revalidatePath("/admin/ajustes");
   redirect("/admin/ajustes?saved=1");
@@ -131,7 +136,12 @@ export async function changePassword(formData: FormData) {
     .set({ passwordHash: await hashPassword(next), sessionEpoch: nextEpoch })
     .where(eq(t.users.id, row.id))
     .run();
-  await audit(user.email, "actualizó", "contraseña");
+  await audit({
+    userEmail: user.email,
+    action: "actualizó",
+    entity: "contraseña",
+    event: "auth.change_password",
+  });
 
   // Re-emite la cookie de ESTA sesión con el nuevo epoch (las demás quedan revocadas).
   const store = await cookies();
@@ -163,11 +173,29 @@ export async function saveProject(formData: FormData) {
 
   const db = await getDb();
   if (id) {
+    const before = (
+      await db.select().from(t.projects).where(eq(t.projects.id, id)).limit(1).all()
+    )[0];
     await db.update(t.projects).set(values).where(eq(t.projects.id, id)).run();
-    await audit(user.email, "actualizó", "proyecto", values.title);
+    await audit({
+      userEmail: user.email,
+      action: "actualizó",
+      entity: "proyecto",
+      detail: values.title,
+      event: "content.update_project",
+      before,
+      after: values,
+    });
   } else {
     await db.insert(t.projects).values(values).run();
-    await audit(user.email, "creó", "proyecto", values.title);
+    await audit({
+      userEmail: user.email,
+      action: "creó",
+      entity: "proyecto",
+      detail: values.title,
+      event: "content.create_project",
+      after: values,
+    });
   }
 
   refreshPublicPages();
@@ -179,8 +207,18 @@ export async function deleteProject(formData: FormData) {
   const user = await requireUser();
   const id = idOrThrow(formData, "/admin/proyectos");
   const db = await getDb();
+  const before = (
+    await db.select().from(t.projects).where(eq(t.projects.id, id)).limit(1).all()
+  )[0];
   await db.delete(t.projects).where(eq(t.projects.id, id)).run();
-  await audit(user.email, "eliminó", "proyecto", `#${id}`);
+  await audit({
+    userEmail: user.email,
+    action: "eliminó",
+    entity: "proyecto",
+    detail: `#${id}`,
+    event: "content.delete_project",
+    before,
+  });
   refreshPublicPages();
   revalidatePath("/admin/proyectos");
   redirect("/admin/proyectos?deleted=1");
@@ -204,11 +242,29 @@ export async function saveExperience(formData: FormData) {
 
   const db = await getDb();
   if (id) {
+    const before = (
+      await db.select().from(t.experience).where(eq(t.experience.id, id)).limit(1).all()
+    )[0];
     await db.update(t.experience).set(values).where(eq(t.experience.id, id)).run();
-    await audit(user.email, "actualizó", "experiencia", values.role);
+    await audit({
+      userEmail: user.email,
+      action: "actualizó",
+      entity: "experiencia",
+      detail: values.role,
+      event: "content.update_experience",
+      before,
+      after: values,
+    });
   } else {
     await db.insert(t.experience).values(values).run();
-    await audit(user.email, "creó", "experiencia", values.role);
+    await audit({
+      userEmail: user.email,
+      action: "creó",
+      entity: "experiencia",
+      detail: values.role,
+      event: "content.create_experience",
+      after: values,
+    });
   }
 
   refreshPublicPages();
@@ -220,8 +276,18 @@ export async function deleteExperience(formData: FormData) {
   const user = await requireUser();
   const id = idOrThrow(formData, "/admin/experiencia");
   const db = await getDb();
+  const before = (
+    await db.select().from(t.experience).where(eq(t.experience.id, id)).limit(1).all()
+  )[0];
   await db.delete(t.experience).where(eq(t.experience.id, id)).run();
-  await audit(user.email, "eliminó", "experiencia", `#${id}`);
+  await audit({
+    userEmail: user.email,
+    action: "eliminó",
+    entity: "experiencia",
+    detail: `#${id}`,
+    event: "content.delete_experience",
+    before,
+  });
   refreshPublicPages();
   revalidatePath("/admin/experiencia");
   redirect("/admin/experiencia?deleted=1");
@@ -243,11 +309,29 @@ export async function saveEducation(formData: FormData) {
 
   const db = await getDb();
   if (id) {
+    const before = (
+      await db.select().from(t.education).where(eq(t.education.id, id)).limit(1).all()
+    )[0];
     await db.update(t.education).set(values).where(eq(t.education.id, id)).run();
-    await audit(user.email, "actualizó", "educación", values.degree);
+    await audit({
+      userEmail: user.email,
+      action: "actualizó",
+      entity: "educación",
+      detail: values.degree,
+      event: "content.update_education",
+      before,
+      after: values,
+    });
   } else {
     await db.insert(t.education).values(values).run();
-    await audit(user.email, "creó", "educación", values.degree);
+    await audit({
+      userEmail: user.email,
+      action: "creó",
+      entity: "educación",
+      detail: values.degree,
+      event: "content.create_education",
+      after: values,
+    });
   }
 
   refreshPublicPages();
@@ -259,8 +343,18 @@ export async function deleteEducation(formData: FormData) {
   const user = await requireUser();
   const id = idOrThrow(formData, "/admin/educacion");
   const db = await getDb();
+  const before = (
+    await db.select().from(t.education).where(eq(t.education.id, id)).limit(1).all()
+  )[0];
   await db.delete(t.education).where(eq(t.education.id, id)).run();
-  await audit(user.email, "eliminó", "educación", `#${id}`);
+  await audit({
+    userEmail: user.email,
+    action: "eliminó",
+    entity: "educación",
+    detail: `#${id}`,
+    event: "content.delete_education",
+    before,
+  });
   refreshPublicPages();
   revalidatePath("/admin/educacion");
   redirect("/admin/educacion?deleted=1");
@@ -277,15 +371,33 @@ export async function saveCertification(formData: FormData) {
 
   const db = await getDb();
   if (id) {
+    const before = (
+      await db.select().from(t.certifications).where(eq(t.certifications.id, id)).limit(1).all()
+    )[0];
     await db
       .update(t.certifications)
       .set({ name, sortOrder })
       .where(eq(t.certifications.id, id))
       .run();
-    await audit(user.email, "actualizó", "certificación", name);
+    await audit({
+      userEmail: user.email,
+      action: "actualizó",
+      entity: "certificación",
+      detail: name,
+      event: "content.update_certification",
+      before,
+      after: { name, sortOrder },
+    });
   } else {
     await db.insert(t.certifications).values({ name, sortOrder }).run();
-    await audit(user.email, "creó", "certificación", name);
+    await audit({
+      userEmail: user.email,
+      action: "creó",
+      entity: "certificación",
+      detail: name,
+      event: "content.create_certification",
+      after: { name, sortOrder },
+    });
   }
 
   refreshPublicPages();
@@ -297,8 +409,18 @@ export async function deleteCertification(formData: FormData) {
   const user = await requireUser();
   const id = idOrThrow(formData, "/admin/educacion");
   const db = await getDb();
+  const before = (
+    await db.select().from(t.certifications).where(eq(t.certifications.id, id)).limit(1).all()
+  )[0];
   await db.delete(t.certifications).where(eq(t.certifications.id, id)).run();
-  await audit(user.email, "eliminó", "certificación", `#${id}`);
+  await audit({
+    userEmail: user.email,
+    action: "eliminó",
+    entity: "certificación",
+    detail: `#${id}`,
+    event: "content.delete_certification",
+    before,
+  });
   refreshPublicPages();
   revalidatePath("/admin/educacion");
   redirect("/admin/educacion?deleted=1");
@@ -318,11 +440,29 @@ export async function saveLanguage(formData: FormData) {
 
   const db = await getDb();
   if (id) {
+    const before = (
+      await db.select().from(t.languages).where(eq(t.languages.id, id)).limit(1).all()
+    )[0];
     await db.update(t.languages).set(values).where(eq(t.languages.id, id)).run();
-    await audit(user.email, "actualizó", "idioma", values.name);
+    await audit({
+      userEmail: user.email,
+      action: "actualizó",
+      entity: "idioma",
+      detail: values.name,
+      event: "content.update_language",
+      before,
+      after: values,
+    });
   } else {
     await db.insert(t.languages).values(values).run();
-    await audit(user.email, "creó", "idioma", values.name);
+    await audit({
+      userEmail: user.email,
+      action: "creó",
+      entity: "idioma",
+      detail: values.name,
+      event: "content.create_language",
+      after: values,
+    });
   }
 
   refreshPublicPages();
@@ -334,8 +474,18 @@ export async function deleteLanguage(formData: FormData) {
   const user = await requireUser();
   const id = idOrThrow(formData, "/admin/educacion");
   const db = await getDb();
+  const before = (
+    await db.select().from(t.languages).where(eq(t.languages.id, id)).limit(1).all()
+  )[0];
   await db.delete(t.languages).where(eq(t.languages.id, id)).run();
-  await audit(user.email, "eliminó", "idioma", `#${id}`);
+  await audit({
+    userEmail: user.email,
+    action: "eliminó",
+    entity: "idioma",
+    detail: `#${id}`,
+    event: "content.delete_language",
+    before,
+  });
   refreshPublicPages();
   revalidatePath("/admin/educacion");
   redirect("/admin/educacion?deleted=1");
@@ -355,11 +505,27 @@ export async function saveSkill(formData: FormData) {
 
   const db = await getDb();
   if (id) {
+    const before = (await db.select().from(t.skills).where(eq(t.skills.id, id)).limit(1).all())[0];
     await db.update(t.skills).set(values).where(eq(t.skills.id, id)).run();
-    await audit(user.email, "actualizó", "habilidad", values.name);
+    await audit({
+      userEmail: user.email,
+      action: "actualizó",
+      entity: "habilidad",
+      detail: values.name,
+      event: "content.update_skill",
+      before,
+      after: values,
+    });
   } else {
     await db.insert(t.skills).values(values).run();
-    await audit(user.email, "creó", "habilidad", values.name);
+    await audit({
+      userEmail: user.email,
+      action: "creó",
+      entity: "habilidad",
+      detail: values.name,
+      event: "content.create_skill",
+      after: values,
+    });
   }
 
   refreshPublicPages();
@@ -371,8 +537,16 @@ export async function deleteSkill(formData: FormData) {
   const user = await requireUser();
   const id = idOrThrow(formData, "/admin/habilidades");
   const db = await getDb();
+  const before = (await db.select().from(t.skills).where(eq(t.skills.id, id)).limit(1).all())[0];
   await db.delete(t.skills).where(eq(t.skills.id, id)).run();
-  await audit(user.email, "eliminó", "habilidad", `#${id}`);
+  await audit({
+    userEmail: user.email,
+    action: "eliminó",
+    entity: "habilidad",
+    detail: `#${id}`,
+    event: "content.delete_skill",
+    before,
+  });
   refreshPublicPages();
   revalidatePath("/admin/habilidades");
   redirect("/admin/habilidades?deleted=1");
