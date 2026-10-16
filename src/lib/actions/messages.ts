@@ -2,12 +2,12 @@
 
 import { eq, not } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { messages } from "@/db/schema";
+import { requireAdminSession } from "@/lib/admin-session";
 import { audit } from "@/lib/audit";
-import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 import { clientIp, consumeRateLimit, rateLimitKey } from "@/lib/rate-limit";
 import { contactSchema } from "@/lib/validation";
 
@@ -60,16 +60,8 @@ export async function sendMessage(_prev: ContactState, formData: FormData): Prom
   return { ok: true };
 }
 
-async function requireUser() {
-  const store = await cookies();
-  const token = store.get(SESSION_COOKIE)?.value;
-  const session = token ? await verifySessionToken(token) : null;
-  if (!session) throw new Error("No autorizado");
-  return session;
-}
-
 export async function toggleMessageRead(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireAdminSession();
   const id = Number(formData.get("id"));
   if (!id) redirect("/admin/mensajes");
 
@@ -98,7 +90,7 @@ export async function toggleMessageRead(formData: FormData) {
 }
 
 export async function deleteMessage(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireAdminSession();
   const id = Number(formData.get("id"));
   if (id) {
     const db = await getDb();

@@ -6,13 +6,9 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import * as t from "@/db/schema";
+import { requireAdminSession } from "@/lib/admin-session";
 import { audit } from "@/lib/audit";
-import {
-  createSessionToken,
-  SESSION_COOKIE,
-  sessionCookieOptions,
-  verifySessionToken,
-} from "@/lib/auth";
+import { createSessionToken, SESSION_COOKIE, sessionCookieOptions } from "@/lib/auth";
 import { adminGetSettings } from "@/lib/data";
 import { hashPassword, verifyPassword } from "@/lib/password";
 
@@ -20,14 +16,6 @@ import { hashPassword, verifyPassword } from "@/lib/password";
  * Acciones de servidor para administrar el contenido del sitio.
  * Todas exigen sesión válida y dejan registro en la auditoría.
  */
-
-async function requireUser() {
-  const store = await cookies();
-  const token = store.get(SESSION_COOKIE)?.value;
-  const session = token ? await verifySessionToken(token) : null;
-  if (!session) throw new Error("No autorizado");
-  return session;
-}
 
 function refreshPublicPages() {
   revalidatePath("/");
@@ -74,7 +62,7 @@ function idOrThrow(formData: FormData, backTo: string): number {
 // ── Ajustes del sitio ───────────────────────────────────────────────────────
 
 export async function saveSettings(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireAdminSession();
   const values = {
     name: str(formData, "name"),
     title: str(formData, "title"),
@@ -111,7 +99,7 @@ export async function saveSettings(formData: FormData) {
 }
 
 export async function changePassword(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireAdminSession();
   const current = str(formData, "current");
   const next = str(formData, "next");
 
@@ -157,7 +145,7 @@ export async function changePassword(formData: FormData) {
 // ── Proyectos ───────────────────────────────────────────────────────────────
 
 export async function saveProject(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireAdminSession();
   const id = num(formData, "id");
   const values = {
     title: str(formData, "title"),
@@ -204,7 +192,7 @@ export async function saveProject(formData: FormData) {
 }
 
 export async function deleteProject(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireAdminSession();
   const id = idOrThrow(formData, "/admin/proyectos");
   const db = await getDb();
   const before = (
@@ -227,7 +215,7 @@ export async function deleteProject(formData: FormData) {
 // ── Experiencia ─────────────────────────────────────────────────────────────
 
 export async function saveExperience(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireAdminSession();
   const id = num(formData, "id");
   const values = {
     period: str(formData, "period"),
@@ -273,7 +261,7 @@ export async function saveExperience(formData: FormData) {
 }
 
 export async function deleteExperience(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireAdminSession();
   const id = idOrThrow(formData, "/admin/experiencia");
   const db = await getDb();
   const before = (
@@ -296,7 +284,7 @@ export async function deleteExperience(formData: FormData) {
 // ── Educación ───────────────────────────────────────────────────────────────
 
 export async function saveEducation(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireAdminSession();
   const id = num(formData, "id");
   const values = {
     period: str(formData, "period"),
@@ -340,7 +328,7 @@ export async function saveEducation(formData: FormData) {
 }
 
 export async function deleteEducation(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireAdminSession();
   const id = idOrThrow(formData, "/admin/educacion");
   const db = await getDb();
   const before = (
@@ -363,7 +351,7 @@ export async function deleteEducation(formData: FormData) {
 // ── Certificaciones ─────────────────────────────────────────────────────────
 
 export async function saveCertification(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireAdminSession();
   const id = num(formData, "id");
   const name = str(formData, "name");
   const sortOrder = num(formData, "sortOrder");
@@ -406,7 +394,7 @@ export async function saveCertification(formData: FormData) {
 }
 
 export async function deleteCertification(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireAdminSession();
   const id = idOrThrow(formData, "/admin/educacion");
   const db = await getDb();
   const before = (
@@ -429,7 +417,7 @@ export async function deleteCertification(formData: FormData) {
 // ── Idiomas ─────────────────────────────────────────────────────────────────
 
 export async function saveLanguage(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireAdminSession();
   const id = num(formData, "id");
   const values = {
     name: str(formData, "name"),
@@ -471,7 +459,7 @@ export async function saveLanguage(formData: FormData) {
 }
 
 export async function deleteLanguage(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireAdminSession();
   const id = idOrThrow(formData, "/admin/educacion");
   const db = await getDb();
   const before = (
@@ -494,7 +482,7 @@ export async function deleteLanguage(formData: FormData) {
 // ── Habilidades ─────────────────────────────────────────────────────────────
 
 export async function saveSkill(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireAdminSession();
   const id = num(formData, "id");
   const values = {
     kind: str(formData, "kind") === "area" ? "area" : "software",
@@ -534,7 +522,7 @@ export async function saveSkill(formData: FormData) {
 }
 
 export async function deleteSkill(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireAdminSession();
   const id = idOrThrow(formData, "/admin/habilidades");
   const db = await getDb();
   const before = (await db.select().from(t.skills).where(eq(t.skills.id, id)).limit(1).all())[0];
