@@ -2,6 +2,7 @@
   "name": "pegm-web",
   "version": "2.1.0",
   "private": true,
+  "packageManager": "pnpm@11.7.0",
   "description": "Sitio web personal de Pablo — Ingeniero Civil Metalúrgico (panel admin, laboratorio interactivo, DB Turso/libSQL, stack SOTA)",
   "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 3000",
