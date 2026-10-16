@@ -49,7 +49,14 @@ await comprobar("Portada responde 200", async () => {
   return html.includes("Ingeniero Civil Metalúrgico") ? true : "falta el contenido esperado";
 });
 
-for (const ruta of ["/en", "/cv", "/proyectos", "/laboratorio", "/cv-pablo-garrido.pdf", "/llms.txt"]) {
+for (const ruta of [
+  "/en",
+  "/cv",
+  "/proyectos",
+  "/laboratorio",
+  "/cv-pablo-garrido.pdf",
+  "/llms.txt",
+]) {
   await comprobar(`${ruta} responde 200`, async () => {
     const r = await pedir(ruta);
     return r.status === 200 ? true : `HTTP ${r.status}`;
