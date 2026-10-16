@@ -270,3 +270,8 @@ html { scroll-padding-top: 6rem; }
     transition: none;
   }
 }
+
+/* Evita el scroll de fondo mientras el command palette está abierto. */
+body:has(dialog[data-palette][open]) {
+  overflow: hidden;
+}

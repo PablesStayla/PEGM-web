@@ -42,3 +42,20 @@ test("la portada en inglés es accesible y enlaza las versiones de idioma", asyn
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/en$/);
   await expect(page.getByRole("link", { name: "Cambiar a español" })).toHaveAttribute("href", "/");
 });
+
+test("el buscador se cierra con Escape y con Ctrl+K, y enfoca el campo", async ({ page }) => {
+  await appReady(page, "/");
+
+  await page.getByRole("button", { name: /Buscar en el sitio/ }).click();
+  const dialog = page.getByRole("dialog", { name: "Buscador del sitio" });
+  await expect(dialog).toBeVisible();
+  await expect(page.getByPlaceholder("Buscar en el sitio…")).toBeFocused();
+
+  await page.keyboard.press("Escape");
+  await expect(dialog).not.toBeVisible();
+
+  await page.getByRole("button", { name: /Buscar en el sitio/ }).click();
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press("Control+k");
+  await expect(dialog).not.toBeVisible();
+});
