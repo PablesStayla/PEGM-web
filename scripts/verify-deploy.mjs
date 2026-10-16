@@ -49,7 +49,7 @@ await comprobar("Portada responde 200", async () => {
   return html.includes("Ingeniero Civil Metalúrgico") ? true : "falta el contenido esperado";
 });
 
-for (const ruta of ["/en", "/cv", "/proyectos", "/laboratorio", "/cv-pablo-garrido.pdf"]) {
+for (const ruta of ["/en", "/cv", "/proyectos", "/laboratorio", "/cv-pablo-garrido.pdf", "/llms.txt"]) {
   await comprobar(`${ruta} responde 200`, async () => {
     const r = await pedir(ruta);
     return r.status === 200 ? true : `HTTP ${r.status}`;
@@ -91,9 +91,12 @@ await comprobar("Panel protegido (redirect a login)", async () => {
 
 await comprobar("Headers de seguridad activos", async () => {
   const r = await pedir("/");
-  const faltan = ["x-content-type-options", "x-frame-options", "referrer-policy"].filter(
-    (h) => !r.headers.get(h),
-  );
+  const faltan = [
+    "x-content-type-options",
+    "x-frame-options",
+    "referrer-policy",
+    "content-security-policy",
+  ].filter((h) => !r.headers.get(h));
   return faltan.length === 0 ? true : `sin headers: ${faltan.join(", ")}`;
 });
 
