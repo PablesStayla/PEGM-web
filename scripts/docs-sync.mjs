@@ -20,8 +20,13 @@ export function replaceBlock(text, name, content) {
     throw new Error(`bloque "${name}" duplicado (BEGIN=${begins}, END=${ends})`);
   }
   const from = text.indexOf(begin);
-  const to = text.indexOf(end) + end.length;
-  const body = content.length > 0 ? `\n${content}\n` : "\n";
+  const endIndex = text.indexOf(end);
+  if (endIndex < from) {
+    throw new Error(`bloque "${name}" con marcadores invertidos`);
+  }
+  const to = endIndex + end.length;
+  const eol = text.includes("\r\n") ? "\r\n" : "\n";
+  const body = content.length > 0 ? `${eol}${content.replace(/\r\n?|\n/g, eol)}${eol}` : eol;
   return text.slice(0, from) + begin + body + end + text.slice(to);
 }
 

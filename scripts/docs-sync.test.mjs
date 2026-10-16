@@ -53,6 +53,51 @@ describe("replaceBlock", () => {
     const dup = DOC + "<!-- BEGIN:docs-sync:commands -->\nx\n<!-- END:docs-sync:commands -->\n";
     expect(() => replaceBlock(dup, "commands", "y")).toThrow(/duplicado/i);
   });
+
+  it("lanza si los marcadores están invertidos", () => {
+    const inverted = [
+      "# Doc",
+      "",
+      "<!-- END:docs-sync:commands -->",
+      "contenido",
+      "<!-- BEGIN:docs-sync:commands -->",
+      "",
+      "prosa intacta",
+      "",
+    ].join("\n");
+    expect(() => replaceBlock(inverted, "commands", "x")).toThrow(/invertidos/i);
+  });
+
+  it("preserva el CRLF del documento en todo el bloque reemplazado", () => {
+    const crlf = [
+      "# Doc",
+      "",
+      "<!-- BEGIN:docs-sync:commands -->",
+      "viejo",
+      "<!-- END:docs-sync:commands -->",
+      "",
+      "prosa intacta",
+      "",
+    ].join("\r\n");
+    const out = replaceBlock(crlf, "commands", "linea 1\nlinea 2");
+    expect(out).toBe(
+      [
+        "# Doc",
+        "",
+        "<!-- BEGIN:docs-sync:commands -->",
+        "linea 1",
+        "linea 2",
+        "<!-- END:docs-sync:commands -->",
+        "",
+        "prosa intacta",
+        "",
+      ].join("\r\n"),
+    );
+    const begin = "<!-- BEGIN:docs-sync:commands -->";
+    const end = "<!-- END:docs-sync:commands -->";
+    const region = out.slice(out.indexOf(begin), out.indexOf(end) + end.length);
+    expect(region.replace(/\r\n/g, "")).not.toContain("\n");
+  });
 });
 
 describe("syncFile", () => {
