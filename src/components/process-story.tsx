@@ -1,111 +1,24 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
+import type { Headline, StoryDict } from "@/lib/i18n/es";
 
-const spanishChapters = [
-  {
-    id: "procesos",
-    label: "Procesos",
-    title: "Primero, entender la física.",
-    text: "Mojabilidad, infiltración y capilaridad. En CODELCO estudié cómo interactúan minerales oxidados y soluciones de aglomeración, conectando caracterización y experimentación.",
-    tools: "Hidrometalurgia · FRX / DRX / BET · HSC Chemistry",
-    metric: "08",
-    unit: "simulaciones CFD 2D · OpenFOAM",
-    caption: "Del mineral al fenómeno",
-    symbol: "Cu",
-    detail: "MINERAL / SOLUCIÓN",
-  },
-  {
-    id: "simulacion",
-    label: "Simulación",
-    title: "Después, poner a prueba el modelo.",
-    text: "En el proyecto FONDECYT comparé geometrías de minihidrociclones con ANSYS Fluent. Mallado, condiciones de borde y convergencia para estudiar flujos y separación con trazabilidad.",
-    tools: "ANSYS Fluent · OpenFOAM · Análisis paramétrico",
-    metric: "12",
-    unit: "simulaciones CFD · ANSYS Fluent",
-    caption: "De la geometría al flujo",
-    symbol: "∇",
-    detail: "GEOMETRÍA / FLUJO",
-  },
-  {
-    id: "datos",
-    label: "Datos e IA",
-    title: "Convertir resultados en evidencia.",
-    text: "Python, R, SQL y visualización para ordenar datos, comparar escenarios y documentar decisiones. Complemento este trabajo con desarrollo de software, servidores MCP y fundamentos de IA y calidad de datos.",
-    tools: "Python / pandas · SQL · Power BI · TypeScript / MCP",
-    metric: "178",
-    unit: "horas · Certificado de Datos de Google",
-    caption: "Del dato al criterio",
-    symbol: "ƒ",
-    detail: "DATOS / DECISIONES",
-  },
-  {
-    id: "aprendizaje",
-    label: "Evolución",
-    title: "Seguir ampliando la mirada.",
-    text: "METSIM forma parte de mi formación en simulación de procesos. Quiero profundizar en balances y modelamiento de circuitos; aprender JKSimMet es mi próximo objetivo en conminución y clasificación.",
-    tools: "METSIM: formación básica · JKSimMet: próximo aprendizaje",
-    metric: "→",
-    unit: "aprendizaje continuo en ingeniería",
-    caption: "Del aprendizaje a nuevas preguntas",
-    symbol: "∞",
-    detail: "METSIM / PRÓXIMO: JKSIMMET",
-  },
-];
+function HeadlineBlock({ headline }: { headline: Headline }) {
+  return (
+    <>
+      {headline.lines.map((line) => (
+        <Fragment key={line}>
+          {line}
+          <br />
+        </Fragment>
+      ))}
+      <em>{headline.accent}</em>
+    </>
+  );
+}
 
-const englishChapters = [
-  {
-    id: "procesos",
-    label: "Processes",
-    title: "First, understand the physics.",
-    text: "Wetting, infiltration and capillarity. At CODELCO I studied how oxidized minerals interact with agglomeration solutions, connecting characterization and experimental research.",
-    tools: "Hydrometallurgy · XRF / XRD / BET · HSC Chemistry",
-    metric: "08",
-    unit: "2D CFD simulations · OpenFOAM",
-    caption: "From mineral to mechanism",
-    symbol: "Cu",
-    detail: "MINERAL / SOLUTION",
-  },
-  {
-    id: "simulacion",
-    label: "Simulation",
-    title: "Then, put the model to the test.",
-    text: "In the FONDECYT project I compared minihydrocyclone geometries with ANSYS Fluent. Meshing, boundary conditions and convergence tracking supported traceable studies of flow and separation.",
-    tools: "ANSYS Fluent · OpenFOAM · Parametric analysis",
-    metric: "12",
-    unit: "CFD simulations · ANSYS Fluent",
-    caption: "From geometry to flow",
-    symbol: "∇",
-    detail: "GEOMETRY / FLOW",
-  },
-  {
-    id: "datos",
-    label: "Data & AI",
-    title: "Turn results into evidence.",
-    text: "Python, R, SQL and visualization to organize data, compare scenarios and document decisions. Complemented by software development, MCP servers and foundational knowledge of AI and data quality.",
-    tools: "Python / pandas · SQL · Power BI · TypeScript / MCP",
-    metric: "178",
-    unit: "hours · Google Data Analytics Certificate",
-    caption: "From data to insight",
-    symbol: "ƒ",
-    detail: "DATA / DECISIONS",
-  },
-  {
-    id: "aprendizaje",
-    label: "Learning",
-    title: "Keep expanding the perspective.",
-    text: "My process simulation training includes an introductory METSIM course. I want to deepen my understanding of balances and circuit modelling; learning JKSimMet is my next objective in comminution and classification.",
-    tools: "METSIM: introductory training · JKSimMet: learning goal",
-    metric: "→",
-    unit: "continuous learning in engineering",
-    caption: "From learning to new questions",
-    symbol: "∞",
-    detail: "METSIM / NEXT: JKSIMMET",
-  },
-];
-
-export function ProcessStory({ english = false }: { english?: boolean }) {
-  const chapters = english ? englishChapters : spanishChapters;
+export function ProcessStory({ story }: { story: StoryDict }) {
+  const chapters = story.chapters;
   const ref = useRef<HTMLElement>(null);
   const [active, setActive] = useState(0);
   useEffect(() => {
@@ -127,34 +40,21 @@ export function ProcessStory({ english = false }: { english?: boolean }) {
   const chapter = chapters[active];
 
   return (
-    <section
-      id="especialidades"
-      className="process-story"
-      ref={ref}
-      aria-label={
-        english
-          ? "My approach: processes, simulation and data"
-          : "Mi enfoque: procesos, simulación y datos"
-      }
-    >
+    <section id="especialidades" className="process-story" ref={ref} aria-label={story.ariaSection}>
       <div className="portfolio-container story-grid">
         <div className="story-sticky">
-          <p className="eyebrow">
-            {english ? "02 / A connected perspective" : "02 / Una mirada conectada"}
-          </p>
+          <p className="eyebrow">{story.eyebrow}</p>
           <h2>
-            {english ? "One process." : "Un proceso."}
-            <br />
-            <em>{english ? "Many perspectives." : "Muchas perspectivas."}</em>
+            <HeadlineBlock headline={story.heading} />
           </h2>
           <div className="story-instrument" data-active={active} aria-hidden="true">
             <div className="instrument-header">
-              <span>{english ? "PEGM / CONCEPTUAL STUDY" : "PEGM / ESTUDIO CONCEPTUAL"}</span>
+              <span>{story.instrumentLabel}</span>
               <span>0{active + 1} — 04</span>
             </div>
             <div className="instrument-drawing">
               <svg viewBox="0 0 400 280" fill="none">
-                <title>Ilustración conceptual de flujo</title>
+                <title>{story.svgTitle}</title>
                 <defs>
                   <linearGradient id="flow-color">
                     <stop stopColor="#e8a168" />
@@ -187,10 +87,7 @@ export function ProcessStory({ english = false }: { english?: boolean }) {
               <span>↗</span>
             </div>
           </div>
-          <nav
-            className="chapter-nav"
-            aria-label={english ? "Approach chapters" : "Etapas del enfoque"}
-          >
+          <nav className="chapter-nav" aria-label={story.ariaNav}>
             {chapters.map((item, i) => (
               <a
                 key={item.id}

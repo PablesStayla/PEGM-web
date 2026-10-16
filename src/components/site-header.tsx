@@ -5,17 +5,19 @@ import { usePathname } from "next/navigation";
 import { openCommandPalette } from "@/components/command-palette";
 import { Icon, icons } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
-
-const links = [
-  { href: "/", label: "Inicio" },
-  { href: "/cv", label: "CV" },
-  { href: "/proyectos", label: "Proyectos" },
-  { href: "/laboratorio", label: "Laboratorio" },
-];
+import { en } from "@/lib/i18n/en";
+import { es } from "@/lib/i18n/es";
 
 export function SiteHeader({ name }: { name: string }) {
   const pathname = usePathname();
   const english = pathname === "/en";
+  const dict = english ? en : es;
+  const links = [
+    { href: "/", label: dict.nav.home },
+    { href: "/cv", label: dict.nav.cv },
+    { href: "/proyectos", label: dict.nav.projects },
+    { href: "/laboratorio", label: dict.nav.laboratory },
+  ];
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-bg/85 backdrop-blur-sm">
@@ -41,14 +43,7 @@ export function SiteHeader({ name }: { name: string }) {
                     active ? "text-accent" : "text-muted"
                   }`}
                 >
-                  {english
-                    ? {
-                        Inicio: "Home",
-                        CV: "CV (ES)",
-                        Proyectos: "Projects (ES)",
-                        Laboratorio: "Lab (ES)",
-                      }[link.label]
-                    : link.label}
+                  {link.label}
                 </Link>
               );
             })}
@@ -65,7 +60,7 @@ export function SiteHeader({ name }: { name: string }) {
           <button
             type="button"
             onClick={openCommandPalette}
-            aria-label="Buscar en el sitio (Ctrl+K)"
+            aria-label={dict.nav.search}
             className="flex h-9 items-center gap-2 border border-line px-2.5 text-muted transition-colors hover:border-accent hover:text-accent"
           >
             <Icon path={icons.search} />
@@ -78,7 +73,7 @@ export function SiteHeader({ name }: { name: string }) {
             href={english ? "/en#contacto" : "/#contacto"}
             className="hidden border border-ink px-4 py-2 text-sm text-ink transition-colors hover:border-accent hover:bg-accent hover:text-bg md:inline-block"
           >
-            {english ? "Contact" : "Contacto"}
+            {dict.nav.contact}
           </a>
 
           {/* En móvil, el menú es la paleta de comandos */}
