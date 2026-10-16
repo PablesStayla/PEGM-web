@@ -11,6 +11,8 @@ export const users = sqliteTable("users", {
   name: text("name").notNull(),
   passwordHash: text("password_hash").notNull(),
   role: text("role").notNull().default("ADMIN"),
+  /** Revocación de sesiones: se incrementa al cambiar la contraseña. */
+  sessionEpoch: integer("session_epoch").notNull().default(0),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),
@@ -101,16 +103,41 @@ export const messages = sqliteTable("messages", {
     .$defaultFn(() => new Date()),
 });
 
-export const auditLog = sqliteTable("audit_log", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  userEmail: text("user_email").notNull(),
-  action: text("action").notNull(),
-  entity: text("entity").notNull(),
-  detail: text("detail").notNull().default(""),
-  createdAt: integer("created_at", { mode: "timestamp_ms" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});
+/** Ventanas de rate limiting compartidas entre instancias serverless. */
+export const rateLimits = sqliteTable(
+  "rate_limits",
+  {
+    key: text("key").primaryKey(),
+    windowStart: integer("window_start").notNull(),
+    count: integer("count").notNull().default(0),
+  },
+  (table) => [index("rate_limits_window_idx").on(table.windowStart)],
+);
+
+export const auditLog = sqliteTable(
+  "audit_log",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userEmail: text("user_email").notNull(),
+    action: text("action").notNull(),
+    entity: text("entity").notNull(),
+    detail: text("detail").notNull().default(""),
+    /** Clave máquina estable del evento (auth.login_failure, content.update, …). */
+    event: text("event").notNull().default(""),
+    /** HMAC de la IP (nunca la IP en claro). */
+    ipHash: text("ip_hash").notNull().default(""),
+    userAgent: text("user_agent").notNull().default(""),
+    /** JSON {before, after} acotado; nunca contraseñas ni tokens. */
+    diff: text("diff").notNull().default(""),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (table) => [
+    index("audit_created_idx").on(table.createdAt),
+    index("audit_action_idx").on(table.action, table.createdAt),
+  ],
+);
 
 /** Eventos anónimos: no se guardan IP, URL completa, mensajes ni datos de formularios. */
 export const analyticsEvents = sqliteTable(

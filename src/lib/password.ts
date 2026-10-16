@@ -1,21 +1,25 @@
-import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+import { randomBytes, scrypt, timingSafeEqual } from "node:crypto";
+import { promisify } from "node:util";
 
 /**
  * Hash de contraseñas con scrypt (módulo nativo de Node, sin dependencias).
+ * Versión asíncrona: no bloquea el event loop del servidor.
  * Formato almacenado: "<salt-hex>:<clave-hex>"
  */
 
-export function hashPassword(password: string): string {
+const scryptAsync = promisify(scrypt);
+
+export async function hashPassword(password: string): Promise<string> {
   const salt = randomBytes(16).toString("hex");
-  const key = scryptSync(password, salt, 64).toString("hex");
-  return `${salt}:${key}`;
+  const key = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${salt}:${key.toString("hex")}`;
 }
 
-export function verifyPassword(password: string, stored: string): boolean {
+export async function verifyPassword(password: string, stored: string): Promise<boolean> {
   const [salt, key] = stored.split(":");
   if (!salt || !key) return false;
 
-  const derived = scryptSync(password, salt, 64);
+  const derived = (await scryptAsync(password, salt, 64)) as Buffer;
   const expected = Buffer.from(key, "hex");
   if (derived.length !== expected.length) return false;
 

@@ -2,11 +2,12 @@
 
 import { eq, not } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { auditLog, messages } from "@/db/schema";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
+import { clientIp, consumeRateLimit, rateLimitKey } from "@/lib/rate-limit";
 import { contactSchema } from "@/lib/validation";
 
 /**
@@ -32,6 +33,17 @@ export async function sendMessage(_prev: ContactState, formData: FormData): Prom
   }
 
   const { name, email, body } = parsed.data;
+
+  // 5 envíos / hora por IP (después del honeypot: los bots no consumen).
+  const headerList = await headers();
+  const allowed = await consumeRateLimit(
+    rateLimitKey("contact", clientIp(headerList)),
+    5,
+    60 * 60 * 1000,
+  );
+  if (!allowed) {
+    return { error: "Demasiados mensajes enviados. Intenta más tarde." };
+  }
 
   try {
     const db = await getDb();

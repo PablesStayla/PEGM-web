@@ -27,7 +27,7 @@ export async function seedIfEmpty(db: Db): Promise<void> {
 
     await tx
       .insert(t.users)
-      .values({ email, name: site.name, passwordHash: hashPassword(password) })
+      .values({ email, name: site.name, passwordHash: await hashPassword(password) })
       .run();
 
     await tx

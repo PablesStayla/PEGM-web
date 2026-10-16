@@ -244,6 +244,19 @@ export async function contentLastModified(): Promise<{
 
 // ── Consultas de administración (sin degradación) ───────────────────────────
 
+export async function adminSessionEpoch(email: string): Promise<number | null> {
+  const db = await getDb();
+  const row = (
+    await db
+      .select({ epoch: t.users.sessionEpoch })
+      .from(t.users)
+      .where(eq(t.users.email, email))
+      .limit(1)
+      .all()
+  )[0];
+  return row ? row.epoch : null;
+}
+
 export async function adminDashboardStats() {
   const db = await getDb();
   const [projects, experienceRows, total, read] = await Promise.all([

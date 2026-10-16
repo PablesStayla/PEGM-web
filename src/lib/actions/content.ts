@@ -6,7 +6,12 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import * as t from "@/db/schema";
-import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
+import {
+  createSessionToken,
+  SESSION_COOKIE,
+  sessionCookieOptions,
+  verifySessionToken,
+} from "@/lib/auth";
 import { hashPassword, verifyPassword } from "@/lib/password";
 
 /**
@@ -114,16 +119,28 @@ export async function changePassword(formData: FormData) {
     await db.select().from(t.users).where(eq(t.users.email, user.email)).limit(1).all()
   )[0];
 
-  if (!row || !verifyPassword(current, row.passwordHash)) {
+  if (!row || !(await verifyPassword(current, row.passwordHash))) {
     redirect("/admin/ajustes?error=password-wrong");
   }
 
+  // Incrementa el epoch: revoca todas las sesiones emitidas con el anterior.
+  const nextEpoch = row.sessionEpoch + 1;
+
   await db
     .update(t.users)
-    .set({ passwordHash: hashPassword(next) })
+    .set({ passwordHash: await hashPassword(next), sessionEpoch: nextEpoch })
     .where(eq(t.users.id, row.id))
     .run();
   await audit(user.email, "actualizó", "contraseña");
+
+  // Re-emite la cookie de ESTA sesión con el nuevo epoch (las demás quedan revocadas).
+  const store = await cookies();
+  store.set(
+    SESSION_COOKIE,
+    await createSessionToken({ email: user.email, name: user.name, epoch: nextEpoch }),
+    sessionCookieOptions,
+  );
+
   redirect("/admin/ajustes?saved=password");
 }
 

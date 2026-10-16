@@ -12,6 +12,8 @@ const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 días
 export type SessionPayload = {
   email: string;
   name: string;
+  /** Contador de revocación: debe coincidir con users.session_epoch. */
+  epoch: number;
 };
 
 function getSecret(): Uint8Array {
@@ -27,7 +29,7 @@ function getSecret(): Uint8Array {
 }
 
 export async function createSessionToken(payload: SessionPayload): Promise<string> {
-  return new SignJWT({ email: payload.email, name: payload.name })
+  return new SignJWT({ email: payload.email, name: payload.name, epoch: payload.epoch })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${SESSION_MAX_AGE}s`)
@@ -37,10 +39,14 @@ export async function createSessionToken(payload: SessionPayload): Promise<strin
 export async function verifySessionToken(token: string): Promise<SessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, getSecret());
-    if (typeof payload.email !== "string" || typeof payload.name !== "string") {
+    if (
+      typeof payload.email !== "string" ||
+      typeof payload.name !== "string" ||
+      typeof payload.epoch !== "number"
+    ) {
       return null;
     }
-    return { email: payload.email, name: payload.name };
+    return { email: payload.email, name: payload.name, epoch: payload.epoch };
   } catch {
     return null;
   }

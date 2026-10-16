@@ -1,3 +1,4 @@
+import { SignJWT } from "jose";
 import { describe, expect, it } from "vitest";
 import { createSessionToken, verifySessionToken } from "./auth";
 
@@ -6,19 +7,30 @@ describe("sesiones JWT", () => {
     const token = await createSessionToken({
       email: "admin@pablo.cl",
       name: "Pablo",
+      epoch: 3,
     });
     const payload = await verifySessionToken(token);
-    expect(payload).toEqual({ email: "admin@pablo.cl", name: "Pablo" });
+    expect(payload).toEqual({ email: "admin@pablo.cl", name: "Pablo", epoch: 3 });
   });
 
   it("rechaza tokens alterados", async () => {
     const token = await createSessionToken({
       email: "a@b.cl",
       name: "A",
+      epoch: 0,
     });
     expect(await verifySessionToken(`${token}x`)).toBeNull();
     expect(await verifySessionToken("no-es-un-jwt")).toBeNull();
     expect(await verifyTokenWithModifiedPayload(token)).toBeNull();
+  });
+
+  it("rechaza tokens sin claim epoch (formato antiguo)", async () => {
+    const legacy = await new SignJWT({ email: "a@b.cl", name: "A" })
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuedAt()
+      .setExpirationTime("1h")
+      .sign(new TextEncoder().encode("secreto-de-desarrollo-cambiar-en-produccion"));
+    expect(await verifySessionToken(legacy)).toBeNull();
   });
 });
 
