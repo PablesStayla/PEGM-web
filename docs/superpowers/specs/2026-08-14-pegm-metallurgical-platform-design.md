@@ -1,3 +1,8 @@
+> **Nota (2026-10-16):** este diseño quedó **superseded** por
+> `docs/superpowers/specs/2026-10-16-pegm-hardening-design.md` (endurecimiento, bloques 1–7)
+> y su plan `docs/superpowers/plans/2026-10-16-pegm-hardening.md`. Se conserva como registro
+> histórico; no ejecutar tareas de este documento.
+
 # Especificación de Diseño: Plataforma SOTA PEGM — Ingeniero Civil Metalúrgico
 
 > **Fecha:** 14 de Agosto, 2026  
