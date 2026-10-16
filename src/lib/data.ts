@@ -1,4 +1,4 @@
-import { asc, count, desc, eq } from "drizzle-orm";
+import { asc, count, desc, eq, max } from "drizzle-orm";
 import { getDb } from "@/db";
 import * as t from "@/db/schema";
 import {
@@ -207,6 +207,39 @@ export async function getLanguages(): Promise<{ name: string; level: string }[]>
     // degradación
   }
   return seedLanguages;
+}
+
+/** Última modificación real por zona del sitio (undefined si la BD no responde). */
+export async function contentLastModified(): Promise<{
+  home?: Date;
+  cv?: Date;
+  projects?: Date;
+}> {
+  try {
+    const db = await getDb();
+    const settingsRow = (
+      await db
+        .select({ updatedAt: t.settings.updatedAt })
+        .from(t.settings)
+        .where(eq(t.settings.id, 1))
+        .limit(1)
+        .all()
+    )[0];
+    const projectsMax = (
+      await db
+        .select({ value: max(t.projects.updatedAt) })
+        .from(t.projects)
+        .all()
+    )[0]?.value;
+    if (!settingsRow && !projectsMax) return {};
+    return {
+      home: settingsRow?.updatedAt,
+      cv: settingsRow?.updatedAt,
+      projects: projectsMax ?? settingsRow?.updatedAt,
+    };
+  } catch {
+    return {};
+  }
 }
 
 // ── Consultas de administración (sin degradación) ───────────────────────────

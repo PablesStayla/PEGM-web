@@ -23,7 +23,11 @@ export function Portfolio({
             <p className="eyebrow">
               <span className="status-dot" /> Abierto a oportunidades
             </p>
-            <p className="hero-role">Ingeniero Civil Metalúrgico · Universidad de Concepción</p>
+            <p className="hero-role">
+              {settings.title
+                ? `${settings.title} · Universidad de Concepción`
+                : "Ingeniero Civil Metalúrgico · Universidad de Concepción"}
+            </p>
             <h1 id="intro-title">
               Pablo
               <br />
@@ -97,28 +101,42 @@ export function Portfolio({
           <Reveal>
             <p className="eyebrow">01 / El enfoque</p>
             <div className="about-grid">
-              <h2>
-                La ingeniería empieza
-                <br />
-                con una buena
-                <br />
-                <em>pregunta.</em>
-              </h2>
+              {settings.aboutHeading ? (
+                <h2>{settings.aboutHeading}</h2>
+              ) : (
+                <h2>
+                  La ingeniería empieza
+                  <br />
+                  con una buena
+                  <br />
+                  <em>pregunta.</em>
+                </h2>
+              )}
               <div>
-                <p className="lead-copy">
-                  ¿Qué ocurre dentro de un mineral, un flujo o un conjunto de datos? Mi trabajo
-                  empieza por entenderlo.
-                </p>
-                <p>
-                  Soy Ingeniero Civil Metalúrgico, titulado con Distinción Máxima y estudiante de
-                  Magíster en la Universidad de Concepción. Mi recorrido une investigación en
-                  CODELCO, modelamiento CFD y desarrollo de soluciones digitales.
-                </p>
-                <p>
-                  Busco aportar en ingeniería de procesos y proyectos, simulación y analítica
-                  aplicada a minería. Con rigor experimental, curiosidad y herramientas para
-                  convertir evidencia en criterio técnico.
-                </p>
+                {settings.aboutParagraphs.length > 0 ? (
+                  settings.aboutParagraphs.map((paragraph, index) => (
+                    <p key={paragraph} className={index === 0 ? "lead-copy" : undefined}>
+                      {paragraph}
+                    </p>
+                  ))
+                ) : (
+                  <>
+                    <p className="lead-copy">
+                      ¿Qué ocurre dentro de un mineral, un flujo o un conjunto de datos? Mi trabajo
+                      empieza por entenderlo.
+                    </p>
+                    <p>
+                      Soy Ingeniero Civil Metalúrgico, titulado con Distinción Máxima y estudiante
+                      de Magíster en la Universidad de Concepción. Mi recorrido une investigación en
+                      CODELCO, modelamiento CFD y desarrollo de soluciones digitales.
+                    </p>
+                    <p>
+                      Busco aportar en ingeniería de procesos y proyectos, simulación y analítica
+                      aplicada a minería. Con rigor experimental, curiosidad y herramientas para
+                      convertir evidencia en criterio técnico.
+                    </p>
+                  </>
+                )}
                 <Link className="text-link" href="/cv">
                   Conocer mi trayectoria completa <span aria-hidden="true">↗</span>
                 </Link>

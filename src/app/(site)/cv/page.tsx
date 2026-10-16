@@ -27,6 +27,11 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
+/** "https://github.com/usuario" → "github.com/usuario" (para la línea de contacto). */
+function githubLabel(url: string): string {
+  return url.replace(/^https?:\/\//, "").replace(/\/+$/, "");
+}
+
 export default async function CvPage() {
   const [settings, experience, education, certifications, skills, languages] = await Promise.all([
     getSettings(),
@@ -47,7 +52,9 @@ export default async function CvPage() {
         {settings.name} · {settings.title}
       </p>
       <p className="mt-2 text-sm text-muted">
-        {settings.location} · {settings.email} · github.com/PablesStayla
+        {[settings.location, settings.email, githubLabel(settings.github)]
+          .filter(Boolean)
+          .join(" · ")}
       </p>
       <p className="mt-6 max-w-2xl leading-relaxed text-muted">
         {settings.tagline} {settings.availability.toLowerCase()}.

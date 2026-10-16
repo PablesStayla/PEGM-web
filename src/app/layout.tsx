@@ -42,31 +42,45 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-/** Datos estructurados schema.org (Person) para buscadores. */
-async function personJsonLd() {
+/** Datos estructurados schema.org (Person + WebSite) para buscadores. */
+async function structuredData() {
   const settings = await getSettings();
   return {
     "@context": "https://schema.org",
-    "@type": "Person",
-    name: settings.name,
-    jobTitle: settings.title,
-    description: settings.tagline,
-    url: SITE_URL,
-    email: `mailto:${settings.email}`,
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: settings.location,
-      addressCountry: "CL",
-    },
-    sameAs: [settings.linkedin, settings.github].filter(Boolean),
-    image: `${SITE_URL}/pablo-garrido-sin-reflejo.png`,
-    alumniOf: { "@type": "CollegeOrUniversity", name: "Universidad de Concepción" },
-    knowsAbout: [
-      "Ingeniería metalúrgica",
-      "CFD",
-      "Hidrometalurgia",
-      "METSIM",
-      "Analítica de datos",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        url: SITE_URL,
+        name: settings.name,
+        description: settings.tagline,
+        inLanguage: "es-CL",
+        publisher: { "@id": `${SITE_URL}/#person` },
+      },
+      {
+        "@type": "Person",
+        "@id": `${SITE_URL}/#person`,
+        name: settings.name,
+        jobTitle: settings.title,
+        description: settings.tagline,
+        url: SITE_URL,
+        email: `mailto:${settings.email}`,
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: settings.location,
+          addressCountry: "CL",
+        },
+        sameAs: [settings.linkedin, settings.github].filter(Boolean),
+        image: `${SITE_URL}/pablo-garrido-sin-reflejo.png`,
+        alumniOf: { "@type": "CollegeOrUniversity", name: "Universidad de Concepción" },
+        knowsAbout: [
+          "Ingeniería metalúrgica",
+          "CFD",
+          "Hidrometalurgia",
+          "METSIM",
+          "Analítica de datos",
+        ],
+      },
     ],
   };
 }
@@ -81,7 +95,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const jsonLd = await personJsonLd();
+  const jsonLd = await structuredData();
   return (
     <html lang="es" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
