@@ -3,6 +3,7 @@ import path from "node:path";
 import { type Client, createClient } from "@libsql/client";
 import { drizzle, type LibSQLDatabase } from "drizzle-orm/libsql";
 import { migrate } from "drizzle-orm/libsql/migrator";
+import { SeedCredentialsError } from "@/lib/seed-credentials";
 import * as schema from "./schema";
 import { seedIfEmpty } from "./seed";
 
@@ -71,9 +72,12 @@ async function initDb(): Promise<Db> {
 
   // La semilla solo inserta si la base está vacía (transacción atómica);
   // si otro proceso la sembró primero, el único duplicado salta y se ignora.
+  // La configuración de credenciales, en cambio, es fatal (fail-fast):
+  // en producción, un arranque sin ADMIN_* configurados no debe degradarse.
   try {
     await seedIfEmpty(db);
   } catch (error) {
+    if (error instanceof SeedCredentialsError) throw error;
     console.error("[db] semilla:", error);
   }
 

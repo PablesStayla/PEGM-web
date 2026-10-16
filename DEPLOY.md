@@ -43,8 +43,8 @@ git push origin main
 | `TURSO_AUTH_TOKEN` | token del paso 1 | ✅ |
 | `AUTH_SECRET` | `openssl rand -hex 32` | ✅ (sin ella el sitio falla a propósito en producción) |
 | `NEXT_PUBLIC_SITE_URL` | `https://tu-dominio.cl` (sin `/` final) | ✅ para SEO/sitemap correcto |
-| `ADMIN_EMAIL` | tu correo real | recomendada |
-| `ADMIN_PASSWORD` | una contraseña fuerte | recomendada |
+| `ADMIN_EMAIL` | tu correo real | ✅ para sembrar el admin en el primer arranque (sin ella, falla a propósito) |
+| `ADMIN_PASSWORD` | una contraseña fuerte (no la de ejemplo) | ✅ junto a `ADMIN_EMAIL` (ídem) |
 
 3. Deploy. En el primer arranque el sitio aplica las migraciones y siembra el
    contenido inicial **directamente en Turso**.

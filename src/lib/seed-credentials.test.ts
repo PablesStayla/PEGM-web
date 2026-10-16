@@ -1,9 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { resolveInitialAdminCredentials } from "./seed-credentials";
+import { resolveInitialAdminCredentials, SeedCredentialsError } from "./seed-credentials";
 
 describe("resolveInitialAdminCredentials", () => {
   it("usa credenciales por defecto fuera de producción", () => {
     expect(resolveInitialAdminCredentials({ NODE_ENV: "development" })).toEqual({
+      email: "admin@pablo.cl",
+      password: "admin1234",
+    });
+  });
+
+  it("sin NODE_ENV se comporta como desarrollo", () => {
+    expect(resolveInitialAdminCredentials({})).toEqual({
       email: "admin@pablo.cl",
       password: "admin1234",
     });
@@ -20,7 +27,28 @@ describe("resolveInitialAdminCredentials", () => {
   });
 
   it("exige ADMIN_EMAIL y ADMIN_PASSWORD en producción", () => {
-    expect(() => resolveInitialAdminCredentials({ NODE_ENV: "production" })).toThrow(/ADMIN_EMAIL/);
+    expect(() => resolveInitialAdminCredentials({ NODE_ENV: "production" })).toThrow(
+      SeedCredentialsError,
+    );
+  });
+
+  it("también falla si solo falta una de las variables", () => {
+    expect(() =>
+      resolveInitialAdminCredentials({
+        NODE_ENV: "production",
+        ADMIN_EMAIL: "pablo@dominio.cl",
+      }),
+    ).toThrow(SeedCredentialsError);
+  });
+
+  it("trata una contraseña de solo espacios como ausente en producción", () => {
+    expect(() =>
+      resolveInitialAdminCredentials({
+        NODE_ENV: "production",
+        ADMIN_EMAIL: "pablo@dominio.cl",
+        ADMIN_PASSWORD: "   ",
+      }),
+    ).toThrow(SeedCredentialsError);
   });
 
   it("rechaza la contraseña por defecto en producción", () => {
