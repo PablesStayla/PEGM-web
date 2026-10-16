@@ -48,6 +48,12 @@ export default async function AdminDashboardPage() {
       <div className="mb-8">
         <h1 className="font-serif text-3xl tracking-tight">Dashboard</h1>
         <p className="mt-2 text-sm text-muted">Resumen del contenido y actividad del sitio.</p>
+        <Link
+          href="/admin/analitica"
+          className="mt-4 inline-block border border-line bg-bg px-4 py-3 text-sm text-accent"
+        >
+          Ver analítica de visitas y conversiones →
+        </Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

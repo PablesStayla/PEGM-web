@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 /**
  * Esquema de la base de datos (SQLite + Drizzle ORM).
@@ -111,3 +111,32 @@ export const auditLog = sqliteTable("audit_log", {
     .notNull()
     .$defaultFn(() => new Date()),
 });
+
+/** Eventos anónimos: no se guardan IP, URL completa, mensajes ni datos de formularios. */
+export const analyticsEvents = sqliteTable(
+  "analytics_events",
+  {
+    id: text("id").primaryKey(),
+    visitorId: text("visitor_id").notNull(),
+    sessionId: text("session_id").notNull(),
+    pageId: text("page_id").notNull(),
+    name: text("name").notNull(),
+    path: text("path").notNull(),
+    label: text("label").notNull().default(""),
+    source: text("source").notNull().default("Directo"),
+    campaign: text("campaign").notNull().default(""),
+    device: text("device").notNull(),
+    browser: text("browser").notNull(),
+    country: text("country").notNull().default("Desconocido"),
+    value: real("value").notNull().default(0),
+    activeSeconds: integer("active_seconds").notNull().default(0),
+    scrollDepth: integer("scroll_depth").notNull().default(0),
+    createdAt: integer("created_at").notNull(),
+    updatedAt: integer("updated_at").notNull(),
+  },
+  (table) => [
+    index("analytics_created_idx").on(table.createdAt),
+    index("analytics_session_idx").on(table.sessionId, table.createdAt),
+    index("analytics_name_idx").on(table.name, table.createdAt),
+  ],
+);

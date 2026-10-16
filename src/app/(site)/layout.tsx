@@ -1,3 +1,4 @@
+import { AnalyticsTracker } from "@/components/analytics-tracker";
 import { CommandPalette, type PaletteItem } from "@/components/command-palette";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -60,6 +61,10 @@ export default async function SiteLayout({
       </a>
       <main id="contenido">{children}</main>
       <SiteFooter settings={settings} />
+      <AnalyticsTracker
+        allowLocal={process.env.ANALYTICS_ALLOW_LOCALHOST === "true"}
+        disabled={process.env.ANALYTICS_DISABLED === "true"}
+      />
     </>
   );
 }

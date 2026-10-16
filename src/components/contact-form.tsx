@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { Icon, icons } from "@/components/icons";
 import { type ContactState, sendMessage } from "@/lib/actions/messages";
 
@@ -8,6 +8,9 @@ const initial: ContactState = {};
 
 export function ContactForm() {
   const [state, formAction, pending] = useActionState<ContactState, FormData>(sendMessage, initial);
+  useEffect(() => {
+    if (state.ok) window.dispatchEvent(new Event("pegm-contact-success"));
+  }, [state.ok]);
 
   if (state.ok) {
     return (

@@ -8,6 +8,7 @@ import { logout } from "@/lib/actions/auth";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: icons.dashboard, exact: true },
+  { href: "/admin/analitica", label: "Analítica", icon: icons.activity },
   { href: "/admin/proyectos", label: "Proyectos", icon: icons.folder },
   { href: "/admin/experiencia", label: "Experiencia", icon: icons.briefcase },
   { href: "/admin/educacion", label: "Formación", icon: icons.graduation },

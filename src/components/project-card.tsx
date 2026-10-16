@@ -7,7 +7,10 @@ type ProjectCardProps = {
 
 export function ProjectCard({ project, index }: ProjectCardProps) {
   return (
-    <article className="group flex h-full flex-col border border-line p-6 transition-colors hover:border-accent md:p-8">
+    <article
+      data-analytics-project={project.id}
+      className="group flex h-full flex-col border border-line p-6 transition-colors hover:border-accent md:p-8"
+    >
       <div className="flex items-baseline justify-between">
         <p className="font-serif text-sm text-muted">{String(index + 1).padStart(2, "0")}</p>
         <p className="text-xs tracking-[0.15em] text-muted uppercase">{project.year}</p>
