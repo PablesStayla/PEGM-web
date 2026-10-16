@@ -9,7 +9,7 @@ multiagente y reglas de contexto. Mantenerlo corto y sincronizado.
 | Herramienta | Lee | Notas |
 | --- | --- | --- |
 | OpenAI Codex | `AGENTS.md` (raíz y ancestros) y `~/.codex/AGENTS.md` | Soporta `AGENTS.override.md`; rutas alternativas configurables. |
-| Claude Code | `AGENTS.md` **solo si no existe** `CLAUDE.md` | Si existe `CLAUDE.md`, ese manda; puede delegar con `@AGENTS.md`. |
+| Claude Code | `AGENTS.md` **solo si no existe** `CLAUDE.md` | Si existe `CLAUDE.md`, ese manda (v2.1.277+); puede delegar con `@AGENTS.md`. `CLAUDE.local.md` también lo suprime; el guard solo vigila `CLAUDE.md`. |
 | Antigravity | `AGENTS.md` o `GEMINI.md` (ancestros) | Además `.agents/rules/*.md` con frontmatter; global `~/.gemini/AGENTS.md`. |
 | OpenCode | `AGENTS.md` (raíz y `~/.config/opencode/AGENTS.md`) | Carga skills nativas desde `.agents/skills/` (verificado en esta máquina). |
 
@@ -69,8 +69,9 @@ Formato: `.agents/skills/<nombre>/SKILL.md` con frontmatter `name` y `descriptio
 
 ## Hooks y CI
 
-- Hooks locales: lefthook (ver `lefthook.yml` si existe): lint y type-check
-  antes de commit — los mismos gates que CI.
+- Hooks locales (cuando existan; `lefthook.yml` llega con el sistema de
+  documentación viva): lint y type-check antes de commit — los mismos gates
+  que CI.
 - CI (`.github/workflows/ci.yml`): jobs `build` (lint/tests/type-check/build),
   `e2e` (Playwright) y `guards` (consistencia multiagente + auditoría de
   dependencias de producción).
@@ -84,7 +85,8 @@ Formato: `.agents/skills/<nombre>/SKILL.md` con frontmatter `name` y `descriptio
 - Preferir búsqueda dirigida (grafo/grep) sobre leer archivos completos.
 - No pegar salidas gigantes: resumir con rutas + líneas.
 - Cargar solo la skill relevante; no expandir docs enteras.
-- MCP: hoy no hay servidores MCP propios conectados; se evalúa caso a caso
+- MCP: el repositorio no define servidores MCP propios (la máquina puede
+  tener MCPs personales del usuario). A nivel de repo se evalúa caso a caso
   (seguridad, mantenimiento y ruido de contexto) — no conectar por inercia.
 - Este documento y `AGENTS.md` son el contexto externo canónico: mantenerlos
   cortos vale más que agregar detalle.
