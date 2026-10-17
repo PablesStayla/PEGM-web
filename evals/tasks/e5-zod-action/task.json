@@ -1,0 +1,32 @@
+{
+  "id": "e5-zod-action",
+  "titulo": "Validar con Zod el id en las acciones de mensajes (marcar leído / eliminar)",
+  "base_commit": "abb4947ce15c8f480ec0a30058552e8af13ff296",
+  "agente": {
+    "tool": "claude",
+    "model": "claude-sonnet-4-5",
+    "flags": ["--permission-mode", "bypassPermissions", "--permission-prompts", "none"]
+  },
+  "presupuesto": { "usd": 5, "minutos": 25 },
+  "gates": [
+    "pnpm lint",
+    "pnpm type-check",
+    "pnpm test",
+    "pnpm docs:check",
+    "pnpm check:agents",
+    "pnpm build",
+    "pnpm test:e2e"
+  ],
+  "aceptacion": {
+    "archivos": [
+      "acceptance/playwright.config.ts",
+      "acceptance/global-setup.ts",
+      "acceptance/start-server.mjs",
+      "acceptance/e5.spec.ts"
+    ],
+    "comandos": ["pnpm exec playwright test --config acceptance/playwright.config.ts"],
+    "timeout_min": 10
+  },
+  "reanudaciones_neutrales_max": 1,
+  "notas": "Segunda tarea del primer experimento (spec §6.3). El clon parte de abb4947 (post-PR-2): el motor de evals es visible; los archivos de esta tarea no. Detalle en notes.md."
+}
