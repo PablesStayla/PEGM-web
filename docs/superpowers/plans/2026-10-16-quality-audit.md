@@ -10,7 +10,7 @@
 
 | Problema | Severidad | Ubicación | Estado | Corrección |
 | --- | --- | --- | --- | --- |
-| Falta `lang` en `<html>` raíz | Alta | `src/app/layout.tsx` (inexistente) | ✅ Corregido | Commit `0e224fe` añade `<html lang="es-CL">` |
+| Falta `lang="es-CL"` en `<html>` raíz | Alta | `src/app/layout.tsx` | ✅ Corregido | Commit `0e224fe` actualiza `lang="es"` → `es-CL` |
 | Enlaces sin texto descriptivo | Media | Revisar componentes | Pendiente | Revisar enlaces "Leer más" |
 | Imágenes sin alt | Media | Revisar componentes de imagen | Pendiente | Verificar `alt` en todas las `` |
 | Contraste de colores | Baja | Revisar paleta de colores | Pendiente | Verificar con herramienta de contraste |
@@ -18,8 +18,8 @@
 
 ### Detalle
 
-**`src/app/layout.tsx`** (nuevo):
-- Añade `<html lang="es-CL">` — resuelve WCAG 3.1.1 (Idioma de la página)
+**`src/app/layout.tsx`** (actualizado):
+- Actualiza `lang="es"` → `lang="es-CL"` — mejora WCAG 3.1.1 (idioma de región específica)
 - Añade metadatos de título con template — mejora SEO y accesibilidad
 
 **`src/components/site-header.tsx`:**

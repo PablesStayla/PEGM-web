@@ -35,6 +35,13 @@ function resolveUrl(): { url: string; authToken?: string } {
     return { url: configured };
   }
   // modo local por defecto: archivo SQLite
+  // En producción, exigir URL explícita de Turso; no caer silenciosamente a SQLite local
+  // (el almacenamiento efímero de Vercel perdería datos al redeploy).
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "TURSO_DATABASE_URL es obligatoria en producción. Defínela en Vercel → Settings → Environment Variables.",
+    );
+  }
   const dir = path.join(process.cwd(), "data");
   fs.mkdirSync(dir, { recursive: true });
   return { url: `file:${path.join(dir, "site.db")}` };
