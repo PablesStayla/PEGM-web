@@ -2,7 +2,7 @@
 
 **Repositorio:** PablesStayla/PEGM-web
 **Fecha:** 2026-10-16
-**Estado:** Borrador inicial (línea base)
+**Estado:** Línea base (métricas corregidas el 2026-10-17; ver Fase 5)
 **Autor:** OpenCode (agente autónomo)
 
 ## 1. Propósito
@@ -36,7 +36,7 @@ Cada tarea tiene: descripción, entrada, criterio de éxito, pruebas que deben p
 
 ### Tarea E-1: Añadir una variable de entorno
 
-**Descripción:** Añadir una nueva variable de entorno a `.env.example`, registrarla en `ENV_DOCS` de `src/lib/scripts/agents-check.mjs` (o el archivo equivalente de docs-sync), y sincronizar la documentación viva con `pnpm docs:sync`.
+**Descripción:** Añadir una nueva variable de entorno a `.env.example`, registrarla en `ENV_DOCS` de `scripts/docs-sync.mjs`, y sincronizar la documentación viva con `pnpm docs:sync`.
 
 **Entrada:** Nombre de variable, descripción, valor por defecto.
 
@@ -112,13 +112,15 @@ La línea base se mide ejecutando cada tarea sobre `main` (o la rama base establ
 
 | Métrica | Valor base | Cómo se mide |
 | --- | --- | --- |
-| Pruebas unitarias | XX/YZ pasadas | `pnpm test` |
-| Pruebas E2E | AB/CD pasadas | `pnpm test:e2e` |
-| Lint | 0 errores (N info preexistentes) | `pnpm lint` |
+| Pruebas unitarias | 95/95 pasadas | `pnpm test` |
+| Pruebas E2E | 24/24 pasadas | `pnpm test:e2e` |
+| Lint | 0 errores (1 info preexistente) | `pnpm lint` |
 | Type-check | 0 errores | `pnpm run type-check` |
 | Docs check | documento en orden | `pnpm docs:check` |
 | Check agents | consistente | `pnpm run check:agents` |
 | Build | OK | `pnpm build` |
+
+> **Nota (corrección 2026-10-17):** valores medidos sobre `623d517` (CI run `38988490127`, 2026-10-16). Los marcadores `XX/YZ`, `AB/CD` y `N` se reemplazan por conteos reales; la ruta del motor docs-sync se corrige a `scripts/docs-sync.mjs`. Ver `docs/superpowers/specs/2026-10-17-agent-evals-design.md`.
 
 ## 5. Cómo ejecutar una evaluación
 
