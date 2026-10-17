@@ -97,8 +97,8 @@ export const getSettings = cache(async (): Promise<SiteSettings> => {
       aboutParagraphs: [row.aboutP1, row.aboutP2, row.aboutP3].filter(Boolean),
     };
   } catch (error) {
-    console.error("[db] getSettings:", error);
-    return fallbackSettings(); // BD no disponible: devolver vacío, no semilla
+    quiet(error, "getSettings");
+    return fallbackSettings();
   }
 });
 
