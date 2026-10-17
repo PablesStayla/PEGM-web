@@ -4,7 +4,6 @@ import { type Db, getDb } from "@/db";
 import * as t from "@/db/schema";
 import {
   about,
-  certifications as seedCertifications,
   education as seedEducation,
   experience as seedExperience,
   languages as seedLanguages,

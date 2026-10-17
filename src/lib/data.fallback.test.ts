@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from "vitest";
-import { projects as seedProjects } from "@/lib/content";
 import { getProjects } from "./data";
 
 vi.mock("@/db", () => ({

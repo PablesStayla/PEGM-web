@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import * as t from "@/db/schema";
 import {
-  certifications as seedCertifications,
-  projects as seedProjects,
-  skills as seedSkills,
-} from "@/lib/content";
-import { getCertificationsFromDb, getProjectsFromDb, getSkillsFromDb } from "./data";
+  getCertificationsFromDb,
+  getProjectsFromDb,
+  getSkillsFromDb,
+} from "./data";
+import { projects as seedProjects } from "@/lib/content";
 import { makeTestDb } from "./test-db";
 
 describe("consultas públicas: tabla vacía vs. sembrada", () => {
