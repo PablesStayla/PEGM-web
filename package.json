@@ -21,6 +21,8 @@
     "db:studio": "drizzle-kit studio",
     "db:reset": "node scripts/reset-db.mjs",
     "test:e2e": "playwright test",
+    "evals:run": "node scripts/evals/run.mjs",
+    "evals:report": "node scripts/evals/run.mjs report",
     "cv:pdf": "node scripts/generate-public-cv.mjs",
     "prepare": "lefthook install"
   },
