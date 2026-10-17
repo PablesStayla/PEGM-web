@@ -1,7 +1,8 @@
 # Protección de Rama `main` — Instrucciones de Configuración
 
-**Estado:** No se pudo configurar automáticamente (API de GitHub devuelve 401 — sin token de autenticación).  
-**Acción requerida:** Un usuario con permisos de administrador en el repositorio debe completar estos pasos manualmente.
+**Estado:** No configurado (API de GitHub devuelve 401 — sin token de autenticación).  
+**Estado efectivo:** No se puede verificar si las reglas están aplicadas.  
+**Acción requerida:** Un usuario con permisos de administrador en el repositorio debe completar estos pasos manualmente y verificar que las reglas están activas.
 
 ## Reglas deseadas para `main`
 
