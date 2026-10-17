@@ -1,0 +1,32 @@
+{
+  "id": "e1-updated-at",
+  "titulo": "Persistir la fecha de modificación en Experiencia, Educación, Idiomas y Habilidades",
+  "base_commit": "623d517163e01400f029002cd565201cd9da4b3a",
+  "agente": {
+    "tool": "claude",
+    "model": "claude-sonnet-4-5",
+    "flags": ["--permission-mode", "bypassPermissions", "--permission-prompts", "none"]
+  },
+  "presupuesto": { "usd": 5, "minutos": 25 },
+  "gates": [
+    "pnpm lint",
+    "pnpm type-check",
+    "pnpm test",
+    "pnpm docs:check",
+    "pnpm check:agents",
+    "pnpm build",
+    "pnpm test:e2e"
+  ],
+  "aceptacion": {
+    "archivos": [
+      "acceptance/playwright.config.ts",
+      "acceptance/global-setup.ts",
+      "acceptance/start-server.mjs",
+      "acceptance/e1.spec.ts"
+    ],
+    "comandos": ["pnpm exec playwright test --config acceptance/playwright.config.ts"],
+    "timeout_min": 10
+  },
+  "reanudaciones_neutrales_max": 1,
+  "notas": "Primer experimento (spec §6.1). Modelo anclado explícito: la CLI se valida en la primera corrida real (PR-4). Detalle, trampas y solución de referencia en notes.md."
+}
