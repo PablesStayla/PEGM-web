@@ -85,7 +85,9 @@ del repositorio (carpeta temporal del sistema) y se descartan al terminar.
 Reglas del runner: trabaja **siempre** sobre un clon, nunca sobre el repo de trabajo; valida
 rutas (`path.resolve` + guardas) antes de copiar o borrar; en Windows termina el árbol de
 procesos completo al agotar el tiempo; registra la línea de comandos efectiva y el entorno
-(sin secretos) como evidencia.
+(sin secretos) como evidencia. Presupuesto en el CLI: `--max-budget-usd` (solo con `--print`)
+acota el costo; no existe `--max-turns` en 2.1.291, así que el tope de tiempo queda
+enteramente del lado del runner.
 
 ### 4.3 Aislamiento de la corrida
 
@@ -232,15 +234,18 @@ trabajo real del repositorio.
 1. Gates de referencia sobre clon pristine (una vez) → `baseline.json`.
 2. Verificación en rojo de la aceptación de `e1-updated-at` (una vez, modo `validate`).
 3. Corridas secuenciales `n = 1..3` completas (§4.2), con monitoreo pasivo del operador.
-   Reanudación neutral permitida: máximo 1 por corrida (requiere que la CLI soporte
-   `--resume`; se confirma en PR-2). No se permiten pistas ni correcciones humanas.
+   Reanudación neutral permitida: máximo 1 por corrida (`--resume <session-id>`, verificado
+   en Claude Code 2.1.291). No se permiten pistas ni correcciones humanas.
 4. Criterio de parada: al acumular $15 o 90 minutos de agente se detiene el experimento y se
    reporta parcial; cualquier incidencia grave (runner, red, cupo) también detiene y se
    registra.
 5. Informe (`report.mjs`) + revisión humana antes del PR de solución.
 
 Modelo: se ancla explícito en `task.json` y se registra la versión de la CLI como evidencia
-(medida el 2026-10-17: Claude Code 2.1.291, headless con salida JSON).
+(medida el 2026-10-17: Claude Code 2.1.291, headless con salida JSON; banderas del motor
+verificadas en esa versión: `--print`, `--output-format json`, `--max-budget-usd`,
+`--session-id`, `--resume`, `--permission-mode`, `--permission-prompts none`,
+`--allowedTools`, `--settings`, `--model`).
 
 ## 8. Plan de PRs
 
