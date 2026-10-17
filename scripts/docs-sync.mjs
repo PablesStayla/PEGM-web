@@ -70,6 +70,8 @@ export const SCRIPT_DOCS = {
   "db:studio": "Drizzle Studio (explorar la BD)",
   "db:reset": "Regenerar la DB local con datos semilla",
   "test:e2e": "Suite E2E (Playwright, puerto 3100, BD aislada)",
+  "evals:run": "Motor de evals de agentes (run/validate/baseline)",
+  "evals:report": "Generar informes de evals (evals/reports/)",
   "cv:pdf": "Regenerar el PDF público del CV (requiere dev activo)",
   "docs:sync": "Regenerar los bloques de documentación viva",
   "docs:check": "Verificar la documentación viva (candado de CI)",

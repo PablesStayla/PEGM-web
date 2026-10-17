@@ -1,137 +1,124 @@
 /**
- * @file schemas.mjs
- * @description Esquemas de validación para el motor de evaluación de agentes (Agent Evals).
- * Define las estructuras de datos para resultados, tareas, y verificaciones independientes.
- * Todos los esquemas son puros (sin dependencias de Node.js específicas del entorno).
+ * @file schema.mjs
+ * @description Esquemas Zod del sistema de evals (spec §4.4 y §4.5).
+ *
+ * Son la fuente de verdad de la corrida: un campo faltante o inválido invalida
+ * la corrida entera en lugar de producir evidencia silenciosamente incorrecta.
+ * Regla de datos faltantes (spec §4.5): si el proveedor no expone tokens o
+ * costo, el campo queda `null` y la razón se anota en `notas`.
  */
 
 import { z } from "zod";
 
-/**
- * Resultado de una tarea individual ejecutada por un agente.
- */
-export const TaskResultSchema = z.object({
-  /** Identificador único de la tarea (ej. "E1", "E2") */
-  taskId: z.string(),
-  /** Nombre descriptivo de la tarea */
-  taskName: z.string(),
-  /** Estado final de la tarea */
-  status: z.enum(["success", "failure", "skipped", "error"]),
-  /** Hora de inicio (ISO 8601) */
-  startedAt: z.string().datetime(),
-  /** Hora de finalización (ISO 8601) */
-  completedAt: z.string().datetime(),
-  /** Duración en milisegundos */
-  durationMs: z.number().int().nonnegative(),
-  /** Mensaje descriptivo del resultado */
-  message: z.string(),
-  /** Evidencia de archivos modificados (rutas relativas al repo) */
-  filesChanged: z.array(z.string()).default([]),
-  /** Pruebas que pasaron / total */
-  testsPassed: z.number().int().nonnegative().default(0),
-  testsTotal: z.number().int().nonnegative().default(0),
-  /** Puertas de calidad que pasaron / total */
-  gatesPassed: z.number().int().nonnegative().default(0),
-  gatesTotal: z.number().int().nonnegative().default(0),
-  /** Error si la tarea falló */
-  error: z.string().optional(),
-  /** Tiempo de intervención humana en minutos (opcional) */
-  humanInterventionMinutes: z.number().int().nonnegative().optional(),
-  /** Tokens consumidos (si el proveedor los expone) */
-  tokensUsed: z.number().int().nonnegative().optional(),
-  /** Costo en USD (si el proveedor lo expone) */
-  costUsd: z.number().nonnegative().optional(),
+const shaCompleto = z
+  .string()
+  .regex(/^[0-9a-f]{40}$/, "debe ser un SHA completo de 40 caracteres hexadecimales");
+
+export const AgenteSchema = z.object({
+  tool: z.string().min(1),
+  model: z.string().min(1),
+  flags: z.array(z.string()).default([]),
 });
 
-/**
- * Resultado completo de una ejecución de evaluación.
- */
-export const EvaluationResultSchema = z.object({
-  /** Identificador único de la ejecución */
-  runId: z.string(),
-  /** Identificador de la tarea */
-  taskId: z.string(),
-  /** Nombre de la tarea */
-  taskName: z.string(),
-  /** Commit base sobre el cual se ejecutó */
-  baseCommit: z.string(),
-  /** Versión del agente utilizado */
-  agentVersion: z.string(),
-  /** Modelo utilizado */
-  model: z.string(),
-  /** Fecha y hora de inicio (ISO 8601) */
-  startedAt: z.string().datetime(),
-  /** Fecha y hora de finalización (ISO 8601) */
-  completedAt: z.string().datetime(),
-  /** Duración total en milisegundos */
-  durationMs: z.number().int().nonnegative(),
-  /** Resultado general */
-  status: z.enum(["success", "failure", "error"]),
-  /** Resultado detallado de la tarea */
-  taskResult: TaskResultSchema,
-  /** Error si la ejecución falló */
-  error: z.string().optional(),
-  /** Presupuesto configurado en USD */
-  budgetUsd: z.number().nonnegative().optional(),
-  /** Costo real en USD */
-  costUsd: z.number().nonnegative().optional(),
-  /** Tokens de entrada */
-  tokensInput: z.number().int().nonnegative().optional(),
-  /** Tokens de salida */
-  tokensOutput: z.number().int().nonnegative().optional(),
-  /** Número de intervenciones humanas */
-  humanInterventions: z.number().int().nonnegative().default(0),
-  /** Detalles de intervenciones humanas */
-  humanInterventionNotes: z.array(z.string()).default([]),
-  /** Limites de tiempo y costo */
-  limits: z
-    .object({
-      maxTimeMinutes: z.number().int().positive(),
-      maxCostUsd: z.number().nonnegative(),
-    })
-    .optional(),
-  /** Si se excedió algún límite */
-  limitsExceeded: z.boolean().default(false),
+export const PresupuestoSchema = z.object({
+  usd: z.number().positive(),
+  minutos: z.number().positive(),
 });
 
-/**
- * Resultado de una verificación independiente.
- */
-export const VerificationResultSchema = z.object({
-  /** Nombre de la verificación */
-  name: z.string(),
-  /** Resultado */
-  passed: z.boolean(),
-  /** Mensaje descriptivo */
-  message: z.string(),
-  /** Evidencia (rutas de archivos, capturas, etc.) */
-  evidence: z.array(z.string()).default([]),
-  /** Detalles adicionales */
-  details: z.record(z.string(), z.unknown()).default({}),
+export const AceptacionTareaSchema = z.object({
+  // Rutas relativas a la carpeta de la tarea (p. ej. "acceptance/spec.ts");
+  // se copian al clon después del agente y de los gates (spec §5).
+  archivos: z.array(z.string().min(1)).min(1),
+  comandos: z.array(z.string().min(1)).min(1),
+  timeout_min: z.number().positive().default(8),
 });
 
-/**
- * Resultado completo de una evaluación completa.
- */
-export const EvaluationSummarySchema = z.object({
-  runId: z.string(),
-  taskId: z.string(),
-  taskName: z.string(),
-  success: z.boolean(),
-  gatesPassed: z.number().int().nonnegative(),
-  gatesTotal: z.number().int().nonnegative(),
-  testsPassed: z.number().int().nonnegative(),
-  testsTotal: z.number().int().nonnegative(),
-  defectsIntroduced: z.number().int().nonnegative().default(0),
-  humanInterventions: z.number().int().nonnegative().default(0),
-  costUsd: z.number().nonnegative().optional(),
-  durationMs: z.number().int().nonnegative(),
-  verifications: z.array(VerificationResultSchema).default([]),
-  errors: z.array(z.string()).default([]),
+export const TareaSchema = z.object({
+  id: z.string().min(1),
+  titulo: z.string().min(1),
+  base_commit: shaCompleto,
+  agente: AgenteSchema,
+  presupuesto: PresupuestoSchema,
+  gates: z.array(z.string().min(1)).min(1),
+  aceptacion: AceptacionTareaSchema,
+  reanudaciones_neutrales_max: z.union([z.literal(0), z.literal(1)]),
+  notas: z.string().default(""),
 });
 
-export type SeedCredentialsError = z.infer<typeof SeedCredentialsSchema>;
-export type TaskResult = z.infer<typeof TaskResultSchema>;
-export type EvaluationResult = z.infer<typeof EvaluationResultSchema>;
-export type VerificationResult = z.infer<typeof VerificationResultSchema>;
-export type EvaluationSummary = z.infer<typeof EvaluationSummarySchema>;
+export const GateResultadoSchema = z.object({
+  comando: z.string(),
+  resultado: z.enum(["pass", "fail", "skip"]),
+  exit_code: z.number().int().nullable(),
+  duracion_s: z.number().nonnegative().nullable(),
+  detalle: z.string(),
+});
+
+export const AceptacionResultadoSchema = z.object({
+  pass: z.boolean(),
+  detalle: z.string(),
+  comandos: z.array(
+    z.object({
+      comando: z.string(),
+      exit_code: z.number().int().nullable(),
+      duracion_s: z.number().nonnegative().nullable(),
+      salida_tail: z.string(),
+    }),
+  ),
+});
+
+export const ResultadoSchema = z.object({
+  experimento: z.string().min(1),
+  run: z.number().int().positive(),
+  task_id: z.string().min(1),
+  base_commit: z.string().min(1),
+  agente: z.object({
+    tool: z.string(),
+    version: z.string().nullable(),
+    model: z.string(),
+    flags: z.array(z.string()),
+  }),
+  inicio: z.string(),
+  fin: z.string(),
+  duracion_min: z.number().nonnegative().nullable(),
+  presupuesto: PresupuestoSchema,
+  clon: z.string(),
+  comando_efectivo: z.string(),
+  entorno_resumen: z.record(z.string(), z.string()),
+  agente_resultado: z.object({
+    exit_code: z.number().int().nullable(),
+    tokens_entrada: z.number().int().nullable(),
+    tokens_salida: z.number().int().nullable(),
+    costo_usd: z.number().nullable(),
+    detenido_por: z.enum(["tiempo", "presupuesto", "error", "interrupcion"]).nullable(),
+    completion: z.boolean(),
+    session_json: z.record(z.string(), z.unknown()).nullable(),
+  }),
+  gates: z.array(GateResultadoSchema),
+  aceptacion: AceptacionResultadoSchema,
+  diff: z.object({
+    archivos: z.number().int().nonnegative(),
+    inserciones: z.number().int().nonnegative(),
+    eliminaciones: z.number().int().nonnegative(),
+    parche: z.string(),
+  }),
+  intervenciones: z.array(
+    z.object({
+      tipo: z.string(),
+      minuto: z.number().nullable(),
+      nota: z.string(),
+    }),
+  ),
+  incidencias_plataforma: z.array(z.string()),
+  reanudaciones: z.number().int().nonnegative(),
+  nivel: z.enum(["A", "B", "C", "D"]),
+  notas: z.string(),
+});
+
+export const BaselineSchema = z.object({
+  experimento: z.string().min(1),
+  base_commit: z.string().min(1),
+  inicio: z.string(),
+  fin: z.string(),
+  gates: z.array(GateResultadoSchema),
+  notas: z.string(),
+});

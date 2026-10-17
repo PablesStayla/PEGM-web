@@ -161,6 +161,8 @@ Más comandos del proyecto:
 | `pnpm db:studio` | Drizzle Studio (explorar la BD) |
 | `pnpm db:reset` | Regenerar la DB local con datos semilla |
 | `pnpm test:e2e` | Suite E2E (Playwright, puerto 3100, BD aislada) |
+| `pnpm evals:run` | Motor de evals de agentes (run/validate/baseline) |
+| `pnpm evals:report` | Generar informes de evals (evals/reports/) |
 | `pnpm cv:pdf` | Regenerar el PDF público del CV (requiere dev activo) |
 | `pnpm prepare` | Instalar el hook de pre-commit (lefthook) |
 <!-- END:docs-sync:commands -->
