@@ -1,0 +1,15 @@
+{
+  "id": "e1-updated-at",
+  "name": "Persistencia de fechas de modificación (updated_at)",
+  "description": "Verificar que las tablas de la base de datos persistan correctamente el campo updated_at tras una inserción y una actualización. E1 detecta si las columnas updated_at existen en todas las tablas relevantes y si se actualizan automáticamente al modificar registros.",
+  "category": "p0",
+  "categoryLabel": "P0 - Corrección y estabilidad",
+  "estimatedMinutes": 30,
+  "categoryDescription": "Corregir defectos funcionales y riesgos confirmados",
+  "dependencies": [],
+  "relatedFiles": [
+    "src/lib/data.ts",
+    "src/db/schema.ts",
+    "src/db/index.ts"
+  ]
+}
