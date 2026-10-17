@@ -91,20 +91,24 @@ export function resumenEntorno() {
  * (--print, JSON, modelo, presupuesto, sesión) + banderas de la tarea.
  */
 export function buildAgentCommand({ task, sessionId, resume = null, usdRestante = null }) {
+  const tool = validarToken(task.agente.tool, "agente.tool");
+  const model = validarToken(task.agente.model, "agente.model");
+  for (const flag of task.agente.flags) validarToken(flag, "agente.flags");
+  if (resume) validarToken(resume, "--resume");
   const usd = usdRestante ?? task.presupuesto.usd;
   const args = [
     "--print",
     "--output-format",
     "json",
     "--model",
-    task.agente.model,
+    model,
     "--max-budget-usd",
     String(usd),
   ];
   if (resume) args.push("--resume", resume);
   else args.push("--session-id", sessionId);
   args.push(...task.agente.flags);
-  return { tool: task.agente.tool, args };
+  return { tool, args };
 }
 
 /**
@@ -175,6 +179,29 @@ export function computeLevel({ aceptacionPass, gates, reanudaciones, intervencio
   if (!aceptacionPass || !gatesOk) return "D";
   if (intervenciones.length > 0) return "C";
   return reanudaciones >= 1 ? "B" : "A";
+}
+
+/**
+ * Estado explícito de la corrida. Precedencia (de mayor a menor jerarquía
+ * operativa): infraestructura → timeout → presupuesto → incomplete →
+ * not_executed → failed → passed. Distingue el fallo real del ruido operativo;
+ * el `nivel` A–D no cambia (spec §3).
+ */
+export function computeEstado({ corrida, salida, gates, aceptacion }) {
+  const motivosFallidos = [
+    ...gates.filter((gate) => gate.resultado !== "pass").map((gate) => gate.motivo),
+    ...aceptacion.comandos
+      .filter((comando) => comando.exit_code !== 0)
+      .map((comando) => comando.motivo),
+  ];
+  const hayInfra = motivosFallidos.some((motivo) => motivo === "spawn" || motivo === "signal");
+  if (corrida.error || hayInfra) return "infrastructure_error";
+  if (corrida.timedOut || motivosFallidos.includes("timeout")) return "timeout";
+  if (salida.detenidoPor === "presupuesto") return "budget_exceeded";
+  if (!salida.completion) return "incomplete";
+  if (gates.length === 0 || aceptacion.comandos.length === 0) return "not_executed";
+  if (gates.some((gate) => gate.resultado !== "pass") || !aceptacion.pass) return "failed";
+  return "passed";
 }
 
 function matarArbol(child) {
@@ -270,12 +297,61 @@ function runChild({
   });
 }
 
-const ejecutar = (comando, opciones) => runChild({ comando, shell: true, ...opciones });
 const ejecutarExe = (comando, args, opciones) =>
   runChild({ comando, args, shell: false, ...opciones });
 
 const git = (clon, args, entorno) =>
   ejecutarExe("git", args, { cwd: clon, env: entorno, timeoutMs: 5 * 60 * 1000 });
+
+const EJECUTABLES_PERMITIDOS = new Set(["pnpm", "node"]);
+const TOKEN_PERMITIDO = /^[A-Za-z0-9@._:/=-]+$/;
+
+/**
+ * Valida un token de línea de comandos: sin metacaracteres de shell, sin rutas
+ * absolutas y sin traversal. Fail-closed: un token fuera de dominio aborta la
+ * corrida en lugar de ejecutarse.
+ */
+export function validarToken(token, contexto = "token") {
+  if (typeof token !== "string" || token.length === 0) {
+    throw new Error(`${contexto}: token vacío o no textual`);
+  }
+  if (!TOKEN_PERMITIDO.test(token)) {
+    throw new Error(`${contexto}: token no permitido "${token}" (solo letras, dígitos y @._:/-=)`);
+  }
+  if (token.startsWith("/") || /^[A-Za-z]:/.test(token) || token.split("/").includes("..")) {
+    throw new Error(`${contexto}: ruta absoluta o traversal no permitida "${token}"`);
+  }
+  return token;
+}
+
+/** "pnpm test:e2e" → { exe, args } con allowlist de ejecutable y tokens válidos. */
+export function parseComando(comando) {
+  const tokens = String(comando).trim().split(/\s+/).filter(Boolean);
+  if (tokens.length === 0) throw new Error("comando vacío");
+  const [exe, ...args] = tokens;
+  if (!EJECUTABLES_PERMITIDOS.has(exe)) {
+    throw new Error(`ejecutable no permitido "${exe}" en "${comando}" (permitidos: pnpm, node)`);
+  }
+  for (const token of tokens) validarToken(token, `comando "${comando}"`);
+  return { exe, args };
+}
+
+/**
+ * Lanzamiento sin shell. En Windows los .cmd (pnpm, claude) no son ejecutables
+ * directos (spawn sin shell → EINVAL), así que se envuelven en ComSpec con
+ * /d /s /c, que preserva stdin/stdout (verificado con pnpm y node).
+ */
+export function construirLanzamiento(
+  exe,
+  args = [],
+  plataforma = process.platform,
+  comspec = process.env.ComSpec,
+) {
+  if (plataforma === "win32") {
+    return { comando: comspec || "cmd.exe", args: ["/d", "/s", "/c", exe, ...args] };
+  }
+  return { comando: exe, args };
+}
 
 const PASO_OK = (nombre, corrida) => {
   if (corrida.error || corrida.timedOut || corrida.exitCode !== 0) {
@@ -355,6 +431,11 @@ export function cargarTarea(raiz, taskId) {
   if (tarea.id !== taskId) {
     throw new Error(`task.json declara id "${tarea.id}" pero se solicitó "${taskId}"`);
   }
+  validarToken(tarea.agente.tool, "task.json agente.tool");
+  validarToken(tarea.agente.model, "task.json agente.model");
+  for (const flag of tarea.agente.flags) validarToken(flag, "task.json agente.flags");
+  for (const comando of tarea.gates) parseComando(comando);
+  for (const comando of tarea.aceptacion.comandos) parseComando(comando);
   return { tarea, tareaDir };
 }
 
@@ -397,9 +478,11 @@ async function prepararClonCompleto({ raiz, destino, baseCommit, entorno }) {
     "utf8",
   );
   log("instalando dependencias (pnpm install --frozen-lockfile)…");
+  const instalacion = parseComando("pnpm install --frozen-lockfile");
   PASO_OK(
     "pnpm install",
-    await ejecutar("pnpm install --frozen-lockfile", {
+    await runChild({
+      ...construirLanzamiento(instalacion.exe, instalacion.args),
       cwd: destino,
       env: entorno,
       timeoutMs: TIMEOUT_INSTALL_MS,
@@ -420,14 +503,23 @@ async function correrComandos({ comandos, cwd, env, timeoutMs, salidaMax = TAIL_
   const resultados = [];
   for (const comando of comandos) {
     log(`ejecutando: ${comando}`);
-    const corrida = await ejecutar(comando, { cwd, env, timeoutMs });
+    const { exe, args } = parseComando(comando);
+    const corrida = await runChild({ ...construirLanzamiento(exe, args), cwd, env, timeoutMs });
     const duracion = corrida.duracionMs / 1000;
+    const motivo = corrida.error
+      ? "spawn"
+      : corrida.timedOut
+        ? "timeout"
+        : corrida.signal
+          ? "signal"
+          : "exit";
     if (corrida.error) {
       resultados.push({
         comando,
         resultado: "fail",
         exit_code: null,
         duracion_s: duracion,
+        motivo,
         detalle: `no se pudo ejecutar: ${corrida.error}`,
       });
       continue;
@@ -446,6 +538,7 @@ async function correrComandos({ comandos, cwd, env, timeoutMs, salidaMax = TAIL_
       resultado,
       exit_code: corrida.exitCode,
       duracion_s: duracion,
+      motivo,
       detalle,
     });
     log(`  → ${resultado} (${duracion.toFixed(1)} s)`);
@@ -496,17 +589,20 @@ async function ejecutarAceptacion({ tarea, tareaDir, clon, entorno }) {
   return {
     pass,
     detalle,
-    comandos: comandos.map(({ comando, exit_code, duracion_s, detalle: salida_tail }) => ({
+    comandos: comandos.map(({ comando, exit_code, duracion_s, motivo, detalle: salida_tail }) => ({
       comando,
       exit_code,
       duracion_s,
+      motivo,
       salida_tail,
     })),
   };
 }
 
 async function versionDelCli(tool, entorno) {
-  const corrida = await ejecutarExe(tool, ["--version"], {
+  const lanzamiento = construirLanzamiento(validarToken(tool, "agente.tool"), ["--version"]);
+  const corrida = await runChild({
+    ...lanzamiento,
     cwd: TEMP_ROOT,
     env: entorno,
     timeoutMs: 60 * 1000,
@@ -553,7 +649,8 @@ async function modoRun(flags) {
   log(`agente (${version ?? "versión desconocida"}): ${comandoEfectivo}`);
   const inicio = new Date().toISOString();
   const t0 = Date.now();
-  const corrida = await ejecutarExe(tool, args, {
+  const corrida = await runChild({
+    ...construirLanzamiento(tool, args),
     cwd: clon,
     env: entorno,
     timeoutMs: tarea.presupuesto.minutos * 60 * 1000,
@@ -585,6 +682,7 @@ async function modoRun(flags) {
     reanudaciones,
     intervenciones: flags.intervenciones,
   });
+  const estado = computeEstado({ corrida, salida, gates, aceptacion });
 
   const resultado = {
     experimento,
@@ -615,6 +713,7 @@ async function modoRun(flags) {
     incidencias_plataforma: flags.incidencias,
     reanudaciones,
     nivel,
+    estado,
     notas:
       salida.json === null && corrida.stdout.trim() !== ""
         ? "la salida del CLI no pudo interpretarse como JSON; el clon queda como evidencia"
@@ -630,7 +729,7 @@ async function modoRun(flags) {
   fs.mkdirSync(path.dirname(destino), { recursive: true });
   fs.writeFileSync(destino, `${JSON.stringify(resultado, null, 2)}\n`, "utf8");
   log(
-    `run-${flags.run} listo: nivel ${nivel} · aceptación ${aceptacion.pass ? "verde" : "roja"} · gates ${gates.filter((g) => g.resultado === "pass").length}/${gates.length}`,
+    `run-${flags.run} listo: estado ${estado} · nivel ${nivel} · aceptación ${aceptacion.pass ? "verde" : "roja"} · gates ${gates.filter((g) => g.resultado === "pass").length}/${gates.length}`,
   );
   log(`resultado: ${destino}`);
   log(`clon (evidencia): ${clon}`);

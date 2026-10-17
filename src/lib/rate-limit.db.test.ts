@@ -25,11 +25,20 @@ describe("consumeRateLimit: control de tasa contra BD real", () => {
   });
 
   it("resetea el contador al cambiar la ventana de tiempo", async () => {
-    const k = rateLimitKey("x", "1.2.3.4");
-    expect(await consumeRateLimit(k, 1, 100)).toBe(true);
-    expect(await consumeRateLimit(k, 1, 100)).toBe(false);
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    expect(await consumeRateLimit(k, 1, 100)).toBe(true);
+    // Ventanas fijas alineadas a Date.now(): con reloj real, un runner lento
+    // puede cruzar el límite de 100 ms entre llamadas (flake). Se simula solo
+    // Date, dejando setTimeout real para el I/O de libsql.
+    vi.useFakeTimers({ toFake: ["Date"], now: 10_000_050 });
+    try {
+      const k = rateLimitKey("x", "1.2.3.4");
+      expect(await consumeRateLimit(k, 1, 100)).toBe(true);
+      vi.setSystemTime(10_000_060);
+      expect(await consumeRateLimit(k, 1, 100)).toBe(false);
+      vi.setSystemTime(10_000_200);
+      expect(await consumeRateLimit(k, 1, 100)).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("resetRateLimit limpia el contador de una clave", async () => {

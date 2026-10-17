@@ -20,7 +20,14 @@ function crearRaiz() {
 }
 
 function gate(resultado = "pass") {
-  return { comando: "pnpm lint", resultado, exit_code: 0, duracion_s: 12.5, detalle: "" };
+  return {
+    comando: "pnpm lint",
+    resultado,
+    exit_code: 0,
+    duracion_s: 12.5,
+    motivo: "exit",
+    detalle: "",
+  };
 }
 
 function resultado(run = 1) {
@@ -53,6 +60,7 @@ function resultado(run = 1) {
     incidencias_plataforma: [],
     reanudaciones: 0,
     nivel: "A",
+    estado: "passed",
     notas: "",
   };
 }
@@ -119,7 +127,7 @@ describe("buildInforme", () => {
     });
     expect(informe).toContain("# Informe del experimento `e1-updated-at`");
     expect(informe).toContain(
-      "| run-1 | pass | 1/1 | A | 20.5 | 12000 / 3000 | $0.42 | +40/−2 (3 arch.) |",
+      "| run-1 | passed | pass | 1/1 | A | 20.5 | 12000 / 3000 | $0.42 | +40/−2 (3 arch.) |",
     );
     expect(informe).toContain("## Baseline (sin agente)");
     expect(informe).toContain("| `pnpm lint` | pass | 12.5 |");
@@ -142,6 +150,10 @@ describe("buildInforme", () => {
     dos.incidencias_plataforma = ["caída de red"];
     const informe = buildInforme({ experimento: "e1", baseline: null, corridas: [uno, dos] });
     expect(informe).toContain("- Niveles: A: 1 · B: 1 · C: 0 · D: 0.");
+    expect(informe).toContain(
+      "- Estados: passed: 2 · failed: 0 · timeout: 0 · budget_exceeded: 0 · " +
+        "infrastructure_error: 0 · incomplete: 0 · not_executed: 0.",
+    );
     expect(informe).toContain("- Reanudaciones neutrales: 1 · intervenciones humanas: 0.");
     expect(informe).toContain("- Incidencia de plataforma run-2: caída de red");
   });

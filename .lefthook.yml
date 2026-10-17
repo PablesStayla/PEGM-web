@@ -5,3 +5,5 @@ pre-commit:
   commands:
     docs-sync:
       run: node scripts/docs-hook.mjs
+    scripts-check:
+      run: node scripts/check-scripts.mjs

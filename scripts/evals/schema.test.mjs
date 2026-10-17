@@ -44,13 +44,26 @@ function resultadoBase() {
       session_json: { subtype: "success" },
     },
     gates: [
-      { comando: "pnpm lint", resultado: "pass", exit_code: 0, duracion_s: 12.5, detalle: "" },
+      {
+        comando: "pnpm lint",
+        resultado: "pass",
+        exit_code: 0,
+        duracion_s: 12.5,
+        motivo: "exit",
+        detalle: "",
+      },
     ],
     aceptacion: {
       pass: true,
       detalle: "todos los comandos terminaron en 0",
       comandos: [
-        { comando: "node acceptance/spec.mjs", exit_code: 0, duracion_s: 8, salida_tail: "" },
+        {
+          comando: "node acceptance/spec.mjs",
+          exit_code: 0,
+          duracion_s: 8,
+          motivo: "exit",
+          salida_tail: "",
+        },
       ],
     },
     diff: { archivos: 3, inserciones: 40, eliminaciones: 2, parche: "diff --git a b" },
@@ -58,6 +71,7 @@ function resultadoBase() {
     incidencias_plataforma: [],
     reanudaciones: 0,
     nivel: "A",
+    estado: "passed",
     notas: "",
   };
 }
@@ -135,6 +149,25 @@ describe("ResultadoSchema", () => {
     otra.agente_resultado.tokens_salida = 1.5;
     expect(() => ResultadoSchema.parse(otra)).toThrow();
   });
+
+  it("rechaza estado fuera del enum o faltante (fail-closed)", () => {
+    expect(() => ResultadoSchema.parse({ ...resultadoBase(), estado: "exito" })).toThrow();
+    const base = resultadoBase();
+    delete base.estado;
+    expect(() => ResultadoSchema.parse(base)).toThrow();
+  });
+
+  it("rechaza motivo fuera del enum o faltante en gates y aceptación", () => {
+    const conGateRaro = resultadoBase();
+    conGateRaro.gates[0].motivo = "otro";
+    expect(() => ResultadoSchema.parse(conGateRaro)).toThrow();
+    const sinMotivo = resultadoBase();
+    delete sinMotivo.gates[0].motivo;
+    expect(() => ResultadoSchema.parse(sinMotivo)).toThrow();
+    const aceptacionRara = resultadoBase();
+    aceptacionRara.aceptacion.comandos[0].motivo = "magia";
+    expect(() => ResultadoSchema.parse(aceptacionRara)).toThrow();
+  });
 });
 
 describe("BaselineSchema", () => {
@@ -145,7 +178,14 @@ describe("BaselineSchema", () => {
       inicio: "2026-10-17T09:00:00.000Z",
       fin: "2026-10-17T09:30:00.000Z",
       gates: [
-        { comando: "pnpm build", resultado: "pass", exit_code: 0, duracion_s: 95, detalle: "" },
+        {
+          comando: "pnpm build",
+          resultado: "pass",
+          exit_code: 0,
+          duracion_s: 95,
+          motivo: "exit",
+          detalle: "",
+        },
       ],
       notas: "",
     });

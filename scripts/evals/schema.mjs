@@ -45,11 +45,26 @@ export const TareaSchema = z.object({
   notas: z.string().default(""),
 });
 
+/** Estados explícitos de una corrida (auditoría: fallo real vs ruido operativo). */
+export const ESTADOS_CORRIDA = [
+  "passed",
+  "failed",
+  "timeout",
+  "budget_exceeded",
+  "infrastructure_error",
+  "incomplete",
+  "not_executed",
+];
+
+/** Por qué terminó un comando: salida normal, spawn fallido, timeout o señal. */
+export const MOTIVOS_COMANDO = ["exit", "spawn", "timeout", "signal"];
+
 export const GateResultadoSchema = z.object({
   comando: z.string(),
   resultado: z.enum(["pass", "fail", "skip"]),
   exit_code: z.number().int().nullable(),
   duracion_s: z.number().nonnegative().nullable(),
+  motivo: z.enum(MOTIVOS_COMANDO),
   detalle: z.string(),
 });
 
@@ -61,6 +76,7 @@ export const AceptacionResultadoSchema = z.object({
       comando: z.string(),
       exit_code: z.number().int().nullable(),
       duracion_s: z.number().nonnegative().nullable(),
+      motivo: z.enum(MOTIVOS_COMANDO),
       salida_tail: z.string(),
     }),
   ),
@@ -111,6 +127,7 @@ export const ResultadoSchema = z.object({
   incidencias_plataforma: z.array(z.string()),
   reanudaciones: z.number().int().nonnegative(),
   nivel: z.enum(["A", "B", "C", "D"]),
+  estado: z.enum(ESTADOS_CORRIDA),
   notas: z.string(),
 });
 

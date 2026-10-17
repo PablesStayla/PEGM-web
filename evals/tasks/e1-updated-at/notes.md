@@ -71,6 +71,8 @@ quedó verde).
 [evals] ROJO CONFIRMADO: la aceptación falla en la base pristine
 ```
 
+Re-validado con el motor sin shell (2026-10-17, PR de recuperación): ROJO CONFIRMADO (16.0 s).
+
 Error observado (test-results del clon):
 
 ```
