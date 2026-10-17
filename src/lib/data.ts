@@ -97,8 +97,8 @@ export const getSettings = cache(async (): Promise<SiteSettings> => {
       aboutParagraphs: [row.aboutP1, row.aboutP2, row.aboutP3].filter(Boolean),
     };
   } catch (error) {
-    quiet(error, "getSettings");
-    return fallbackSettings();
+    console.error("[db] getSettings:", error);
+    return fallbackSettings(); // BD no disponible: devolver vacío, no semilla
   }
 });
 
@@ -110,11 +110,7 @@ export const getProjects = cache(async (): Promise<PublicProject[]> => {
     return []; // tabla correctamente vacía: resultado válido, no semilla
   } catch (error) {
     quiet(error, "getProjects");
-    return seedProjects.map((project, index) => ({
-      ...project,
-      id: index + 1,
-      sortOrder: index,
-    })); // BD no disponible: degradación elegante (sitio no se rompe)
+    return []; // BD no disponible: devolver vacío, no semilla
   }
 });
 
@@ -131,11 +127,7 @@ export const getExperience = cache(async (): Promise<PublicExperience[]> => {
     return []; // tabla correctamente vacía: resultado válido, no semilla
   } catch (error) {
     quiet(error, "getExperience");
-    return seedExperience.map((item, index) => ({
-      ...item,
-      id: index + 1,
-      sortOrder: index,
-    })); // BD no disponible: degradación elegante (sitio no se rompe)
+    return []; // BD no disponible: devolver vacío, no semilla
   }
 });
 
@@ -156,11 +148,7 @@ export const getEducation = cache(async (): Promise<PublicEducation[]> => {
     return []; // tabla correctamente vacía: resultado válido, no semilla
   } catch (error) {
     quiet(error, "getEducation");
-    return seedEducation.map((item, index) => ({
-      ...item,
-      id: index + 1,
-      sortOrder: index,
-    })); // BD no disponible: degradación elegante (sitio no se rompe)
+    return []; // BD no disponible: devolver vacío, no semilla
   }
 });
 
@@ -181,7 +169,7 @@ export const getCertifications = cache(async (): Promise<string[]> => {
     return []; // tabla correctamente vacía: resultado válido, no semilla
   } catch (error) {
     quiet(error, "getCertifications");
-    return seedCertifications; // BD no disponible: degradación elegante (sitio no se rompe)
+    return []; // BD no disponible: devolver vacío, no semilla
   }
 });
 
@@ -229,7 +217,7 @@ export const getLanguages = cache(async (): Promise<{ name: string; level: strin
     return []; // tabla correctamente vacía: resultado válido, no semilla
   } catch (error) {
     quiet(error, "getLanguages");
-    return seedLanguages; // BD no disponible: degradación elegante (sitio no se rompe)
+    return []; // BD no disponible: devolver vacío, no semilla
   }
 });
 

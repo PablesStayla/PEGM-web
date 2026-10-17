@@ -245,7 +245,7 @@ export async function saveExperience(formData: FormData) {
   if (!parsed.success) {
     redirect("/admin/experiencia?error=invalid");
   }
-  const values = { ...parsed.data, updatedAt: new Date() };
+  const values = { ...parsed.data };
 
   const db = await getDb();
   if (id) {
@@ -316,7 +316,7 @@ export async function saveEducation(formData: FormData) {
   if (!parsed.success) {
     redirect("/admin/educacion?error=invalid");
   }
-  const values = { ...parsed.data, updatedAt: new Date() };
+  const values = { ...parsed.data };
 
   const db = await getDb();
   if (id) {
@@ -457,7 +457,7 @@ export async function saveLanguage(formData: FormData) {
   if (!parsed.success) {
     redirect("/admin/educacion?error=invalid");
   }
-  const values = { ...parsed.data, updatedAt: new Date() };
+  const values = { ...parsed.data };
 
   const db = await getDb();
   if (id) {
@@ -526,7 +526,7 @@ export async function saveSkill(formData: FormData) {
   if (!parsed.success) {
     redirect("/admin/habilidades?error=invalid");
   }
-  const values = { ...parsed.data, updatedAt: new Date() };
+  const values = { ...parsed.data };
 
   const db = await getDb();
   if (id) {

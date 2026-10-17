@@ -9,12 +9,7 @@ vi.mock("@/db", () => ({
 }));
 
 describe("getProjects: degradación elegante cuando la BD no está disponible", () => {
-  it("devuelve el contenido semilla para que el sitio no se rompa", async () => {
-    const esperado = seedProjects.map((project, index) => ({
-      ...project,
-      id: index + 1,
-      sortOrder: index,
-    }));
-    expect(await getProjects()).toEqual(esperado);
+  it("devuelve [] cuando la BD no está disponible", async () => {
+    expect(await getProjects()).toEqual([]);
   });
 });
