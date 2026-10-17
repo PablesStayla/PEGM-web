@@ -6,13 +6,17 @@ import {
   assertInside,
   buildAgentCommand,
   cargarTarea,
+  computeEstado,
   computeLevel,
+  construirLanzamiento,
   inyectarAceptacion,
   parseClaudeOutput,
+  parseComando,
   parseFlags,
   parseNumstat,
   resumenEntorno,
   sanitizeEnv,
+  validarToken,
 } from "./run.mjs";
 
 const temporales = [];
@@ -28,6 +32,27 @@ const crearTemporal = (prefijo) => {
   temporales.push(dir);
   return dir;
 };
+
+function escribirTarea(raiz, id, sobre = {}) {
+  const base = {
+    id,
+    titulo: "tarea de prueba",
+    base_commit: "623d517163e01400f029002cd565201cd9da4b3a",
+    agente: {
+      tool: "claude",
+      model: "claude-sonnet-4-5",
+      flags: ["--permission-mode", "bypassPermissions"],
+    },
+    presupuesto: { usd: 5, minutos: 30 },
+    gates: ["pnpm lint"],
+    aceptacion: { archivos: ["acceptance/spec.mjs"], comandos: ["node acceptance/spec.mjs"] },
+    reanudaciones_neutrales_max: 1,
+    ...sobre,
+  };
+  const dir = path.join(raiz, "evals", "tasks", id);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, "task.json"), JSON.stringify(base), "utf8");
+}
 
 describe("assertInside", () => {
   const base = path.join(os.tmpdir(), "pegm-evals-test");
@@ -127,6 +152,12 @@ describe("buildAgentCommand", () => {
     expect(args).toEqual(expect.arrayContaining(["--resume", "sid-vieja"]));
     expect(args).not.toContain("--session-id");
     expect(args).toEqual(expect.arrayContaining(["--max-budget-usd", "2.5"]));
+  });
+
+  it("rechaza un --resume con caracteres no permitidos", () => {
+    expect(() => buildAgentCommand({ task, sessionId: "sid-123", resume: "sid;rm -rf /" })).toThrow(
+      /no permitido/,
+    );
   });
 });
 
@@ -242,6 +273,88 @@ describe("computeLevel", () => {
   });
 });
 
+describe("computeEstado", () => {
+  const gateOk = () => ({ resultado: "pass", motivo: "exit" });
+  const gateFallido = (motivo = "exit") => ({ resultado: "fail", motivo });
+  const comandoOk = () => ({ exit_code: 0, motivo: "exit" });
+  const base = () => ({
+    corrida: { error: null, timedOut: false },
+    salida: { detenidoPor: null, completion: true },
+    gates: [gateOk()],
+    aceptacion: { pass: true, comandos: [comandoOk()] },
+  });
+
+  it("passed: todo verde y agente completo", () => {
+    expect(computeEstado(base())).toBe("passed");
+  });
+
+  it("failed: gate rojo o aceptación roja con comandos ejecutados", () => {
+    expect(computeEstado({ ...base(), gates: [gateOk(), gateFallido()] })).toBe("failed");
+    expect(
+      computeEstado({
+        ...base(),
+        aceptacion: { pass: false, comandos: [{ exit_code: 1, motivo: "exit" }] },
+      }),
+    ).toBe("failed");
+  });
+
+  it("timeout: lo marca el runner o un comando individual", () => {
+    expect(computeEstado({ ...base(), corrida: { error: null, timedOut: true } })).toBe("timeout");
+    expect(computeEstado({ ...base(), gates: [gateFallido("timeout")] })).toBe("timeout");
+  });
+
+  it("budget_exceeded: el CLI se detuvo por presupuesto", () => {
+    expect(
+      computeEstado({ ...base(), salida: { detenidoPor: "presupuesto", completion: false } }),
+    ).toBe("budget_exceeded");
+  });
+
+  it("incomplete: el agente no completó sin otra causa de mayor jerarquía", () => {
+    expect(computeEstado({ ...base(), salida: { detenidoPor: null, completion: false } })).toBe(
+      "incomplete",
+    );
+  });
+
+  it("not_executed: gates o aceptación vacíos", () => {
+    expect(computeEstado({ ...base(), gates: [] })).toBe("not_executed");
+    expect(computeEstado({ ...base(), aceptacion: { pass: false, comandos: [] } })).toBe(
+      "not_executed",
+    );
+  });
+
+  it("infrastructure_error: error de spawn o señal en cualquier comando", () => {
+    expect(computeEstado({ ...base(), corrida: { error: "ENOENT", timedOut: false } })).toBe(
+      "infrastructure_error",
+    );
+    expect(computeEstado({ ...base(), gates: [gateFallido("spawn")] })).toBe(
+      "infrastructure_error",
+    );
+    expect(
+      computeEstado({
+        ...base(),
+        aceptacion: { pass: false, comandos: [{ exit_code: null, motivo: "signal" }] },
+      }),
+    ).toBe("infrastructure_error");
+  });
+
+  it("precedencia: infraestructura > timeout > presupuesto", () => {
+    expect(
+      computeEstado({
+        ...base(),
+        corrida: { error: "ENOENT", timedOut: true },
+        salida: { detenidoPor: "presupuesto", completion: false },
+      }),
+    ).toBe("infrastructure_error");
+    expect(
+      computeEstado({
+        ...base(),
+        corrida: { error: null, timedOut: true },
+        salida: { detenidoPor: "presupuesto", completion: false },
+      }),
+    ).toBe("timeout");
+  });
+});
+
 describe("parseFlags", () => {
   it("parsea banderas simples y repetibles", () => {
     const flags = parseFlags([
@@ -281,10 +394,102 @@ describe("parseFlags", () => {
   });
 });
 
+describe("validarToken", () => {
+  it("acepta tokens del dominio real (modelo, rutas del repo, banderas)", () => {
+    const tokens = ["claude-sonnet-4-5", "acceptance/spec.mjs", "--config=a/b.ts", "test:e2e"];
+    for (const token of tokens) expect(validarToken(token)).toBe(token);
+  });
+
+  it("rechaza metacaracteres de shell, rutas absolutas y traversal", () => {
+    expect(() => validarToken("con espacio")).toThrow(/no permitido/);
+    expect(() => validarToken("a&&b")).toThrow(/no permitido/);
+    expect(() => validarToken("/etc/passwd")).toThrow(/ruta absoluta o traversal/);
+    expect(() => validarToken("C:/windows")).toThrow(/ruta absoluta o traversal/);
+    expect(() => validarToken("../fuera.mjs")).toThrow(/ruta absoluta o traversal/);
+  });
+});
+
+describe("parseComando", () => {
+  it("convierte comandos del repo en ejecutable + args", () => {
+    expect(parseComando("pnpm test:e2e")).toEqual({ exe: "pnpm", args: ["test:e2e"] });
+    expect(parseComando("node acceptance/check.mjs")).toEqual({
+      exe: "node",
+      args: ["acceptance/check.mjs"],
+    });
+  });
+
+  it("rechaza ejecutables fuera de la allowlist y comandos vacíos", () => {
+    expect(() => parseComando("npm install")).toThrow(/ejecutable no permitido "npm"/);
+    expect(() => parseComando("rm -rf /")).toThrow(/ejecutable no permitido/);
+    expect(() => parseComando("   ")).toThrow(/comando vacío/);
+  });
+
+  it("rechaza concatenación de shell, rutas absolutas y traversal", () => {
+    expect(() => parseComando("pnpm lint && rm -rf /")).toThrow(/no permitido/);
+    expect(() => parseComando('pnpm lint "x"')).toThrow(/no permitido/);
+    expect(() => parseComando("node /evil.mjs")).toThrow(/ruta absoluta o traversal/);
+    expect(() => parseComando("node ../evil.mjs")).toThrow(/ruta absoluta o traversal/);
+  });
+});
+
+describe("construirLanzamiento", () => {
+  it("en POSIX lanza el ejecutable directo", () => {
+    expect(construirLanzamiento("pnpm", ["lint"], "linux")).toEqual({
+      comando: "pnpm",
+      args: ["lint"],
+    });
+  });
+
+  it("en Windows envuelve en ComSpec con /d /s /c (pnpm.cmd no es ejecutable directo)", () => {
+    expect(construirLanzamiento("pnpm", ["lint"], "win32", "cmd.exe")).toEqual({
+      comando: "cmd.exe",
+      args: ["/d", "/s", "/c", "pnpm", "lint"],
+    });
+    expect(construirLanzamiento("claude", [], "win32", null)).toEqual({
+      comando: "cmd.exe",
+      args: ["/d", "/s", "/c", "claude"],
+    });
+  });
+});
+
 describe("cargarTarea", () => {
   it("exige --task y falla si la tarea no existe", () => {
     expect(() => cargarTarea(os.tmpdir(), "")).toThrow(/falta --task/);
     expect(() => cargarTarea(os.tmpdir(), "no-existe")).toThrow(/no existe la tarea/);
+  });
+
+  it("acepta una tarea válida", () => {
+    const raiz = crearTemporal("pegm-tarea-");
+    escribirTarea(raiz, "t1");
+    expect(cargarTarea(raiz, "t1").tarea.id).toBe("t1");
+  });
+
+  it("rechaza gates con concatenación de shell o ejecutable no permitido", () => {
+    const raiz = crearTemporal("pegm-tarea-");
+    escribirTarea(raiz, "t2", { gates: ["pnpm lint && rm -rf /"] });
+    expect(() => cargarTarea(raiz, "t2")).toThrow(/no permitido/);
+    escribirTarea(raiz, "t3", { gates: ["npm install"] });
+    expect(() => cargarTarea(raiz, "t3")).toThrow(/ejecutable no permitido "npm"/);
+  });
+
+  it("rechaza comandos de aceptación con traversal", () => {
+    const raiz = crearTemporal("pegm-tarea-");
+    escribirTarea(raiz, "t4", {
+      aceptacion: { archivos: ["acceptance/spec.mjs"], comandos: ["node ../evil.mjs"] },
+    });
+    expect(() => cargarTarea(raiz, "t4")).toThrow(/ruta absoluta o traversal/);
+  });
+
+  it("rechaza tool o flags del agente con caracteres prohibidos", () => {
+    const raiz = crearTemporal("pegm-tarea-");
+    escribirTarea(raiz, "t5", {
+      agente: { tool: "claude;rm -rf /", model: "claude-sonnet-4-5", flags: [] },
+    });
+    expect(() => cargarTarea(raiz, "t5")).toThrow(/no permitido/);
+    escribirTarea(raiz, "t6", {
+      agente: { tool: "claude", model: "claude-sonnet-4-5", flags: ["--ok", "mal flag"] },
+    });
+    expect(() => cargarTarea(raiz, "t6")).toThrow(/no permitido/);
   });
 });
 

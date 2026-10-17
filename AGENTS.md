@@ -49,6 +49,7 @@ Versiones vigentes (generadas desde `package.json`):
 | `pnpm lint:fix` | Biome con corrección automática |
 | `pnpm format` | Biome: solo formato |
 | `pnpm check:agents` | Verificación multiagente (AGENTS.md, adaptadores, skills, packageManager pnpm) |
+| `pnpm check:scripts` | Verificar scripts (sintaxis de todos los .mjs + importación de los módulos curados) |
 | `pnpm docs:sync` | Regenerar los bloques de documentación viva |
 | `pnpm docs:check` | Verificar la documentación viva (candado de CI) |
 | `pnpm db:generate` | Generar migración Drizzle |

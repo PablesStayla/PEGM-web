@@ -163,7 +163,10 @@ const makeRepo = () => {
     }),
   );
   write(".env.example", 'AUTH_SECRET="s"\nTURSO_DATABASE_URL=""\n');
-  write("src/db/index.ts", "const a = process.env.AUTH_SECRET; const b = process.env.CI;");
+  write(
+    "src/db/index.ts",
+    "const a = process.env.AUTH_SECRET; const b = process.env.CI; const c = process.env.ComSpec;",
+  );
   write("src/app/(site)/page.tsx", "export default function P() { return null; }");
   write("src/app/(site)/cv/page.tsx", "export default function C() { return null; }");
   write("src/app/llms.txt/route.ts", "export const GET = () => new Response('x');");
@@ -177,6 +180,8 @@ describe("readSources", () => {
     expect(s.scriptNames).toContain("dev");
     expect(s.envDeclared).toEqual(["AUTH_SECRET", "TURSO_DATABASE_URL"]);
     expect(s.envUsage).toContain("AUTH_SECRET");
+    expect(s.envUsage).toContain("ComSpec");
+    expect(s.envUsage).not.toContain("C");
     expect(s.routes.map((r) => r.path)).toEqual(["/", "/cv", "/llms.txt"]);
     expect(s.routes.map((r) => r.kind)).toEqual(["Página", "Página", "API"]);
   });
@@ -229,7 +234,7 @@ describe("renderStack", () => {
 
 describe("ENV_INTERNAL", () => {
   it("cubre las variables internas detectadas en el repo real", () => {
-    for (const v of ["CI", "NODE_ENV", "VERCEL", "PLAYWRIGHT_CHROMIUM_EXECUTABLE"]) {
+    for (const v of ["CI", "NODE_ENV", "VERCEL", "PLAYWRIGHT_CHROMIUM_EXECUTABLE", "ComSpec"]) {
       expect(ENV_INTERNAL.has(v)).toBe(true);
     }
   });

@@ -98,5 +98,8 @@ jobs:
       - name: Consistencia multiagente
         run: pnpm run check:agents
 
+      - name: Scripts (sintaxis e importación)
+        run: pnpm run check:scripts
+
       - name: Auditoría de dependencias de producción
         run: pnpm audit --prod --audit-level=high

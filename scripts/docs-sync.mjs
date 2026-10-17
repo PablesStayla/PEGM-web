@@ -66,6 +66,8 @@ export const SCRIPT_DOCS = {
   "lint:fix": "Biome con corrección automática",
   format: "Biome: solo formato",
   "check:agents": "Verificación multiagente (AGENTS.md, adaptadores, skills, packageManager pnpm)",
+  "check:scripts":
+    "Verificar scripts (sintaxis de todos los .mjs + importación de los módulos curados)",
   "db:generate": "Generar migración Drizzle",
   "db:studio": "Drizzle Studio (explorar la BD)",
   "db:reset": "Regenerar la DB local con datos semilla",
@@ -132,6 +134,7 @@ export const ENV_INTERNAL = new Set([
   "CV_BASE_URL",
   "E2E_BASE_URL",
   "PLAYWRIGHT_CHROMIUM_EXECUTABLE",
+  "ComSpec",
 ]);
 
 // ————— Fuentes —————
@@ -171,7 +174,7 @@ export function readSources(root) {
     if (match) envDeclared.push(match[1]);
   }
   const envUsage = new Set();
-  const envRe = /process\.env\.([A-Z][A-Z0-9_]*)/g;
+  const envRe = /process\.env\.([A-Za-z_][A-Za-z0-9_]*)/g;
   walkFiles(root, "src", (rel) => collect(rel));
   walkFiles(root, "scripts", (rel) => collect(rel));
   walkFiles(root, "tests", (rel) => collect(rel));

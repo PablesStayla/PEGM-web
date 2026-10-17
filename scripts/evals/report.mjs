@@ -8,7 +8,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { BaselineSchema, ResultadoSchema } from "./schema.mjs";
+import { BaselineSchema, ESTADOS_CORRIDA, ResultadoSchema } from "./schema.mjs";
 
 const SIN_DATO = "—";
 
@@ -47,14 +47,14 @@ const contar = (valores, valor) => valores.filter((item) => item === valor).leng
 
 function tablaCorridas(corridas) {
   const encabezado = [
-    "| corrida | aceptación | gates | nivel | duración (min) | tokens (ent/sal) | costo (USD) | diff |",
-    "|---|---|---|---|---|---|---|---|",
+    "| corrida | estado | aceptación | gates | nivel | duración (min) | tokens (ent/sal) | costo (USD) | diff |",
+    "|---|---|---|---|---|---|---|---|---|",
   ];
   const filas = corridas.map((corrida) => {
     const agente = corrida.agente_resultado;
     const tokens = `${agente.tokens_entrada ?? SIN_DATO} / ${agente.tokens_salida ?? SIN_DATO}`;
     const diff = `+${corrida.diff.inserciones}/−${corrida.diff.eliminaciones} (${corrida.diff.archivos} arch.)`;
-    return `| run-${corrida.run} | ${corrida.aceptacion.pass ? "pass" : "fail"} | ${resumenGates(corrida.gates)} | ${corrida.nivel} | ${fmtNum(corrida.duracion_min)} | ${tokens} | ${fmtUsd(agente.costo_usd)} | ${diff} |`;
+    return `| run-${corrida.run} | ${corrida.estado} | ${corrida.aceptacion.pass ? "pass" : "fail"} | ${resumenGates(corrida.gates)} | ${corrida.nivel} | ${fmtNum(corrida.duracion_min)} | ${tokens} | ${fmtUsd(agente.costo_usd)} | ${diff} |`;
   });
   return [...encabezado, ...filas];
 }
@@ -69,8 +69,10 @@ function tablaBaseline(baseline) {
 
 function seccionNarrativa(corridas) {
   const niveles = corridas.map((corrida) => corrida.nivel);
+  const estados = corridas.map((corrida) => corrida.estado);
   const lineas = [
     `- Niveles: ${["A", "B", "C", "D"].map((nivel) => `${nivel}: ${contar(niveles, nivel)}`).join(" · ")}.`,
+    `- Estados: ${ESTADOS_CORRIDA.map((estado) => `${estado}: ${contar(estados, estado)}`).join(" · ")}.`,
     `- Aceptación: ${contar(
       corridas.map((corrida) => corrida.aceptacion.pass),
       true,
@@ -140,6 +142,7 @@ const LIMITACIONES = [
   "El costo proviene de la salida del CLI y puede diferir de la facturación real.",
   "La aceptación se inyecta después de la corrida y solo está garantizada como oculta cuando la base no contiene sus archivos (verificar por tarea).",
   "Un nivel A/B/D combina aceptación y gates sobre el repo resultante; no mide calidad general del código producido.",
+  "El estado (`passed`…) describe la ejecución completa (agente, gates y aceptación); no mide calidad fuera del escenario.",
   "En corridas reanudadas el diff es acumulativo (incluye el trabajo previo del mismo clon).",
 ];
 
