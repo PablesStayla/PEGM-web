@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 import * as t from "@/db/schema";
-import {
-  certifications as seedCertifications,
-  projects as seedProjects,
-  skills as seedSkills,
-} from "@/lib/content";
+import { projects as seedProjects } from "@/lib/content";
 import { getCertificationsFromDb, getProjectsFromDb, getSkillsFromDb } from "./data";
 import { makeTestDb } from "./test-db";
 

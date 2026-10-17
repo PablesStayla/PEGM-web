@@ -50,7 +50,7 @@ describe("replaceBlock", () => {
   });
 
   it("lanza si el bloque está duplicado", () => {
-    const dup = DOC + "<!-- BEGIN:docs-sync:commands -->\nx\n<!-- END:docs-sync:commands -->\n";
+    const dup = `${DOC}\n<!-- BEGIN:docs-sync:commands -->\nx\n<!-- END:docs-sync:commands -->\n`;
     expect(() => replaceBlock(dup, "commands", "y")).toThrow(/duplicado/i);
   });
 
